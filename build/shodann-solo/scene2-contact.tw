@@ -1,0 +1,617 @@
+:: Contact [scene]
+{
+(set: $location to "Harborview Cafe, Student District")
+(set: $time to "6:47 AM")
+(set: $sceneNumber to 2)
+(set: $FPGained to false)
+}
+
+<!-- IMAGE: Coffee shop at dawn. Ocean visible through salt-streaked windows. Digital clock reads 6:47. Empty tables. Steam rising from espresso machine. -->
+
+Three weeks since the feed went dark.
+
+You arrive at 6:47 AM, seven minutes early. Protocol: never be the last person at a dead drop. The Harborview Cafe sits two blocks from campus, wedged between a chrome clinic and a ship chandler's. Dawn light cuts horizontal through salt-streaked windows. The ocean is gunmetal gray, studded with the running lights of early trawlers.
+
+The smell is burnt coffee and kelp. Your prosthetic hand—the budget Jinsei from your stipend—whirs faintly as you push through the door. The barista doesn't look up from her feed.
+
+Three weeks of learning g0's protocols. Text in dead image files. Order patterns that aren't orders. Coffee cup positions that mean coordinates, timing, confirmation. You've memorized the system but you don't understand the *why*. G0 hasn't told you what you're being recruited for. Just: "Learn this. Prove you can do it. Then we'll talk about the Blackout."
+
+Today's protocol: Order a double espresso, no sugar. Leave it at the corner table with the handle pointing toward the window. Check the cup three seats down. If there's a stirrer across the rim, the message is live. Photograph the cup position with your student ID in frame—timestamp proof. Leave.
+
+Simple.
+
+Except Manager Chen is already here.
+
+<!-- IMAGE: Chen's silhouette at a table. Early. She's never early. Your stomach drops. -->
+
+Chen from Applied Systems. Your Tuesday/Thursday 9 AM lecturer, the one who marks late arrivals in red. She sits four tables away with a tablet and a cappuccino, reading something that makes her frown. She's never early. You've never seen her anywhere before 8:55 AM.
+
+The dead drop cup is three seats from her. Handle at 4 o'clock. Stirrer across the rim.
+
+Live.
+
+Your Nerves track tightens. This is a test or a coincidence, and you can't afford to guess wrong.
+
+{(set: $situation to "observed")}
+
+**What do you do?**
+
+[[Proceed with the dead drop—make it look natural|proceed-dead-drop]]
+You've memorized the protocol. Chen doesn't know you're here for anything but coffee. Just... act like a tired student getting caffeine before class. CODE will have to carry you through.
+
+[[Abort and engage Chen directly|abort-engage]]
+Too risky. Sit with Chen, make small talk, wait for her to leave. Sacrifice the mission but protect your cover completely. Safe.
+
+[[Try to split your attention|split-attention]]
+Order your coffee, watch Chen peripherally, grab the cup check while she's distracted by her reading. Harder. Riskier. CODE -1 if you try it.
+
+[[Change the order pattern to protect cover|change-pattern]]
+Order something different, sit somewhere else, don't touch the protocol. You'll fail the mission but Chen will never know you were involved. G0 will understand... maybe.
+
+
+:: proceed-dead-drop
+{(set: $approach to "direct")}
+
+You step to the counter. The barista's nails click on the register screen.
+
+"Double espresso, no sugar."
+
+Your voice is steady. Good. The budget hand doesn't shake when you tap your student card to pay—12¥ deducted, the transaction timestamp burned into the campus network. Chen doesn't look up.
+
+The espresso machine hisses. Steam billows. You count four heartbeats.
+
+The barista slides the cup across scratched steel. You take it to the corner table, the one with the laminate peeling at the edges. Set it down. Handle toward the window. Exactly as protocol specifies.
+
+Now the hard part.
+
+<!-- IMAGE: The dead drop cup three seats away. Stirrer across rim. Chen visible in peripheral vision. Your hand reaching. -->
+
+You need to check the cup three seats down—photograph the position with your ID in frame—while Chen sits four tables away, reading but *present*. One wrong move, one unnatural glance, and she'll remember. She marks *everything* in red.
+
+This is what CODE is for. The ability to make cyberspace moves look invisible, to blend signal into noise, to operate smoothly under observation.
+
+**Roll 4dF + CODE to complete the dead drop naturally.**
+
+{(set: $stat to "CODE")
+(set: $statBonus to $CODE)
+(set: $difficulty to 2)
+(set: $action to "make the dead drop look like casual student behavior")}
+
+[[Roll the dice|roll-dead-drop]]
+
+
+:: roll-dead-drop
+<!-- IMAGE: Four Fate dice mid-roll. Showing +, 0, -, + -->
+
+You roll **4dF + CODE ({print: $statBonus})**
+
+{(set: $die1 to (either: -1, 0, 1))
+(set: $die2 to (either: -1, 0, 1))
+(set: $die3 to (either: -1, 0, 1))
+(set: $die4 to (either: -1, 0, 1))
+(set: $diceTotal to $die1 + $die2 + $die3 + $die4)
+(set: $rollResult to $diceTotal + $statBonus)
+(set: $diceDisplay to (a:))
+(if: $die1 is -1)[(set: $diceDisplay to $diceDisplay + (a: "[-]"))]
+(if: $die1 is 0)[(set: $diceDisplay to $diceDisplay + (a: "[0]"))]
+(if: $die1 is 1)[(set: $diceDisplay to $diceDisplay + (a: "[+]"))]
+(if: $die2 is -1)[(set: $diceDisplay to $diceDisplay + (a: "[-]"))]
+(if: $die2 is 0)[(set: $diceDisplay to $diceDisplay + (a: "[0]"))]
+(if: $die2 is 1)[(set: $diceDisplay to $diceDisplay + (a: "[+]"))]
+(if: $die3 is -1)[(set: $diceDisplay to $diceDisplay + (a: "[-]"))]
+(if: $die3 is 0)[(set: $diceDisplay to $diceDisplay + (a: "[0]"))]
+(if: $die3 is 1)[(set: $diceDisplay to $diceDisplay + (a: "[+]"))]
+(if: $die4 is -1)[(set: $diceDisplay to $diceDisplay + (a: "[-]"))]
+(if: $die4 is 0)[(set: $diceDisplay to $diceDisplay + (a: "[0]"))]
+(if: $die4 is 1)[(set: $diceDisplay to $diceDisplay + (a: "[+]"))]
+}
+
+**Dice:** (print: $diceDisplay's 1st) (print: $diceDisplay's 2nd) (print: $diceDisplay's 3rd) (print: $diceDisplay's 4th) = {(print: $diceTotal)}
+**CODE bonus:** +{(print: $statBonus)}
+**Total:** {(print: $rollResult)}
+
+{(if: $rollResult >= 5)[
+  (set: $outcome to "successWithStyle")
+  (set: $FP to $FP + 1)
+  (set: $FPGained to true)
+  [[Success with Style!|success-with-style]]
+](else-if: $rollResult >= 3)[
+  (set: $outcome to "success")
+  [[Success!|success]]
+](else-if: $rollResult >= 1)[
+  (set: $outcome to "tie")
+  [[Tie—success at a cost|tie]]
+](else:)[
+  (set: $outcome to "failure")
+  (set: $nerves to $nerves + 1)
+  [[Failure|failure]]
+]}
+
+
+:: success-with-style
+<!-- IMAGE: Your student ID card angled perfectly to capture cup position + timestamp. Chen reading tablet, oblivious. Perfect execution. -->
+
+You drift past Chen's table like you're looking for somewhere to sit. Your eyes track the tablet in her hands—some academic article about network topologies, dense with citations. She's deep in it.
+
+Three steps. Your prosthetic hand moves naturally, reaching to steady yourself against the back of an empty chair. The organic hand slides your student ID from your pocket, angles it just so—
+
+*Click.*
+
+The camera captures cup position, stirrer angle, your ID's timestamp bar, all in one frame. Perfect framing. Natural motion. Chen doesn't even glance up.
+
+You pocket the ID and keep walking to the corner table where your espresso waits, handle toward the window. You sit. You sip. Bitter and hot.
+
+Flawless.
+
+**Success with Style!** You've earned **+1 Fate Point** for exceptional execution.
+
+{(set: $FP to $FP + 1)}
+
+**Current Fate Points:** {(print: $FP)}
+
+Chen marks something on her tablet with a stylus, still reading. Thirty seconds later she stands, collects her things, and walks past you to the door. She pauses.
+
+"Ann."
+
+You look up. Try for surprised-but-polite.
+
+"Morning, Manager Chen."
+
+Her eyes are tired behind wire-frame glasses. "You're here early. For you."
+
+"Couldn't sleep." True enough.
+
+She nods slowly, like she's filing that away. "The ocean helps. I come here when the campus networks are too loud." She gestures at the window, the gray expanse beyond. "The trawlers don't argue about topology."
+
+Then she's gone. Door chime. Cold air. Silence.
+
+Your phone vibrates once. Dead image file. You decode it in three seconds:
+
+**g0:** *Clean work. You're in. Next: we talk about the night the world forgot. Check your campus mailbox. Physical media only. Welcome to the signal, Ann.*
+
+[[Continue to Scene 3|scene3-placeholder]]
+
+
+:: success
+<!-- IMAGE: Student ID capturing cup photo. Chen's attention on tablet but she could look up any moment. Tense success. -->
+
+You walk past Chen's table slowly, scanning for an open seat like any caffeine-desperate student at 6:50 AM. Your prosthetic hand steadies against a chair back—natural movement, the servos quiet—while your organic hand palms your student ID.
+
+Chen is reading something technical, frowning at equations. You have maybe three seconds.
+
+*Click.*
+
+The ID's camera captures the cup. Handle position, stirrer angle, timestamp visible. Not perfect framing but complete. You pocket the card and continue to your corner table.
+
+Your espresso waits. Handle toward the window. You sit, exhale slowly.
+
+**Success.** The dead drop is complete. Chen never looked up.
+
+You sip the espresso. It's bitter, cooling fast. Your heart rate drops back toward normal.
+
+Chen stands five minutes later, gathers her tablet and coat. She walks past your table, pauses.
+
+"Ann. Didn't expect to see you here this early."
+
+You look up, aiming for casual. "Coffee before algorithms. Thought I'd try consciousness for once."
+
+She almost smiles. "Admirable." Then her eyes track to your corner table positioning, the cup placement, something calculating behind her expression. "You always sit in corners?"
+
+The question lands odd. Weighted.
+
+"Better light," you say. The lie is smooth because it's half-true—the window faces east.
+
+Chen nods. "Mm. See you Tuesday." She leaves.
+
+Your phone vibrates thirty seconds later. Dead image file:
+
+**g0:** *Adequate. You completed the protocol under pressure. Next step: physical media. Check your campus mailbox tomorrow, 4 PM. We talk about the Blackout then. You've earned that conversation.*
+
+Not flawless. But enough.
+
+[[Continue to Scene 3|scene3-placeholder]]
+
+
+:: tie
+<!-- IMAGE: ID photo slightly blurred. Chen glancing up at the wrong moment. You got the intel but she noticed something. -->
+
+You move past Chen's table, aiming for casual browsing. Your prosthetic hand reaches to steady yourself on a chair—the servos whir slightly, louder than you want—and your organic hand angles your student ID toward the dead drop cup.
+
+Chen looks up.
+
+Not at you. At her phone, vibrating on the table. But the timing fractures your window. You rush the photo—*click*—and the framing is wrong, ID partially cropped, but you got the stirrer position and timestamp. Probably.
+
+You keep walking. Sit at your corner table. The espresso is waiting, handle toward the window. Protocol complete.
+
+**Tie—Success at a Cost.** The mission succeeds but Chen noticed something off.
+
+{(set: $nerves to $nerves + 1)
+(set: $chenSuspicion to 1)}
+
+**You take 1 stress to Nerves** as the tension catches up to you. Your hands shake slightly lifting the cup.
+
+**Nerves:** {(print: $nerves)} / {(print: $nervesMax)}
+
+Chen doesn't leave immediately. She answers her phone—terse, professional, something about a department meeting—but her eyes track the cafe while she talks. They pass over you once. Twice.
+
+When she finally stands to leave, she stops at your table.
+
+"Ann. You look tense."
+
+"Algorithms exam Thursday," you say. "Haven't slept much."
+
+"Mm." She's studying your corner table setup, the espresso placement. "You should pace yourself. Burnout doesn't look like tiredness. It looks like sloppy operational security."
+
+The words are a scalpel. You don't know if she means academic security or something else.
+
+"I'll remember that, Manager Chen."
+
+She nods and leaves. The door chime feels like a guillotine.
+
+Your phone vibrates two minutes later:
+
+**g0:** *Sloppy but complete. Chen's observant—flag that for later. You're in, but barely. Physical media tomorrow, campus mailbox, 4 PM. Bring better nerves.*
+
+[[Continue to Scene 3|scene3-placeholder]]
+
+
+:: failure
+<!-- IMAGE: Chen looking directly at you. The cup photo missed. Protocol broken. Your cover is compromised. -->
+
+You try to drift past Chen's table naturally, but the prosthetic hand catches on a chair back—servos grinding audibly—and you overcorrect. Chen looks up from her tablet.
+
+Right at you.
+
+Your organic hand is halfway to your pocket, student ID visible, angling toward the dead drop cup three seats away. The motion is unnatural, obvious, *wrong*.
+
+"Ann?"
+
+You freeze. Abort the photo. Pocket the ID like you were just checking it.
+
+"Manager Chen. Hi. I was just—looking for a seat."
+
+Her eyes track from you to the cup with the stirrer across the rim, then back. She doesn't say anything, but the calculation behind her glasses is clear: she noticed.
+
+**Failure.** The dead drop is blown. You didn't get the photo.
+
+{(set: $nerves to $nerves + 1)
+(set: $chenSuspicion to 2)
+(set: $missionFailed to true)}
+
+**You take 1 stress to Nerves.** The adrenaline crash hits hard.
+
+**Nerves:** {(print: $nerves)} / {(print: $nervesMax)}
+
+"The corner table's open," Chen says slowly. "Better light."
+
+"Thanks." You retreat to your table, sit with the espresso you ordered. Handle toward the window—protocol complete, for what it's worth. But the photo is missing. The dead drop is incomplete.
+
+Chen doesn't leave. She stays for another ten minutes, reading but *present*. Watching.
+
+When she finally stands, she pauses at your table.
+
+"You seem distracted, Ann. Nervous, even. If something's wrong—academically or otherwise—my office hours are Wednesdays."
+
+It's an offer or a threat. You can't tell which.
+
+"I'm fine. Just tired."
+
+She nods, unconvinced. "Fatigue makes people careless. Careless people make mistakes they can't take back." She leaves.
+
+Your phone vibrates five minutes later:
+
+**g0:** *Mission failure. Chen's too observant and you weren't ready. But I'm not burning you yet—everyone fails their first live drop. Debrief: physical media, campus mailbox, tomorrow 4 PM. We'll talk about what went wrong and whether you're cut out for what comes next.*
+
+You sit with the cooling espresso and the weight of failure.
+
+[[Continue to Scene 3|scene3-placeholder]]
+
+
+:: abort-engage
+{(set: $approach to "abort")}
+
+<!-- IMAGE: You sitting down at Chen's table. Safe choice. Mission sacrificed. -->
+
+The risk is too high. Chen is too observant, too present. You make the call in half a second: abort.
+
+You walk to her table instead of the corner.
+
+"Manager Chen. Mind if I sit?"
+
+She looks up from her tablet, surprised. "Ann. You're here early."
+
+"Couldn't sleep. Thought coffee might help before Thursday's exam."
+
+She gestures at the empty seat. You sit. The dead drop cup with its stirrer across the rim stays three seats away, untouched. Protocol abandoned.
+
+**Mission aborted.** You chose safety over the objective. No roll required.
+
+The conversation is small talk—algorithms, the exam curve, the quality of campus coffee versus the Harborview's burnt offerings. Chen is tired but sharp, making observations about student stress patterns and network behavior that feel too precise for casual chat.
+
+Twenty minutes later she checks her phone, stands. "I should get to my office. Good luck Thursday, Ann."
+
+"Thanks, Manager Chen."
+
+She leaves. You sit alone with your coffee.
+
+The dead drop cup is cleared by the barista ten minutes later. Mission window closed.
+
+Your phone vibrates:
+
+**g0:** *You aborted. Smart or cowardly? Hard to say. Chen's dangerous—you read that right. But the intel is lost and I needed that confirmation. No second chances on this one. You're not ready for what I was going to offer. Maybe later. Maybe never.*
+
+The conversation ends.
+
+You finish your coffee in silence, watching trawlers cut through gray water beyond the window.
+
+**[Scene 2 End - Abort Path]**
+
+This path closes the recruitment storyline. G0 doesn't contact you again. The Blackout remains unexplained.
+
+If you want to explore what happens when you take the risk, go back and [[Proceed with the dead drop|proceed-dead-drop]].
+
+
+:: split-attention
+{(set: $approach to "split")}
+
+<!-- IMAGE: Trying to watch Chen and execute dead drop simultaneously. Divided focus. Harder difficulty. -->
+
+You can do both. Watch Chen, execute the drop. It's just a matter of timing and divided attention.
+
+You order your espresso—double, no sugar—and take it to a table positioned between Chen and the dead drop cup. Not the corner table from protocol, but close enough. You set your coffee down, pull out your phone like you're checking messages.
+
+This is going to be harder. CODE -1 for split attention.
+
+**Roll 4dF + CODE ({(print: $CODE - 1)}) to execute the dead drop while monitoring Chen.**
+
+{(set: $stat to "CODE")
+(set: $statBonus to $CODE - 1)
+(set: $difficulty to 2)
+(set: $action to "split your attention between the dead drop and Chen")}
+
+[[Roll the dice|roll-split-attention]]
+
+
+:: roll-split-attention
+<!-- IMAGE: Four Fate dice mid-roll. Split attention adds difficulty. -->
+
+You roll **4dF + CODE ({print: $statBonus})** (CODE -1 for split attention)
+
+{(set: $die1 to (either: -1, 0, 1))
+(set: $die2 to (either: -1, 0, 1))
+(set: $die3 to (either: -1, 0, 1))
+(set: $die4 to (either: -1, 0, 1))
+(set: $diceTotal to $die1 + $die2 + $die3 + $die4)
+(set: $rollResult to $diceTotal + $statBonus)
+(set: $diceDisplay to (a:))
+(if: $die1 is -1)[(set: $diceDisplay to $diceDisplay + (a: "[-]"))]
+(if: $die1 is 0)[(set: $diceDisplay to $diceDisplay + (a: "[0]"))]
+(if: $die1 is 1)[(set: $diceDisplay to $diceDisplay + (a: "[+]"))]
+(if: $die2 is -1)[(set: $diceDisplay to $diceDisplay + (a: "[-]"))]
+(if: $die2 is 0)[(set: $diceDisplay to $diceDisplay + (a: "[0]"))]
+(if: $die2 is 1)[(set: $diceDisplay to $diceDisplay + (a: "[+]"))]
+(if: $die3 is -1)[(set: $diceDisplay to $diceDisplay + (a: "[-]"))]
+(if: $die3 is 0)[(set: $diceDisplay to $diceDisplay + (a: "[0]"))]
+(if: $die3 is 1)[(set: $diceDisplay to $diceDisplay + (a: "[+]"))]
+(if: $die4 is -1)[(set: $diceDisplay to $diceDisplay + (a: "[-]"))]
+(if: $die4 is 0)[(set: $diceDisplay to $diceDisplay + (a: "[0]"))]
+(if: $die4 is 1)[(set: $diceDisplay to $diceDisplay + (a: "[+]"))]
+}
+
+**Dice:** (print: $diceDisplay's 1st) (print: $diceDisplay's 2nd) (print: $diceDisplay's 3rd) (print: $diceDisplay's 4th) = {(print: $diceTotal)}
+**CODE bonus:** +{(print: $statBonus)} (CODE -1 penalty applied)
+**Total:** {(print: $rollResult)}
+
+{(if: $rollResult >= 4)[
+  (set: $outcome to "successWithStyle")
+  (set: $FP to $FP + 1)
+  (set: $FPGained to true)
+  [[Success with Style!|split-success-with-style]]
+](else-if: $rollResult >= 2)[
+  (set: $outcome to "success")
+  [[Success!|split-success]]
+](else-if: $rollResult >= 0)[
+  (set: $outcome to "tie")
+  [[Tie—success at a cost|split-tie]]
+](else:)[
+  (set: $outcome to "failure")
+  (set: $nerves to $nerves + 1)
+  [[Failure|split-failure]]
+]}
+
+
+:: split-success-with-style
+<!-- IMAGE: Perfect multitasking. Photo captured, Chen tracked, all natural. Exceptional work. -->
+
+Your eyes track Chen's reading pattern—she scans left to right, pauses at equations, marks notes with her stylus every 40 seconds. You time her rhythm.
+
+When she marks the next note, you stand, stretch like you're working out a shoulder kink, and drift toward the restroom. The path takes you past the dead drop cup.
+
+Your prosthetic hand steadies on the table edge. Your organic hand palms the student ID, angles it—*click*—perfect framing, stirrer position, timestamp captured. You pocket the ID and continue walking.
+
+Chen never looks up.
+
+You circle back from the restroom, sit at your new table. Sip your espresso. Watch Chen finish her reading and pack up. She leaves without glancing your way.
+
+**Success with Style!** You've earned **+1 Fate Point** for exceptional multitasking under pressure.
+
+{(set: $FP to $FP + 1)}
+
+**Current Fate Points:** {(print: $FP)}
+
+Your phone vibrates:
+
+**g0:** *Impressive. Split attention and clean execution. You've got potential, Ann. Physical media tomorrow, campus mailbox, 4 PM. Time to talk about the night the world forgot.*
+
+[[Continue to Scene 3|scene3-placeholder]]
+
+
+:: split-success
+<!-- IMAGE: Mission complete but you had to work for it. Chen almost caught you. -->
+
+You watch Chen's reading pattern—left to right, occasional stylus marks—and wait for the right moment.
+
+When she turns a page on her tablet, you stand and walk toward the restroom. Your path takes you past the dead drop cup. The prosthetic hand steadies you, the organic hand pulls your ID and snaps the photo—*click*—quick, not perfect, but complete.
+
+Chen glances up as you pass. You're already moving, ID pocketed, expression neutral.
+
+"Restroom," you say, unnecessary, but it fills the space.
+
+She nods and returns to reading.
+
+**Success.** The dead drop is complete, though Chen's awareness is heightened.
+
+{(set: $chenSuspicion to 1)}
+
+You return to your table. The espresso is cooling. Chen leaves ten minutes later without comment.
+
+Your phone vibrates:
+
+**g0:** *Good enough. You got the intel and didn't blow your cover. Chen's paying attention to you now—noted. Physical media tomorrow, 4 PM, campus mailbox. We'll talk.*
+
+[[Continue to Scene 3|scene3-placeholder]]
+
+
+:: split-tie
+<!-- IMAGE: Photo captured but Chen is suspicious. Cost: stress and attention. -->
+
+You try to time it with Chen's reading rhythm, but she's unpredictable—skimming some sections, deep-reading others. When you stand to walk past the dead drop cup, she's between paragraphs.
+
+She looks up.
+
+You commit anyway. Pull the ID, angle it, *click*—the photo is rushed, framing poor, but you got the stirrer position. Probably.
+
+"Looking for something?" Chen asks.
+
+"Restroom." You pocket the ID.
+
+"Other direction."
+
+"Right. Thanks." You course-correct, walk the wrong way, return to your table from a different angle.
+
+**Tie—Success at a Cost.** Mission complete but Chen is now actively suspicious.
+
+{(set: $nerves to $nerves + 1)
+(set: $chenSuspicion to 2)}
+
+**You take 1 stress to Nerves.**
+
+**Nerves:** {(print: $nerves)} / {(print: $nervesMax)}
+
+Chen doesn't leave. She stays for another fifteen minutes, occasionally glancing your way. When she finally goes, she stops at your table.
+
+"You seem disoriented, Ann. Get more sleep."
+
+It's not a suggestion.
+
+Your phone vibrates after she's gone:
+
+**g0:** *Mission complete but messy. Chen's watching you now. That's a problem. Physical media tomorrow, 4 PM. We'll discuss damage control.*
+
+[[Continue to Scene 3|scene3-placeholder]]
+
+
+:: split-failure
+<!-- IMAGE: Chen caught you mid-act. Cover compromised. Mission failed. -->
+
+You stand to execute the dead drop just as Chen looks up from her tablet. The timing is catastrophic.
+
+Your hand is already moving toward the cup, student ID visible, and there's no natural explanation for the motion. You abort—pocket the ID, pretend you were reaching for a napkin—but Chen's eyes track every movement.
+
+"Ann. Sit down."
+
+Her voice isn't loud, but it's command-weighted. You sit.
+
+"What were you doing?"
+
+"I thought I saw someone I knew. From class."
+
+The lie is thin. Chen's expression says she doesn't buy it.
+
+**Failure.** The dead drop is blown and Chen is now directly suspicious.
+
+{(set: $nerves to $nerves + 2)
+(set: $chenSuspicion to 3)
+(set: $missionFailed to true)}
+
+**You take 2 stress to Nerves.** The confrontation rattles you badly.
+
+**Nerves:** {(print: $nerves)} / {(print: $nervesMax)}
+
+"You're a terrible liar," Chen says quietly. "Whatever you're involved in, be smarter about it. Or stop." She stands, gathers her things. "See you Tuesday. If you're still a student then."
+
+The threat is implicit but clear.
+
+Your phone vibrates ten minutes after she leaves:
+
+**g0:** *Total failure. Chen's on to you and the mission is burned. I'm pulling back from this approach. You might still be useful later, but not for the Blackout investigation. Too hot. Lie low.*
+
+The recruitment is over.
+
+[[Scene 2 End - Failure Path|failure-end]]
+
+
+:: change-pattern
+{(set: $approach to "change")}
+
+<!-- IMAGE: You ordering something different. Safe but mission failed. Protecting cover over objective. -->
+
+You can't risk it. Not with Chen here.
+
+You walk to the counter and change the order in your head.
+
+"Cappuccino. Extra foam."
+
+The barista rings it up. You pay, take the cup to a table on the opposite side of the cafe from both Chen and the dead drop position. You sit with your back to the protocol.
+
+**Mission failed.** You protected your cover but abandoned the objective. No roll required.
+
+Chen doesn't notice you. She finishes her reading, packs her tablet, leaves twenty minutes later. The dead drop cup with its stirrer across the rim is cleared by the barista shortly after.
+
+Window closed. Intel lost.
+
+Your phone vibrates thirty minutes later:
+
+**g0:** *You changed the pattern. Protocol break. I understand the instinct—Chen's dangerous—but the mission was time-sensitive. Intel lost. You chose safety over signal. That tells me something about your priorities. Not wrong, just... limiting. Good luck with your studies, Ann.*
+
+The conversation ends.
+
+You sit with your cappuccino and watch the ocean turn from gunmetal to silver as the sun rises. The trawlers are distant now, heading out to the deep water.
+
+**[Scene 2 End - Change Pattern Path]**
+
+This path closes the recruitment. G0 doesn't contact you again.
+
+If you want to see what happens when you take the risk, go back and [[Proceed with the dead drop|proceed-dead-drop]].
+
+
+:: failure-end
+**[Scene 2 End - Failure Path]**
+
+The recruitment is over. Chen's suspicion is too high, the mission burned. G0 cuts contact.
+
+You continue your studies at Shodann Applied Systems Institute. The algorithms exam on Thursday goes well. You graduate on time. Get a decent corp job. The Blackout remains unexplained.
+
+Sometimes you wonder what g0 was going to tell you. What you were being recruited for. What you could have learned about the night the world forgot.
+
+But you'll never know.
+
+**THE END** (Failure outcome)
+
+If you want to explore what happens when the mission succeeds, restart and [[Proceed with the dead drop|proceed-dead-drop]].
+
+
+:: scene3-placeholder
+**[Scene 3 - Not Yet Written]**
+
+The campus mailbox. Physical media. G0's explanation of the Blackout.
+
+Ann's recruitment into something larger begins here.
+
+**To be continued...**
+
+---
+
+**Scene 2 Complete.**
+
+Your choices shape Ann's path forward. The dice determine whether skill matches ambition. Welcome to High Tech, Low Lives.
