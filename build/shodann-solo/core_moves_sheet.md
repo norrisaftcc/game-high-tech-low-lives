@@ -406,10 +406,10 @@ Maintenance represents: Cleaning, calibration, software updates, replacement par
 
 | **When you...** | **Roll...** | **On Success...** |
 |-----------------|-------------|-------------------|
-| Attempt something risky | Relevant stat | You do it |
+| Attempt something risky | Relevant stat (e.g., Body, Reflexes, Code, Tech, Cool) | You do it |
 | Read someone/something | Cool or Code | Ask 1 question (2 with style) |
-| Help someone | Relevant stat | They get +1 |
-| Create advantage | Relevant stat | Create aspect with free invoke |
+| Help someone | Relevant stat (usually what they're rolling) | They get +1 |
+| Create advantage | Relevant stat (Code to hack, Cool to bluff, Tech to rig) | Create aspect with free invoke |
 | Attack someone | Reflexes/Body | Deal shifts as Meat stress |
 | Defend | Reflexes/Body | Reduce/negate stress |
 
