@@ -97,7 +97,7 @@ The GM will respond to what you notice with complications, opportunities, or req
 
 ## WHEN DO YOU ROLL?
 
-Roll 4 Fate dice (4dF: each shows +, 0, or -). Add your relevant stat (+0 to +4). Compare to:
+Roll 4 Fate dice (4dF: each shows +, 0, or -). Add your relevant stat (+0 to +3). Compare to:
 - **Difficulty** (set by GM) for unopposed actions
 - **Opposing roll** for contested actions
 
@@ -176,6 +176,12 @@ Used for: Chases, hacking runs, prolonged combat, social pressure.
 - Each exchange is an attack/counter
 - First to fill Meat stress or take consequences is taken out
 - Describe how each exchange looks in the fiction
+
+**Stress Track Targeting**:
+- Physical violence (Body/Reflexes) → Meat stress
+- Digital attacks/ICE (Code) → Systems stress
+- Social pressure/intimidation (Cool) → Nerves stress
+- Environmental hazards → GM chooses most appropriate track
 
 ---
 
@@ -276,7 +282,12 @@ You have three stress tracks:
 - **Moderate Consequence** (absorbs 4 shifts): Requires attention to clear (medical, repair, rest)
 - **Severe Consequence** (absorbs 6 shifts): Permanent until bought off with advancement
 
-You have **one of each type** per stress track (3 total per type).
+You have **one consequence slot of each severity (mild/moderate/severe) for each stress track**:
+- 3 Mild consequences (one for Meat, one for Nerves, one for Systems)
+- 3 Moderate consequences (one for Meat, one for Nerves, one for Systems)
+- 3 Severe consequences (one for Meat, one for Nerves, one for Systems)
+
+**Total: 9 consequence slots**
 
 **Name the consequence** to match the stress track and how you got hit:
 - Meat: *Cracked Ribs*, *Bullet Wound*, *Concussion*
