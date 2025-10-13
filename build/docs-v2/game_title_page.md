@@ -48,23 +48,17 @@ Between them: Transit routes, smuggling channels, corporate checkpoints, and peo
 
 Each playbook grants different narrative authority:
 
-**THE INFILTRATOR** - Authority over access and information  
+**THE INFILTRATOR** - Authority over access and information
 *"I've been here before. I left myself a backdoor."*
 
-**THE INFLUENCER** - Authority over attention and audience  
+**THE INFLUENCER** - Authority over attention and audience
 *"My 50,000 followers are watching this right now."*
 
-**THE NOMAD** - Authority over mobility and routes  
+**THE NOMAD** - Authority over mobility and routes
 *"I know a way through the storms that corporate patrols can't follow."*
 
-**THE ENFORCER** - Authority over violence and protection  
-*"I hold the line. They're not getting past me."*
-
-**THE HACKER** - Authority over information and cyberspace  
-*"I'm watching through their cameras from my hab three kilometers away."*
-
-**THE FACE** - Authority over identity and relationships  
-*"I've been this person before. I know exactly how to act."*
+**THE FIXER** - Authority over connections and specialists
+*"I know someone who can handle this."*
 
 ---
 
@@ -189,9 +183,10 @@ This keeps fiction moving and uses your playbook authority naturally.
 - "Your Connection means they recognize you. Take a Fate point?"
 
 **Let players use signature moves:**
-- Infiltrator's Backdoor Specialist
-- Hacker's Ghost in the Machine
-- Face's Whoever You Need Me To Be
+- Infiltrator's Familiar Ground
+- Influencer's The Stream
+- Nomad's Nobody Stops Me
+- Fixer's I Know Someone Who Can Help
 
 **Introduce stress and consequences:**
 - Combat, environmental hazards, social pressure
@@ -274,16 +269,16 @@ Every job costs you something. Every consequence accumulates. Every session, you
 
 ## PRINT AND PLAY
 
-**Total page count:** ~30-46 pages
+**Total page count:** ~24-32 pages
 
 **Components:**
-- 6 playbooks × 4-6 pages = 24-36 pages
+- 4 playbooks × 4-6 pages = 16-24 pages
 - Core moves sheet = 4 pages
-- Design reflection = 6 pages
+- Design reflection = 6 pages (optional)
 - This quick start = 4 pages
 
 **Minimum to play:**
-- 6 playbooks (one per player type)
+- 4 playbooks (one per player type)
 - Core moves sheet (shared reference)
 - Fate dice (or use online roller)
 
