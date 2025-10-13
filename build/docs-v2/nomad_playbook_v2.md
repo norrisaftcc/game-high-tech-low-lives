@@ -25,12 +25,12 @@ Choose one from each:
 
 ## STATS
 
-Reflexes keep you alive. Body keeps you going. Everything else is secondary.
+Reflexes keep you alive. Body keeps you going. Tech keeps your boat running.
 
 - **Body**: +2
 - **Reflexes**: +3
 - **Code**: +0
-- **Tech**: +2
+- **Tech**: +3
 - **Cool**: +1
 
 ---
@@ -306,13 +306,13 @@ You don't need answers now. Find them during the game:
 **Trouble**: *Can't Say No to People Desperate Enough to Ask*  
 **Connection**: *My Boat "Dust Runner" Is the Only Home I've Ever Had*
 
-**Stats**: Body +2, Reflexes +3, Code +0, Tech +2, Cool +1
+**Stats**: Body +2, Reflexes +3, Code +0, Tech +3, Cool +1
 
 **Chrome**:
 - Pilot Interface (+1 Systems, -1 Nerves)
 - Environmental Adaptation (+1 Systems)
 
-**Final Stress**: Meat ▢▢▢ | Nerves ▢▢ | Systems ▢▢▢▢
+**Final Stress**: Meat ▢▢▢ | Nerves ▢▢ | Systems ▢▢▢▢▢
 
 **Boat**: "Dust Runner" - Systems ▢▢▢▢▢▢
 
