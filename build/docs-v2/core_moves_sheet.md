@@ -439,6 +439,113 @@ Maintenance represents: Cleaning, calibration, software updates, replacement par
 
 ---
 
+## SESSION STRUCTURE
+
+### Starting the Session
+
+**At the beginning of each session:**
+1. **Review previous session**: Recap what happened, where you left off
+2. **Refresh Fate points**: Everyone starts with 3 (minimum)
+3. **Clear all stress boxes**: You've had time to recover between sessions
+4. **Check consequences**: Mild consequences from last session have cleared
+5. **Frame opening scene**: GM starts where previous session ended or jump to next interesting moment
+
+**Chrome maintenance**: Once per month (game time), check if maintenance is due. Pay credits or risk compels.
+
+---
+
+### Scene Types
+
+**Dramatic Scenes** (High stakes, rolls matter):
+- Someone wants something urgently
+- Opposition is present and active
+- Failure creates complications
+- Stress and consequences are in play
+- **Example**: Infiltrating a corporate facility, hacking under pressure, firefight, tense negotiation
+
+**Transitional Scenes** (Moving between drama):
+- Recovery and planning
+- Mild consequences clear here (after one scene)
+- Relationship building, information gathering
+- Low stakes, setup for next drama
+- **Example**: Debriefing after a job, planning the next move, traveling between locations
+
+**Downtime Scenes** (Between major events):
+- Chrome maintenance
+- Moderate consequence recovery (someone helps you)
+- Advancement discussions
+- Establishing new connections
+- **Example**: Week between jobs, recovering in a safe house, upgrading gear
+
+---
+
+### Scene Framing
+
+**Who frames scenes?**
+- **GM** typically frames the opening: "You're standing outside the Sidereal Tower. Security patrols every ten minutes. What do you do?"
+- **Players** can request scenes: "Can we have a scene where I talk to my sister before the job?"
+- **Collaborative**: GM sets the stage, players declare actions that drive it forward
+
+**How long is a scene?**
+- Ends when the dramatic question is answered
+- Ends when players achieve (or fail) their goal
+- Ends when fiction naturally transitions ("You escape the facility and regroup at the safe house. That's a scene.")
+- GM calls scene end, but players can suggest it
+
+---
+
+### Stress & Consequence Timing
+
+**Stress clears between scenes** if fiction supports it:
+- Characters have a moment to catch their breath
+- Not jumping immediately from one danger to another
+- GM agrees scene has ended
+
+**If danger continues without pause**, stress persists into next scene.
+
+**Mild consequences** clear after one scene automatically.
+
+**Moderate consequences** require dedicated recovery:
+- Someone with appropriate skills helps (Tech for Systems, medical training for Meat, therapy/downtime for Nerves)
+- Requires a scene and successful roll
+- Can happen during downtime
+
+**Severe consequences** don't clear until advancement or extended narrative work.
+
+---
+
+### Ending the Session
+
+**At session end:**
+1. **Note active consequences**: Write down all consequences still in play
+2. **Track chrome maintenance**: Note when maintenance is next due
+3. **Discuss advancement**: If major milestone reached, plan advancement choices
+4. **Preview next session**: GM gives hook for next time
+5. **Check Fate points**: Note how many each player has (they keep these between sessions)
+
+**Fate points**: Do NOT reset at session end. You keep whatever you have, but start next session with minimum 3.
+
+---
+
+### Advancement
+
+**Advancement happens** when the group completes:
+- A major story arc
+- 3-4 sessions of play
+- A significant milestone (defeat a major threat, complete a difficult job, change the status quo)
+
+**When you advance, choose one:**
+- **+1 to any stat** (max +3)
+- **Buy off a Severe Consequence** (requires narrative justification)
+- **Add new chrome** (if credits available and fiction supports it)
+- **Learn a new talent** (2 build points worth)
+- **Rewrite your Trouble** (your character has changed significantly)
+- **Increase Refresh** by +1 (start sessions with 4 Fate points instead of 3, max 5)
+
+**Discuss as a group**: Advancement should feel earned and reflect character growth in the fiction.
+
+---
+
 ## FINAL REMINDER: TO DO IT, DO IT
 
 *How will you spend the life you have left?*
