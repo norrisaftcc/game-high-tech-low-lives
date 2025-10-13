@@ -1,0 +1,10 @@
+# macOS metadata
+.DS_Store
+**/.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Build artifacts
+*.log
