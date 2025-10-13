@@ -7,28 +7,30 @@
 
 ## THE CORE PRINCIPLE: SAY YES OR ROLL THE DICE
 
-**Default to "yes"** - If a player describes their character doing something and:
+**Default to "yes."** If a player describes their character doing something and:
 - It's within their capability
 - No one objects
 - Failure wouldn't be interesting
 
-**Then it just happens.** No roll.
+**Then it happens.** No roll. No permission needed.
 
 **Roll dice when:**
 - Success is uncertain
-- Failure would be interesting
+- Failure would create complications
 - Someone opposes the action
 - Stakes matter
 
-Every roll answers: **"Can I change the fiction in this way?"**
+Every roll asks: **"Can I change what happens next?"**
 
 ---
 
 ## HOW TO DECLARE ACTIONS
 
-**Don't ask permission. State what's happening and embed what you notice.**
+**Don't ask permission. Declare what's happening and embed what you know.**
 
-The most powerful technique in this game: Declare action, embed truth, leave opening for complication.
+The most powerful technique in this game: **Action → Truth → Opening.**
+
+State what you're doing. Embed what you notice. Leave space for the world to respond.
 
 ### The Pattern:
 
@@ -81,15 +83,17 @@ The most powerful technique in this game: Declare action, embed truth, leave ope
 
 **Together:**
 - Collaborative storytelling
-- Fewer permission requests
-- More interesting complications
+- Less asking, more doing
+- Better complications
 
 ### Practice This:
 
-Every time you're about to say "Can I...?" or "Do I...?", rephrase:
-- "**As I do this thing**, I notice/recognize/understand/feel..."
+Every time you catch yourself asking "Can I...?" or "Do I...?", stop. Rephrase:
+- "**As I do this**, I notice/recognize/understand/feel..."
 
-The GM will respond to what you notice with complications, opportunities, or requests for rolls.
+The GM responds to what you embed with complications, opportunities, or dice.
+
+**Challenge:** Go one full scene without asking permission. Watch what changes.
 
 *Advanced chrome. Criminal enterprise. Running out of time.*
 
@@ -108,11 +112,11 @@ Roll 4 Fate dice (4dF: each shows +, 0, or -). Add your relevant stat (+0 to +3)
 - **+6**: Nearly impossible
 
 ### Success Levels
-- **Fail by 3+**: Disaster. Serious consequences.
-- **Fail by 1-2**: Failure. You don't get what you want. Complications.
-- **Tie (0)**: Success at cost, or partial success. GM offers hard choice.
+- **Fail by 3+**: Disaster. Things get worse.
+- **Fail by 1-2**: Failure. You don't get what you want, and complications follow.
+- **Tie (0)**: Success at cost. The GM offers a hard choice.
 - **Succeed by 1-2**: Success. You get what you want.
-- **Succeed by 3+**: Success with style. You get what you want plus extra benefit.
+- **Succeed by 3+**: Success with style. You get what you want, plus something extra.
 
 **Shifts** = The difference between rolls. Used to determine stress dealt.
 
@@ -124,22 +128,22 @@ Everyone can use these moves. Choose the stat that makes sense for how you're do
 
 ### ACT UNDER PRESSURE
 **When you attempt something risky or difficult**, roll the relevant stat.
-- Success: You do it.
-- Failure: You don't, or you do it at a cost (take stress, create complication, lose something).
+- **Success:** You do it.
+- **Failure:** You don't—or you do, but it costs you (stress, complications, lost resources).
 
-**Examples**: Dodge gunfire (Reflexes), hold your ground when threatened (Cool), endure toxins (Body), crack a lock quickly (Tech), hack under ICE assault (Code).
+**Examples:** Dodge gunfire (Reflexes). Hold your ground when someone puts a gun in your face (Cool). Survive the toxin in your bloodstream (Body). Crack the lock before security arrives (Tech). Code through Black ICE (Code).
 
 ---
 
 ### READ A PERSON/SITUATION
-**When you study a person or assess a situation**, roll Cool or Code (person vs system).
-- Success: Ask the GM one question. They answer honestly:
+**When you study a person or assess a situation**, roll Cool (people) or Code (systems).
+- **Success:** Ask the GM one question. They answer honestly:
   - *"What are they really feeling?"*
-  - *"What do they want most?"*
+  - *"What do they want most right now?"*
   - *"What should I be worried about?"*
   - *"How could I get them to ___?"*
-  - *"What's the weakness here?"*
-- Success with style: Ask two questions.
+  - *"Where's the weakness?"*
+- **Success with style:** Ask two questions.
 
 ---
 
@@ -152,30 +156,32 @@ Everyone can use these moves. Choose the stat that makes sense for how you're do
 ---
 
 ### OVERCOME OPPOSITION
-**When you're trying to overcome obstacles or achieve goals over time**, GM calls for an extended contest:
-1. Set stakes (what success/failure mean)
+**When you're working against obstacles or opposition over time**, the GM calls for an extended contest:
+1. **Set stakes:** What does winning and losing look like?
 2. Players and opposition roll each exchange
-3. Winner of exchange deals shifts as stress to loser
-4. First to fill stress track or take consequences loses
+3. Winner deals shifts as stress to the loser
+4. First to fill their stress track or take consequences loses
 5. Winner achieves their goal
 
-Used for: Chases, hacking runs, prolonged combat, social pressure.
+**Used for:** Chases through flooded districts. Hacking runs against adaptive ICE. Prolonged firefights. Social pressure campaigns.
 
 ---
 
 ### EXCHANGE HARM
-**When violence happens:**
+**When violence erupts:**
 
 **Quick Resolution** (single roll):
 - Attacker rolls Reflexes or Body
-- Defender rolls Reflexes or Body to resist
-- Shifts = stress dealt to defender's Meat track
+- Defender rolls to resist
+- Shifts become Meat stress
 
 **Extended Contest** (when it matters):
 - Use Overcome Opposition rules
-- Each exchange is an attack/counter
-- First to fill Meat stress or take consequences is taken out
-- Describe how each exchange looks in the fiction
+- Each exchange is an attack and counter
+- First to fill Meat stress or take consequences goes down
+- Describe what each exchange looks like—make it specific
+
+**The fiction matters.** Are you dodging? Trading blows? Using cover? Say it.
 
 **Stress Track Targeting**:
 - Physical violence (Body/Reflexes) → Meat stress
@@ -262,25 +268,25 @@ Players can also suggest compels on their own aspects or others' aspects.
 ## STRESS & CONSEQUENCES
 
 ### STRESS TRACKS
-You have three stress tracks:
-- **Meat**: Physical damage (▢▢▢ or more)
-- **Nerves**: Psychological strain (▢▢▢ or more)  
-- **Systems**: Chrome and equipment damage (▢▢▢ or more)
+You have three ways to break:
+- **Meat:** Physical damage (▢▢▢ or more)
+- **Nerves:** Psychological strain (▢▢▢ or more)
+- **Systems:** Chrome and equipment damage (▢▢▢ or more)
 
-**Chrome modifies these tracks.** Check your playbook.
+**Your chrome modifies these tracks.** Check your playbook.
 
-**When you take stress**, mark boxes equal to the shifts.
+**When you take stress**, mark boxes equal to the shifts:
 - Take 3 shifts → mark 3 boxes
 - Or mark fewer boxes and take a consequence to absorb the rest
 
 ---
 
 ### CONSEQUENCES
-**When you can't or won't mark enough stress boxes**, take a consequence:
+**When you can't or won't mark enough stress**, take a consequence:
 
 - **Mild Consequence** (absorbs 2 shifts): Clears after one scene
-- **Moderate Consequence** (absorbs 4 shifts): Requires attention to clear (medical, repair, rest)
-- **Severe Consequence** (absorbs 6 shifts): Permanent until bought off with advancement
+- **Moderate Consequence** (absorbs 4 shifts): Requires help to clear—medical attention, repair work, rest
+- **Severe Consequence** (absorbs 6 shifts): Permanent until you buy it off with advancement
 
 You have **one consequence slot of each severity (mild/moderate/severe) for each stress track**:
 - 3 Mild consequences (one for Meat, one for Nerves, one for Systems)
@@ -289,38 +295,38 @@ You have **one consequence slot of each severity (mild/moderate/severe) for each
 
 **Total: 9 consequence slots**
 
-**Name the consequence** to match the stress track and how you got hit:
-- Meat: *Cracked Ribs*, *Bullet Wound*, *Concussion*
-- Nerves: *Shaken*, *PTSD Flashback*, *Can't Trust Anyone*
-- Systems: *HUD Glitching*, *Chrome Overheated*, *Neural Interface Damaged*
+**Name the consequence** to match the stress track and how it happened:
+- **Meat:** *Cracked Ribs*, *Bullet in the Shoulder*, *Concussion*
+- **Nerves:** *Shaken*, *Combat Flashback*, *Paranoid*
+- **Systems:** *HUD Glitching*, *Chrome Overheating*, *Neural Interface Burnt Out*
 
-**Consequences are aspects** - they're true, they can be invoked, they can be compelled.
+**Consequences are aspects**—they're true, they can be invoked against you, they can be compelled.
 
 ---
 
 ### BEING TAKEN OUT
-**If you can't absorb all the stress** (track is full and you can't/won't take consequences), **you're taken out**.
+**If you can't absorb all the stress**—your track is full and you can't or won't take consequences—**you're taken out.**
 
 **Whoever took you out decides what happens to you** (within reason):
 - You're captured
 - You're killed
-- You're humiliated
-- You're forced to flee
+- You're humiliated publicly
+- You're forced to run
 - Your chrome is destroyed
 
-This is why consequences exist - to stay in the fight.
+**This is why consequences exist:** to keep you in the fight.
 
 ---
 
 ### CONCEDING
-**Before someone takes you out**, you can concede the conflict.
+**Before someone takes you out**, you can concede.
 
 When you concede:
-- You get Fate points (1 + 1 per consequence taken in this conflict)
-- You narrate how you lose on your own terms
+- You gain Fate points (1, plus 1 per consequence taken in this conflict)
+- You narrate how you lose—on your own terms
 - You get out, but you don't get what you wanted
 
-Concession is how you lose without being destroyed.
+**Concession is how you lose without being destroyed.**
 
 ---
 
@@ -346,26 +352,28 @@ Concession is how you lose without being destroyed.
 
 ### WHEN CHROME BREAKS
 Chrome breaks when:
-- Systems stress track fills completely
-- You take a Systems consequence that describes chrome failure
-- Specific circumstances in chrome description trigger
+- Your Systems stress track fills
+- You take a Systems consequence describing chrome failure
+- Specific failure conditions trigger (check your chrome)
 
-**When chrome breaks**, it stops working until repaired.
-- Check your playbook for what happens when that specific chrome breaks
-- Usually takes Tech roll + time + credits to fix
-- Some chrome has catastrophic failure modes (take additional stress, compels, etc.)
+**When chrome breaks, it stops working** until someone fixes it.
+- Check your playbook for what happens when that specific chrome fails
+- Usually requires a Tech roll, time, and credits
+- Some chrome fails catastrophically—additional stress, burns, system cascade
+
+**If your chrome is keeping you alive, this matters.**
 
 ---
 
 ### MAINTENANCE
-All chrome requires monthly maintenance (listed in credits on your playbook).
+All chrome requires monthly maintenance (costs listed on your playbook).
 
-**If you don't pay maintenance**:
-- GM can compel chrome failure at dramatic moments
-- Chrome might break on its own
-- Eventually, chrome starts degrading (permanent damage)
+**If you skip maintenance:**
+- GM can compel chrome failure at the worst possible moment
+- Chrome might fail on its own
+- Eventually, chrome degrades permanently
 
-Maintenance represents: Cleaning, calibration, software updates, replacement parts, medical checkups for bio-integration.
+**Maintenance means:** Cleaning. Calibration. Firmware updates. Replacement parts. Medical monitoring for bio-integration. Keeping the machine in you from killing you.
 
 ---
 
@@ -443,20 +451,24 @@ Maintenance represents: Cleaning, calibration, software updates, replacement par
 
 *How will you spend the life you have left?*
 
-If you're describing your character doing something, and it makes sense that they could, and no one's stopping them, and failure isn't interesting—**just do it**.
+If you're describing your character doing something, and it makes sense they could, and no one's stopping them, and failure wouldn't be interesting—**just do it.**
 
 The dice come out when:
 1. Someone opposes you
-2. Failure creates interesting complications
+2. Failure creates complications worth exploring
 3. Success is genuinely uncertain
 
-Everything else? Just happens.
+Everything else just happens.
 
-**The game is the conversation.** The mechanics help resolve uncertainty and distribute narrative authority. Use them when you need them. Otherwise, keep talking and keep the story moving.
+**The game is the conversation.** The mechanics resolve uncertainty and distribute narrative authority. Use them when you need them. Otherwise, keep talking. Keep the story moving.
+
+**Play like you're running out of time. Because you are.**
 
 ---
 
-*This is how you play. Keep this sheet handy. Reference it when you need it. After a few sessions, you won't need to look at it anymore.*
+*This is how you play. Keep this sheet close. Reference it when you need it. After a few sessions, you won't.*
+
+---
 
 ## HIGH-TECH-LOW-LIVES
 *You don't have many lives left. Make them count.*
