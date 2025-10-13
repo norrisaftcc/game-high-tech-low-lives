@@ -4,6 +4,16 @@
 (set: $time to "6:47 AM")
 (set: $sceneNumber to 2)
 (set: $FPGained to false)
+
+<!-- Success thresholds for dice rolls -->
+(set: $THRESHOLD_SUCCESS_WITH_STYLE to 5)
+(set: $THRESHOLD_SUCCESS to 3)
+(set: $THRESHOLD_TIE to 1)
+
+<!-- Modified thresholds for split-attention rolls (compensates for -1 penalty) -->
+(set: $THRESHOLD_SUCCESS_WITH_STYLE_SPLIT to 4)
+(set: $THRESHOLD_SUCCESS_SPLIT to 2)
+(set: $THRESHOLD_TIE_SPLIT to 0)
 }
 
 <!-- IMAGE: Coffee shop at dawn. Ocean visible through salt-streaked windows. Digital clock reads 6:47. Empty tables. Steam rising from espresso machine. -->
@@ -110,15 +120,15 @@ You roll **4dF + CODE ({print: $statBonus})**
 **CODE bonus:** +{(print: $statBonus)}
 **Total:** {(print: $rollResult)}
 
-{(if: $rollResult >= 5)[
+{(if: $rollResult >= $THRESHOLD_SUCCESS_WITH_STYLE)[
   (set: $outcome to "successWithStyle")
   (set: $FP to $FP + 1)
   (set: $FPGained to true)
   [[Success with Style!|success-with-style]]
-](else-if: $rollResult >= 3)[
+](else-if: $rollResult >= $THRESHOLD_SUCCESS)[
   (set: $outcome to "success")
   [[Success!|success]]
-](else-if: $rollResult >= 1)[
+](else-if: $rollResult >= $THRESHOLD_TIE)[
   (set: $outcome to "tie")
   [[Tie—success at a cost|tie]]
 ](else:)[
@@ -402,15 +412,15 @@ You roll **4dF + CODE ({print: $statBonus})** (CODE -1 for split attention)
 **CODE bonus:** +{(print: $statBonus)} (CODE -1 penalty applied)
 **Total:** {(print: $rollResult)}
 
-{(if: $rollResult >= 4)[
+{(if: $rollResult >= $THRESHOLD_SUCCESS_WITH_STYLE_SPLIT)[
   (set: $outcome to "successWithStyle")
   (set: $FP to $FP + 1)
   (set: $FPGained to true)
   [[Success with Style!|split-success-with-style]]
-](else-if: $rollResult >= 2)[
+](else-if: $rollResult >= $THRESHOLD_SUCCESS_SPLIT)[
   (set: $outcome to "success")
   [[Success!|split-success]]
-](else-if: $rollResult >= 0)[
+](else-if: $rollResult >= $THRESHOLD_TIE_SPLIT)[
   (set: $outcome to "tie")
   [[Tie—success at a cost|split-tie]]
 ](else:)[
