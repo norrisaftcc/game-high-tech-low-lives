@@ -12,6 +12,33 @@ import sys
 import argparse
 
 
+# ANSI Color Codes - Cyan and Amber Terminal Aesthetic
+class Colors:
+    """Classic BBS terminal color palette."""
+    CYAN = '\033[36m'           # System UI, borders
+    BRIGHT_CYAN = '\033[96m'    # Headers, important system
+    AMBER = '\033[33m'          # Transmissions, field comms
+    BRIGHT_AMBER = '\033[93m'   # Warnings, alerts
+    WHITE = '\033[97m'          # Normal text
+    GREY = '\033[90m'           # Secondary info
+    BOLD = '\033[1m'            # Emphasis
+    DIM = '\033[2m'             # De-emphasis
+    RESET = '\033[0m'           # Reset to default
+
+    @staticmethod
+    def strip_colors():
+        """Disable colors (for batch mode or no-color terminals)."""
+        Colors.CYAN = ''
+        Colors.BRIGHT_CYAN = ''
+        Colors.AMBER = ''
+        Colors.BRIGHT_AMBER = ''
+        Colors.WHITE = ''
+        Colors.GREY = ''
+        Colors.BOLD = ''
+        Colors.DIM = ''
+        Colors.RESET = ''
+
+
 class DeckInterface:
     """BBS-style terminal interface for guiding the Enforcer."""
 
@@ -37,43 +64,49 @@ class DeckInterface:
 
     def print_border(self, char="═", length=60):
         """Print decorative border."""
-        print(char * length)
+        print(f"{Colors.CYAN}{char * length}{Colors.RESET}")
 
     def print_header(self):
         """Print deck interface header."""
         self.print_border("═")
-        print("╔══════════════════════════════════════════════════════════╗")
-        print("║          D E C K   I N T E R F A C E   v2.4.1           ║")
-        print("║          PELAGIC SOLUTIONS NEURAL BRIDGE SYSTEM          ║")
-        print("╚══════════════════════════════════════════════════════════╝")
+        print(f"{Colors.BRIGHT_CYAN}╔══════════════════════════════════════════════════════════╗{Colors.RESET}")
+        print(f"{Colors.BRIGHT_CYAN}║{Colors.BOLD}          D E C K   I N T E R F A C E   v2.4.1           {Colors.RESET}{Colors.BRIGHT_CYAN}║{Colors.RESET}")
+        print(f"{Colors.BRIGHT_CYAN}║{Colors.GREY}          PELAGIC SOLUTIONS NEURAL BRIDGE SYSTEM          {Colors.RESET}{Colors.BRIGHT_CYAN}║{Colors.RESET}")
+        print(f"{Colors.BRIGHT_CYAN}╚══════════════════════════════════════════════════════════╝{Colors.RESET}")
         self.print_border("═")
         print()
 
     def print_status(self):
         """Print connection status and enforcer vitals."""
-        print(f"┌─ CONNECTION STATUS ────────────────────────────────────┐")
-        print(f"│ ENFORCER:  {self.enforcer_name:<15} STATUS: {self.connection_status:<12} │")
-        print(f"│ LINK:      NEURAL BRIDGE        LATENCY: 24ms         │")
-        print(f"└────────────────────────────────────────────────────────┘")
+        print(f"{Colors.CYAN}┌─ CONNECTION STATUS ────────────────────────────────────┐{Colors.RESET}")
+        print(f"{Colors.CYAN}│{Colors.RESET} ENFORCER:  {Colors.AMBER}{self.enforcer_name:<15}{Colors.RESET} STATUS: {Colors.WHITE}{self.connection_status:<12}{Colors.RESET} {Colors.CYAN}│{Colors.RESET}")
+        print(f"{Colors.CYAN}│{Colors.RESET} LINK:      {Colors.GREY}NEURAL BRIDGE{Colors.RESET}        LATENCY: {Colors.GREY}24ms{Colors.RESET}         {Colors.CYAN}│{Colors.RESET}")
+        print(f"{Colors.CYAN}└────────────────────────────────────────────────────────┘{Colors.RESET}")
         print()
-        print(f"┌─ ENFORCER VITALS ──────────────────────────────────────┐")
-        print(f"│ MEAT:     {'■' * self.stress_meat}{'□' * (3 - self.stress_meat)}  " +
-              f"NERVES:   {'■' * self.stress_nerves}{'□' * (3 - self.stress_nerves)}  " +
-              f"SYSTEMS:  {'■' * self.stress_systems}{'□' * (3 - self.stress_systems)}  │")
-        print(f"└────────────────────────────────────────────────────────┘")
+        print(f"{Colors.CYAN}┌─ ENFORCER VITALS ──────────────────────────────────────┐{Colors.RESET}")
+        meat_filled = f"{Colors.AMBER}{'■' * self.stress_meat}{Colors.RESET}"
+        meat_empty = f"{Colors.GREY}{'□' * (3 - self.stress_meat)}{Colors.RESET}"
+        nerves_filled = f"{Colors.AMBER}{'■' * self.stress_nerves}{Colors.RESET}"
+        nerves_empty = f"{Colors.GREY}{'□' * (3 - self.stress_nerves)}{Colors.RESET}"
+        systems_filled = f"{Colors.CYAN}{'■' * self.stress_systems}{Colors.RESET}"
+        systems_empty = f"{Colors.GREY}{'□' * (3 - self.stress_systems)}{Colors.RESET}"
+        print(f"{Colors.CYAN}│{Colors.RESET} MEAT:     {meat_filled}{meat_empty}  " +
+              f"NERVES:   {nerves_filled}{nerves_empty}  " +
+              f"SYSTEMS:  {systems_filled}{systems_empty}  {Colors.CYAN}│{Colors.RESET}")
+        print(f"{Colors.CYAN}└────────────────────────────────────────────────────────┘{Colors.RESET}")
         print()
 
     def print_transmission(self, text, source="NOMAD-7"):
         """Print message from field agent."""
-        print(f">> INCOMING TRANSMISSION [{source}]")
-        self.print_border("─", 60)
-        print(f"   {text}")
-        self.print_border("─", 60)
+        print(f"{Colors.AMBER}>> INCOMING TRANSMISSION [{Colors.BOLD}{source}{Colors.RESET}{Colors.AMBER}]{Colors.RESET}")
+        print(f"{Colors.GREY}{'─' * 60}{Colors.RESET}")
+        print(f"{Colors.AMBER}   {text}{Colors.RESET}")
+        print(f"{Colors.GREY}{'─' * 60}{Colors.RESET}")
         print()
 
     def print_system_message(self, text):
         """Print system status message."""
-        print(f"[SYSTEM] {text}")
+        print(f"{Colors.BRIGHT_CYAN}[SYSTEM]{Colors.RESET} {Colors.WHITE}{text}{Colors.RESET}")
         print()
 
     def get_choice(self, choices, auto_select=0):
@@ -83,32 +116,32 @@ class DeckInterface:
             choices: List of choice strings
             auto_select: Index to auto-select in batch mode (default 0)
         """
-        print("┌─ AVAILABLE ACTIONS ────────────────────────────────────┐")
+        print(f"{Colors.CYAN}┌─ AVAILABLE ACTIONS ────────────────────────────────────┐{Colors.RESET}")
         for i, choice in enumerate(choices, 1):
-            print(f"│ [{i}] {choice:<54} │")
-        print("└────────────────────────────────────────────────────────┘")
+            print(f"{Colors.CYAN}│{Colors.RESET} {Colors.AMBER}[{i}]{Colors.RESET} {Colors.WHITE}{choice:<54}{Colors.RESET} {Colors.CYAN}│{Colors.RESET}")
+        print(f"{Colors.CYAN}└────────────────────────────────────────────────────────┘{Colors.RESET}")
         print()
 
         if self.batch_mode:
             # Auto-select in batch mode
             choice_num = auto_select + 1
-            print(f"COMMAND > {choice_num} [BATCH MODE: AUTO-SELECTED]")
+            print(f"{Colors.BRIGHT_CYAN}COMMAND >{Colors.RESET} {Colors.AMBER}{choice_num}{Colors.RESET} {Colors.GREY}[BATCH MODE: AUTO-SELECTED]{Colors.RESET}")
             print()
             time.sleep(1.5)  # Pause to show selection
             return auto_select
 
         while True:
             try:
-                choice_input = input("COMMAND > ").strip()
+                choice_input = input(f"{Colors.BRIGHT_CYAN}COMMAND >{Colors.RESET} ").strip()
                 choice_num = int(choice_input)
                 if 1 <= choice_num <= len(choices):
                     return choice_num - 1
                 else:
-                    print(f"[ERROR] Invalid selection. Choose 1-{len(choices)}")
+                    print(f"{Colors.BRIGHT_AMBER}[ERROR]{Colors.RESET} Invalid selection. Choose 1-{len(choices)}")
             except ValueError:
-                print("[ERROR] Invalid input. Enter a number.")
+                print(f"{Colors.BRIGHT_AMBER}[ERROR]{Colors.RESET} Invalid input. Enter a number.")
             except KeyboardInterrupt:
-                print("\n[SYSTEM] Connection terminated by user.")
+                print(f"\n{Colors.BRIGHT_CYAN}[SYSTEM]{Colors.RESET} Connection terminated by user.")
                 sys.exit(0)
 
 
@@ -168,10 +201,10 @@ def prologue_scene(batch_mode=False):
         deck.print_system_message("ACTIVATING REMOTE SCANNER...")
         time.sleep(2)
         deck.print_system_message("SCAN COMPLETE - THREAT ANALYSIS:")
-        print("   >> GUARD-1: Subdermal armor (grade 2), shock baton")
-        print("   >> GUARD-2: Reflex boosters (military), SMG")
-        print("   >> GUARD-3: Pain editor, combat stims")
-        print("   >> ASSESSMENT: High threat. Coordinated response likely.")
+        print(f"   {Colors.CYAN}>>{Colors.RESET} GUARD-1: {Colors.AMBER}Subdermal armor (grade 2), shock baton{Colors.RESET}")
+        print(f"   {Colors.CYAN}>>{Colors.RESET} GUARD-2: {Colors.BRIGHT_AMBER}Reflex boosters (military), SMG{Colors.RESET}")
+        print(f"   {Colors.CYAN}>>{Colors.RESET} GUARD-3: {Colors.BRIGHT_AMBER}Pain editor, combat stims{Colors.RESET}")
+        print(f"   {Colors.CYAN}>>{Colors.RESET} ASSESSMENT: {Colors.BRIGHT_AMBER}{Colors.BOLD}High threat. Coordinated response likely.{Colors.RESET}")
         print()
         time.sleep(1)
         deck.print_transmission(
@@ -184,10 +217,10 @@ def prologue_scene(batch_mode=False):
         deck.print_system_message("ACCESSING BUILDING DATABASE...")
         time.sleep(2)
         deck.print_system_message("SCHEMATICS RETRIEVED - ANALYZING...")
-        print("   >> BUILDING: Tower 19-C, Corporate Sector")
-        print("   >> ACCESS POINTS: Main entrance, maintenance shaft (east)")
-        print("   >> SECURITY: Motion sensors (floors 1-3), camera grid")
-        print("   >> WEAKNESS: Maintenance shaft bypasses sensors")
+        print(f"   {Colors.CYAN}>>{Colors.RESET} BUILDING: {Colors.WHITE}Tower 19-C, Corporate Sector{Colors.RESET}")
+        print(f"   {Colors.CYAN}>>{Colors.RESET} ACCESS POINTS: {Colors.AMBER}Main entrance, maintenance shaft (east){Colors.RESET}")
+        print(f"   {Colors.CYAN}>>{Colors.RESET} SECURITY: {Colors.BRIGHT_AMBER}Motion sensors (floors 1-3), camera grid{Colors.RESET}")
+        print(f"   {Colors.CYAN}>>{Colors.RESET} WEAKNESS: {Colors.BRIGHT_CYAN}Maintenance shaft bypasses sensors{Colors.RESET}")
         print()
         time.sleep(1)
         deck.print_transmission(
@@ -271,14 +304,14 @@ def prologue_scene(batch_mode=False):
 
     deck.print_border("═")
     print()
-    print("              E N D   O F   P R O L O G U E")
+    print(f"{Colors.BRIGHT_CYAN}{Colors.BOLD}              E N D   O F   P R O L O G U E{Colors.RESET}")
     print()
-    print("       [ This is where Act 1: The Infiltration would begin ]")
+    print(f"{Colors.GREY}       [ This is where Act 1: The Infiltration would begin ]{Colors.RESET}")
     print()
     deck.print_border("═")
     print()
-    print("PROTOTYPE MVP - Testing deck interface aesthetic")
-    print("Next: Build full scene system with JSON data")
+    print(f"{Colors.AMBER}PROTOTYPE MVP - Testing deck interface aesthetic{Colors.RESET}")
+    print(f"{Colors.GREY}Next: Build full scene system with JSON data{Colors.RESET}")
     print()
 
 
@@ -301,7 +334,7 @@ if __name__ == "__main__":
     batch_mode = args.batch or args.demo
 
     if batch_mode:
-        print("[SYSTEM] Running in BATCH MODE - choices will be auto-selected")
+        print(f"{Colors.BRIGHT_CYAN}[SYSTEM]{Colors.RESET} Running in {Colors.AMBER}BATCH MODE{Colors.RESET} - choices will be auto-selected")
         print()
         time.sleep(1)
 
