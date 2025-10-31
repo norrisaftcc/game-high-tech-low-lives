@@ -12,6 +12,11 @@ This terminal interface is your **DECK** - a neural bridge system connecting you
 ## Aesthetic
 
 - **BBS/Terminal UI**: Box-drawing characters, system messages, transmission logs
+- **Cyan & Amber Color Scheme**: Classic retro terminal palette (ANSI colors)
+  - Cyan: System UI, borders, status displays
+  - Amber: Field transmissions, warnings, enforcer comms
+  - White: Normal text content
+  - Grey: Secondary info
 - **Pelagic Solutions Neural Bridge**: In-world justification for the interface
 - **Handler/Enforcer Dynamic**: You guide, they execute
 - **Connection Status**: Shows link quality, enforcer vitals, latency
@@ -112,6 +117,7 @@ Auto-selects choices and plays through the full scenario. Great for:
 
 - **No external dependencies**: Pure Python stdlib
 - **No ncurses yet**: Testing if we even need it (probably not!)
+- **ANSI colors**: Cyan/amber terminal palette for cyberpunk aesthetic
 - **Simple typewriter effect**: `time.sleep()` for pacing
 - **Cross-platform clear**: Works on Mac/Linux/Windows
 - **Box drawing characters**: UTF-8 supported everywhere now
@@ -138,11 +144,12 @@ Auto-selects choices and plays through the full scenario. Great for:
 
 ### If We Need More
 
-- **Color**: ANSI color codes for status (red=danger, green=safe)
+- ~~**Color**: ANSI color codes~~ ✓ DONE - Cyan/amber palette implemented
 - **ASCII art**: Small graphics for status indicators
 - **Sound effects**: Terminal beeps (via `\a`)
 - **Save/load**: Store deck logs
 - **Playback**: Review past transmissions
+- **Animation**: Scanlines, glitch effects for authenticity
 
 ## Code Structure
 
