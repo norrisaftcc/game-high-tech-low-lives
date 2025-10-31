@@ -1,0 +1,19 @@
+# Python Narrative Engine Dependencies
+# Game Jam 2025 - High Tech, Low Lives
+
+# Data validation and modeling
+pydantic>=2.0.0          # Type-safe data models with validation
+
+# Terminal UI enhancement
+rich>=13.0.0             # Beautiful terminal formatting, tables, progress bars
+
+# Testing
+pytest>=7.0.0            # Test framework
+pytest-cov>=4.0.0        # Coverage reports
+
+# Optional: CLI framework
+typer>=0.9.0             # Modern CLI with type hints
+
+# Development
+black>=23.0.0            # Code formatting
+mypy>=1.0.0              # Type checking

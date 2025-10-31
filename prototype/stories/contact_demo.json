@@ -1,0 +1,442 @@
+{
+  "metadata": {
+    "title": "First Contact - Demo",
+    "author": "Game Jam 2025",
+    "version": "1.0.0",
+    "playbook": "enforcer"
+  },
+
+  "start_scene": "contact",
+
+  "character": {
+    "name": "NOMAD-7",
+    "stats": {
+      "body": 3,
+      "reflexes": 1,
+      "cool": 2,
+      "code": 0,
+      "tech": 0
+    },
+    "stress_meat": {"max": 3, "current": 3},
+    "stress_nerves": {"max": 3, "current": 3},
+    "stress_systems": {"max": 3, "current": 3},
+    "chrome": ["mantis_blades", "subdermal_armor"],
+    "aspects": {
+      "high_concept": "Chrome-Plated Street Muscle",
+      "trouble": "Trust Issues Run Deep",
+      "connection": "Handler's Last Operator"
+    }
+  },
+
+  "scenes": {
+    "contact": {
+      "id": "contact",
+      "metadata": {
+        "title": "First Contact",
+        "scene_type": "narrative"
+      },
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "CONNECTION ESTABLISHED",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Handler, this is Nomad-7. I'm in position outside the target.\n   Rain's coming down hard. Visibility is shit. Three guards\n   at the main entrance, two patrol boats circling. Corporate\n   IDs, recent chrome. They're expecting trouble.",
+          "source": "NOMAD-7",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "scan_threats",
+          "text": "\"Scan their chrome. I need threat assessment.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "threat_scan_scene",
+            "flags_set": ["scanned_threats"]
+          }
+        },
+        {
+          "id": "pull_intel",
+          "text": "\"Hold position. Pulling building schematics.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "building_intel_scene",
+            "flags_set": ["pulled_intel"]
+          }
+        },
+        {
+          "id": "go_loud",
+          "text": "\"Your call. If you think you can take them.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "loud_approach",
+            "flags_set": ["approved_loud"]
+          }
+        }
+      ],
+      "submenu": {
+        "label": "More actions...",
+        "choices": [
+          {
+            "id": "use_stim",
+            "text": "Use combat stim (1 remaining)",
+            "conditions": {
+              "items": ["combat_stim"]
+            },
+            "effects": {
+              "consume_item": "combat_stim",
+              "apply_effect": "stimmed",
+              "stress": {"nerves": 1},
+              "return_to_choices": true
+            }
+          },
+          {
+            "id": "check_status",
+            "text": "Check enforcer vitals",
+            "effects": {
+              "show_data": {
+                "type": "enforcer_status",
+                "name": "NOMAD-7",
+                "stress_meat": 3,
+                "stress_nerves": 3,
+                "stress_systems": 3,
+                "effects": []
+              },
+              "return_to_choices": true
+            }
+          },
+          {
+            "id": "abort",
+            "text": "Bug out (abort mission)",
+            "style": "warning",
+            "effects": {
+              "next": "mission_abort"
+            }
+          },
+          {
+            "id": "back",
+            "text": "← Back",
+            "effects": {
+              "return_to_choices": true
+            }
+          }
+        ]
+      }
+    },
+
+    "threat_scan_scene": {
+      "id": "threat_scan_scene",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "ACTIVATING REMOTE SCANNER...",
+          "delay": 1.5
+        },
+        {
+          "speaker": "system",
+          "text": "SCAN COMPLETE - THREAT ANALYSIS:",
+          "delay": 0.5
+        },
+        {
+          "speaker": "data",
+          "text": "GUARD-1: Subdermal armor (grade 2), shock baton\nGUARD-2: Reflex boosters (military), SMG\nGUARD-3: Pain editor, combat stims\nASSESSMENT: High threat. Coordinated response likely.",
+          "delay": 1.0
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Yeah, I'm reading those thermals too. Military-grade chrome.\n   Someone's paying top credit for security tonight. Handler,\n   are we walking into a trap?",
+          "source": "NOMAD-7",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "reassure",
+          "text": "\"Intel is solid. Stay focused.\"",
+          "effects": {
+            "next": "approach_choice",
+            "flags_set": ["reassured_enforcer"]
+          }
+        },
+        {
+          "id": "cautious",
+          "text": "\"Could be. Watch your angles.\"",
+          "effects": {
+            "next": "approach_choice",
+            "flags_set": ["warned_enforcer"]
+          }
+        },
+        {
+          "id": "abort_now",
+          "text": "\"You're right. Pull back.\"",
+          "style": "warning",
+          "effects": {
+            "next": "mission_abort"
+          }
+        }
+      ]
+    },
+
+    "building_intel_scene": {
+      "id": "building_intel_scene",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "ACCESSING BUILDING DATABASE...",
+          "delay": 1.5
+        },
+        {
+          "speaker": "system",
+          "text": "SCHEMATICS RETRIEVED - ANALYZING...",
+          "delay": 1.0
+        },
+        {
+          "speaker": "data",
+          "text": "BUILDING: Tower 19-C, Corporate Sector\nACCESS POINTS: Main entrance, maintenance shaft (east)\nSECURITY: Motion sensors (floors 1-3), camera grid\nWEAKNESS: Maintenance shaft bypasses sensors",
+          "delay": 1.0
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Good catch, Handler. Maintenance shaft puts me behind their\n   line. Gonna be tight and probably full of water, but I'll\n   take wet and alive over loud and dead.",
+          "source": "NOMAD-7",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "approve_stealth",
+          "text": "\"Do it. Quiet approach.\"",
+          "effects": {
+            "next": "stealth_approach",
+            "flags_set": ["approved_stealth"]
+          }
+        },
+        {
+          "id": "suggest_loud",
+          "text": "\"Actually, let's go loud. Surprise them.\"",
+          "effects": {
+            "next": "loud_approach",
+            "flags_set": ["changed_mind_loud"]
+          }
+        }
+      ]
+    },
+
+    "approach_choice": {
+      "id": "approach_choice",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Alright, Handler. I need a call. Loud or quiet?",
+          "source": "NOMAD-7",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "go_stealth",
+          "text": "\"Find the maintenance access. Go quiet.\"",
+          "effects": {
+            "next": "stealth_approach"
+          }
+        },
+        {
+          "id": "go_loud",
+          "text": "\"Your chrome is sharp. Go loud.\"",
+          "effects": {
+            "next": "loud_approach"
+          }
+        }
+      ]
+    },
+
+    "stealth_approach": {
+      "id": "stealth_approach",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Enforcer moving to secondary position...",
+          "delay": 1.0
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Maintenance hatch located. Going dark in three... two...",
+          "source": "NOMAD-7",
+          "delay": 1.5
+        },
+        {
+          "speaker": "system",
+          "text": "NEURAL BRIDGE SIGNAL DEGRADING...",
+          "delay": 1.0
+        },
+        {
+          "speaker": "system",
+          "text": "STANDBY...",
+          "delay": 2.0
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "[END OF DEMO]",
+          "effects": {
+            "next": "demo_end"
+          }
+        }
+      ]
+    },
+
+    "loud_approach": {
+      "id": "loud_approach",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Copy that. Mantis blades out. Let's dance.",
+          "source": "NOMAD-7",
+          "delay": 1.0
+        },
+        {
+          "speaker": "system",
+          "text": "WARNING: WEAPONS SIGNATURE DETECTED",
+          "delay": 0.5
+        },
+        {
+          "speaker": "system",
+          "text": "HOSTILE ENGAGEMENT IMMINENT",
+          "delay": 1.0
+        }
+      ],
+      "choices": [
+        {
+          "id": "engage",
+          "text": "Engage!",
+          "effects": {
+            "combat": {
+              "enemy": "Corpo Guards",
+              "success_scene": "combat_victory",
+              "failure_scene": "combat_defeat"
+            }
+          }
+        }
+      ]
+    },
+
+    "combat_victory": {
+      "id": "combat_victory",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "COMBAT RESOLVED - HOSTILES NEUTRALIZED",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Targets down. Chrome worked like a charm, Handler.\n   Breaching the door now.",
+          "source": "NOMAD-7",
+          "delay": 1.0
+        },
+        {
+          "speaker": "system",
+          "text": "STANDBY FOR INFILTRATION...",
+          "delay": 1.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "[END OF DEMO - VICTORY]",
+          "effects": {
+            "next": "demo_end"
+          }
+        }
+      ]
+    },
+
+    "combat_defeat": {
+      "id": "combat_defeat",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "CRITICAL ALERT - ENFORCER DOWN",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Handler... they're good. Too good. I'm— \n   ...signal fading...",
+          "source": "NOMAD-7",
+          "delay": 1.0
+        },
+        {
+          "speaker": "system",
+          "text": "CONNECTION LOST",
+          "delay": 1.0
+        }
+      ],
+      "choices": [
+        {
+          "id": "restart",
+          "text": "[MISSION FAILED - END DEMO]",
+          "effects": {
+            "next": "demo_end"
+          }
+        }
+      ]
+    },
+
+    "mission_abort": {
+      "id": "mission_abort",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "MISSION ABORT AUTHORIZED",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "...Understood. Falling back to extraction point.\n   Handler, I hope you know what you're doing.",
+          "source": "NOMAD-7",
+          "delay": 1.0
+        },
+        {
+          "speaker": "system",
+          "text": "CONNECTION TERMINATED",
+          "delay": 1.0
+        }
+      ],
+      "choices": [
+        {
+          "id": "restart",
+          "text": "[MISSION FAILED - RESTART]",
+          "effects": {
+            "next": "demo_end"
+          }
+        }
+      ]
+    },
+
+    "demo_end": {
+      "id": "demo_end",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "═══════════════════════════════════════════════════════════",
+          "delay": 0.5
+        },
+        {
+          "speaker": "system",
+          "text": "E N D   O F   D E M O",
+          "delay": 0.5
+        },
+        {
+          "speaker": "system",
+          "text": "═══════════════════════════════════════════════════════════",
+          "delay": 0.5
+        }
+      ],
+      "choices": []
+    }
+  }
+}
