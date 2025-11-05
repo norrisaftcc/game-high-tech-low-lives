@@ -15,7 +15,7 @@ Play through one complete path. This shows you WHAT the program does. Now let's 
 
 ### Step 2: Look at the Data (10 minutes)
 
-Open `narrative_game.cpp` and find the **Data Structures** section (~lines 35-70).
+Open `narrative_game.cpp` and find the **Data Structures** section (lines 23-97).
 
 Read these three structs in order:
 
@@ -53,7 +53,7 @@ Read these three structs in order:
 
 ### Step 3: Follow main() (10 minutes)
 
-Find `main()` starting around line 89.
+Find `main()` starting at line 127.
 
 Notice how SHORT it is! This is good design.
 
@@ -117,7 +117,7 @@ cout << "Meat:    " << string(state.stressMeat, '#')
 ### Exercise 2: Add a New Scene (Medium)
 
 Add a new scene to the story:
-1. Go to `createStoryScenes()` (around line 360)
+1. Go to `createStoryScenes()` (line 358)
 2. Copy the pattern from an existing scene
 3. Create a Scene with:
    - A unique id (like "new_scene")

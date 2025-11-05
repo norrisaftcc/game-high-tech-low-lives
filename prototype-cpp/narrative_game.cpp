@@ -55,6 +55,9 @@ struct Scene {
  *
  * DESIGN NOTE: Centralizing state in one place makes it easier to manage
  * and pass between functions. As the game grows, you'd add more fields here.
+ *
+ * TEACHING NOTE: The stress values are constrained to 0-3. We provide helper
+ * methods to ensure values stay within valid range, demonstrating data validation.
  */
 struct GameState {
     string currentSceneId;      // Which scene we're in
@@ -69,6 +72,28 @@ struct GameState {
                   stressMeat(3),
                   stressNerves(3),
                   stressSystems(3) {}
+
+    /**
+     * Clamp a value to the valid stress range (0-3).
+     *
+     * TEACHING NOTE: This is a helper function that ensures values stay in bounds.
+     * Using a helper like this prevents invalid state throughout the program.
+     */
+    static int clampStress(int value) {
+        if (value < 0) return 0;
+        if (value > 3) return 3;
+        return value;
+    }
+
+    /**
+     * Set stress values with automatic clamping to valid range.
+     *
+     * TEACHING NOTE: These setters demonstrate how to validate data when it's modified.
+     * This is better than allowing direct assignment, which could create invalid state.
+     */
+    void setStressMeat(int value) { stressMeat = clampStress(value); }
+    void setStressNerves(int value) { stressNerves = clampStress(value); }
+    void setStressSystems(int value) { stressSystems = clampStress(value); }
 };
 
 // ============================================================================

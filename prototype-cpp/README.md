@@ -130,30 +130,30 @@ Different choices lead to different story branches and endings.
 
 ```
 narrative_game.cpp
-├── Data Structures (lines ~35-70)
+├── Data Structures (lines 23-97)
 │   ├── Choice struct
 │   ├── Scene struct
-│   └── GameState struct
+│   └── GameState struct (with validation methods)
 │
-├── Function Declarations (lines ~72-87)
+├── Function Declarations (lines 99-118)
 │
-├── main() function (lines ~89-108)
+├── main() function (lines 127-147)
 │   └── Simple, high-level game loop
 │
-├── Display Functions (lines ~110-175)
+├── Display Functions (lines 149-237)
 │   ├── printHeader()
 │   ├── printDivider()
 │   ├── printStatus()
 │   ├── printNarrative()
 │   └── printChoices()
 │
-├── Game Logic Functions (lines ~177-280)
-│   ├── getPlayerChoice() - Input validation
+├── Game Logic Functions (lines 238-341)
+│   ├── getPlayerChoice() - Input validation (line 253)
 │   ├── findScene() - Scene lookup
-│   └── runScene() - Scene execution
+│   └── runScene() - Scene execution (line 310)
 │
-└── Story Content (lines ~282-end)
-    └── createStoryScenes() - All game content
+└── Story Content (lines 342-end)
+    └── createStoryScenes() - All game content (line 358)
 ```
 
 ## 🔧 Extending the Example
