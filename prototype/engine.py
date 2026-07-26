@@ -371,6 +371,7 @@ class NarrativeEngine:
             player_name,
             player_stress_track=character.stress_meat,
             player_stat_mod=character.stats.body,
+            character=character,
         )
 
     def display_data(self, data: dict):

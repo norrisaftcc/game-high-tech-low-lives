@@ -17,7 +17,7 @@ import itertools
 import pytest
 
 import combat
-from combat import CombatEngine, format_dice_result, roll_4df, roll_4df_dice
+from combat import CombatEngine, TIES_BEFORE_FATE_POINT, format_dice_result, roll_4df, roll_4df_dice
 from deck_mvp import DeckInterface
 from engine import NarrativeEngine
 from models import CharacterState, CharacterStats, Effects, GameState, StressTrack
@@ -248,3 +248,94 @@ class TestRunCombat:
         )
 
         assert result is True
+
+
+# ---------------------------------------------------------------------------
+# Fate point tie-break: three consecutive clashes force a resolution.
+# Only the player tracks Fate points (NPCs don't refresh a pool), so the
+# rule collapses to: player spends to win the tie if they can afford it,
+# otherwise the enemy forces it. This also regression-tests the original
+# bug where an unbroken run of ties spun run_combat() forever.
+# ---------------------------------------------------------------------------
+
+
+def _character_with_fate_points(fate_points: int) -> CharacterState:
+    return CharacterState(
+        name="Runner",
+        stats=CharacterStats(body=0, reflexes=0, cool=0, code=0, tech=0),
+        fate_points=fate_points,
+    )
+
+
+class TestFateTieBreak:
+    def test_three_consecutive_ties_spend_fate_point_and_hit_enemy(self, monkeypatch):
+        dice_sequence = iter(
+            [
+                [0, 0, 0, 0], [0, 0, 0, 0],  # round 1: clash
+                [0, 0, 0, 0], [0, 0, 0, 0],  # round 2: clash
+                [0, 0, 0, 0], [0, 0, 0, 0],  # round 3: clash -> tie-break fires
+                [1, 1, 1, 1], [-1, -1, -1, -1],  # round 4: player wins clean
+                [1, 1, 1, 1], [-1, -1, -1, -1],  # round 5: player wins clean, enemy taken out
+            ]
+        )
+        monkeypatch.setattr(combat, "roll_4df_dice", lambda: next(dice_sequence))
+
+        character = _character_with_fate_points(fate_points=1)
+        player_track = StressTrack(max=3, current=3)
+
+        result = _combat_engine().run_combat(
+            enemy_name="Test Drone",
+            player_name="Runner",
+            player_stress_track=player_track,
+            player_stat_mod=0,
+            enemy_stat_mod=0,
+            character=character,
+        )
+
+        assert result is True
+        # Player never took a hit - the tie-break landed on the enemy.
+        assert player_track.current == 3
+        # The one Fate point was spent to force the third consecutive tie.
+        assert character.fate_points == 0
+
+    def test_tie_break_favors_enemy_when_player_has_no_fate_points_left(self, monkeypatch):
+        # Every round ties, forever, with no Fate points to spend - this is
+        # exactly the scenario that used to hang run_combat() indefinitely.
+        dice_sequence = itertools.cycle([[0, 0, 0, 0]])
+        monkeypatch.setattr(combat, "roll_4df_dice", lambda: next(dice_sequence))
+
+        character = _character_with_fate_points(fate_points=0)
+        player_track = StressTrack(max=3, current=3)
+
+        result = _combat_engine().run_combat(
+            enemy_name="Test Drone",
+            player_name="Runner",
+            player_stress_track=player_track,
+            player_stat_mod=0,
+            enemy_stat_mod=0,
+            character=character,
+        )
+
+        # Every third clash still forces a hit even with nothing to spend,
+        # so the loop terminates instead of stalling on ties forever.
+        assert result is False
+        assert player_track.current == 0
+        assert character.fate_points == 0
+
+    def test_run_combat_defaults_to_three_fate_points_when_no_character_supplied(self, monkeypatch):
+        # No `character` passed - should still resolve ties via a local
+        # 3-point pool rather than raising or stalling forever.
+        dice_sequence = itertools.cycle([[0, 0, 0, 0]])
+        monkeypatch.setattr(combat, "roll_4df_dice", lambda: next(dice_sequence))
+
+        player_track = StressTrack(max=3, current=3)
+
+        result = _combat_engine().run_combat(
+            enemy_name="Test Drone",
+            player_name="Runner",
+            player_stress_track=player_track,
+            player_stat_mod=0,
+            enemy_stat_mod=0,
+        )
+
+        assert isinstance(result, bool)
