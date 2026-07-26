@@ -1,0 +1,1554 @@
+{
+  "metadata": {
+    "title": "The Enforcer: Debt Collection",
+    "author": "Game Jam 2025",
+    "version": "1.0.0",
+    "playbook": "enforcer"
+  },
+  "start_scene": "neg_open",
+  "character": {
+    "name": "RIPTIDE-3",
+    "stats": {
+      "body": 2,
+      "reflexes": 2,
+      "cool": 2,
+      "code": 1,
+      "tech": 1
+    },
+    "stress_meat": {
+      "max": 3,
+      "current": 3
+    },
+    "stress_nerves": {
+      "max": 3,
+      "current": 3
+    },
+    "stress_systems": {
+      "max": 3,
+      "current": 3
+    },
+    "chrome": [
+      "subdermal_armor",
+      "neural_bridge"
+    ],
+    "aspects": {
+      "high_concept": "Deep-Water Debt Collector",
+      "trouble": "Owes More Favors Than He's Owed",
+      "connection": "Handler's Family Is My Family"
+    }
+  },
+  "scenes": {
+    "neg_open": {
+      "id": "neg_open",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "LINK ESTABLISHED — LOW BAND",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Handler, Riptide-3, checking in. I'm inside the Undertow den — gutted\n   cargo hulk on pylons, low-tide access only. Walked in dry. Won't\n   stay that way.\n\n   Juno's here. On her feet, arms wrapped around herself, won't look\n   at the door. This isn't a standard extraction brief, Handler. This\n   is your sister. Say so if I'm wrong about what we're doing tonight.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Vane's laying out terms. Fifty thousand credits by dawn, or the\n   regulator comes out of her chest 'however it comes out' — his\n   words, not mine. No anesthetic if we're late. Given what that\n   chrome does for her lungs down in the deep sectors, that's not\n   repossession. That's a body bag with a payment schedule attached.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "There's a wrinkle. Vane says Undertow's got a job needs doing\n   tonight — corp remittance barge, sitting fat at low tide. Clear it\n   for them, debt's gone, nobody's chrome comes out of anybody. He's\n   watching me while he says it. Wants an answer, Handler.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "intimidate",
+          "text": "\"Tell him fifty thousand isn't the only thing that leaves this room broken.\"",
+          "speaker": "player",
+          "effects": {
+            "combat": {
+              "enemy": "Coral Vane — Intimidation Contest (Body)",
+              "success_scene": "neg_intimidate_success",
+              "failure_scene": "neg_intimidate_fail"
+            }
+          }
+        },
+        {
+          "id": "negotiate",
+          "text": "\"We're reasonable people. Ask him what this job actually is.\"",
+          "speaker": "player",
+          "effects": {
+            "combat": {
+              "enemy": "Coral Vane — Negotiation Contest (Cool)",
+              "success_scene": "neg_cool_success",
+              "failure_scene": "neg_cool_tie"
+            }
+          }
+        },
+        {
+          "id": "take_job",
+          "text": "\"Take the job. We don't have four hours to spend talking.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "neg_take_job",
+            "flags_set": [
+              "job_swap"
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "title": "Negotiation",
+        "scene_type": "narrative"
+      },
+      "submenu": {
+        "label": "More actions...",
+        "choices": [
+          {
+            "id": "call_favor",
+            "text": "\"Hold on — I'm calling in a favor first.\"",
+            "effects": {
+              "next": "neg_call_favor",
+              "flags_set": [
+                "called_favor"
+              ]
+            }
+          },
+          {
+            "id": "check_status",
+            "text": "Check enforcer vitals",
+            "effects": {
+              "show_data": {
+                "type": "enforcer_status",
+                "name": "RIPTIDE-3",
+                "stress_meat": 3,
+                "stress_nerves": 3,
+                "stress_systems": 3,
+                "effects": []
+              },
+              "return_to_choices": true
+            }
+          },
+          {
+            "id": "back",
+            "text": "← Back",
+            "effects": {
+              "return_to_choices": true
+            }
+          }
+        ]
+      }
+    },
+    "neg_call_favor": {
+      "id": "neg_call_favor",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "OUTBOUND CALL — ENCRYPTED",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Made the call. Owed me from a long way back — they're on standby if\n   tonight goes bad. Doesn't buy us a minute here. It's just something\n   in the bank for later.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Continue",
+          "effects": {
+            "next": "neg_open"
+          }
+        }
+      ]
+    },
+    "neg_intimidate_success": {
+      "id": "neg_intimidate_success",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "That landed. Vane's jaw is doing something ugly, but he's giving\n   ground on the clock — four hours, hard stop, and his crew's\n   counting it too now, so it's real. Doesn't feel like a man who's\n   going to forget I said it, though.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "FLAG SET: THREATENED_COLLECTIVE",
+          "delay": 0.3
+        },
+        {
+          "speaker": "system",
+          "text": "CLOCK: 4 HOURS TO DAWN",
+          "delay": 0.3
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Move to the barge.",
+          "effects": {
+            "next": "heist_open",
+            "flags_set": [
+              "threatened_collective"
+            ]
+          }
+        }
+      ]
+    },
+    "neg_intimidate_fail": {
+      "id": "neg_intimidate_fail",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "That did not land the way I wanted—",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "WARNING: HOSTILE CONTACT — 2x UNDERTOW MUSCLE",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "engage",
+          "text": "Engage!",
+          "effects": {
+            "combat": {
+              "enemy": "Undertow Muscle x2",
+              "success_scene": "neg_intimidate_fail_victory",
+              "failure_scene": "neg_intimidate_fail_defeat"
+            }
+          }
+        }
+      ]
+    },
+    "neg_intimidate_fail_victory": {
+      "id": "neg_intimidate_fail_victory",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "COMBAT RESOLVED — HOSTILES DOWN",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Both down. Vane's not smiling anymore, but Juno took an elbow to\n   the ribs before I got to her — she's hurt, she's upright, and\n   she's looking at me like I just made this worse. No extension\n   offered. Dawn, full stop.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "CLOCK: DAWN — NO EXTENSION",
+          "delay": 0.3
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Move to the barge.",
+          "effects": {
+            "next": "heist_open"
+          }
+        }
+      ]
+    },
+    "neg_intimidate_fail_defeat": {
+      "id": "neg_intimidate_fail_defeat",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "STRESS APPLIED — MEAT +1, NERVES +1",
+          "delay": 0.3
+        },
+        {
+          "speaker": "enforcer",
+          "text": "They had the numbers on us in that room, Handler. I took a beating\n   I didn't need to take. Juno's worse for it too — took a hit meant\n   for me. We're walking out with nothing but the clock, and it's not\n   being generous about it.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "CLOCK: DAWN — NO EXTENSION",
+          "delay": 0.3
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Move to the barge.",
+          "effects": {
+            "next": "heist_open",
+            "stress": {
+              "meat": 1,
+              "nerves": 1
+            }
+          }
+        }
+      ]
+    },
+    "neg_cool_success": {
+      "id": "neg_cool_success",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "He's listening. There's a barge job — corp remittance platform,\n   underhull access at low tide, ripe for tonight. Clear it clean,\n   debt's forgiven, nobody's chrome comes out. Four hours on the\n   clock, starting now.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "FLAG SET: JOB_SWAP",
+          "delay": 0.3
+        },
+        {
+          "speaker": "system",
+          "text": "CLOCK: 4 HOURS TO DAWN",
+          "delay": 0.3
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Move to the barge.",
+          "effects": {
+            "next": "heist_open_jobswap",
+            "flags_set": [
+              "job_swap"
+            ]
+          }
+        }
+      ]
+    },
+    "neg_cool_tie": {
+      "id": "neg_cool_tie",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "He's not buying reasonable, but he's not calling for the anesthetic\n   tray either. Two hours, no job offer. He wants to watch us scramble\n   for cash on our own dime. Charming guy, your creditor.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "CLOCK: 2 HOURS TO DAWN",
+          "delay": 0.3
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Find fifty thousand credits ourselves.",
+          "effects": {
+            "next": "heist_open"
+          }
+        }
+      ]
+    },
+    "neg_take_job": {
+      "id": "neg_take_job",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Copy. Taking the job — Vane's already waving his people over to\n   brief me on the barge. No haggling, no extension banked. We do\n   this clean or we don't do it at all.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "CLOCK: 4 HOURS TO DAWN",
+          "delay": 0.3
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Move to the barge.",
+          "effects": {
+            "next": "heist_open_jobswap"
+          }
+        }
+      ]
+    },
+    "heist_open": {
+      "id": "heist_open",
+      "messages": [
+        {
+          "speaker": "data",
+          "text": "TARGET: Corp remittance clearing platform, open-water mooring\nGUARD ROTATION: 4-minute intervals, underhull hatch blind 90 sec/pass\nALARM GRID: Standard corp mesh, ledger-side trip\nTIDE WINDOW: Closing — underhull access floods in nine minutes",
+          "delay": 1.0
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Handler, I'm not alone out here. Local fixer caught wind we're\n   moving on the barge — goes by Ratchet, says he knows this hull's\n   blind spots better than the guards do. Offering to help carry,\n   split the load 'so we're not both holding fifty grand if this goes\n   sideways.' Practical guy. I trust the practical ones less than the\n   ones who stay home, but he's not wrong about the math.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Small thing — Ratchet clocked a second patrol I hadn't logged and\n   pulled me back before I walked into their sightline. Didn't have\n   to. Didn't ask for a cut of the take to do it either. Noting that,\n   Handler, because guys like that don't usually last long down here.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "stealth",
+          "text": "\"Go quiet. Hack the ledger, take exactly what we're owed.\"",
+          "speaker": "player",
+          "effects": {
+            "combat": {
+              "enemy": "Barge Ledger Security — Stealth Contest (Code/Tech)",
+              "success_scene": "heist_stealth_success",
+              "failure_scene": "heist_stealth_fail"
+            }
+          }
+        },
+        {
+          "id": "loud",
+          "text": "\"Blow the vault. Grab it and go.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "heist_loud",
+            "flags_set": [
+              "burned_corp_sector"
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "title": "Heist",
+        "scene_type": "narrative"
+      }
+    },
+    "heist_open_jobswap": {
+      "id": "heist_open_jobswap",
+      "messages": [
+        {
+          "speaker": "data",
+          "text": "TARGET: Corp remittance clearing platform, open-water mooring\nGUARD ROTATION: 4-minute intervals, underhull hatch blind 90 sec/pass\nALARM GRID: Standard corp mesh, ledger-side trip\nTIDE WINDOW: Closing — underhull access floods in nine minutes",
+          "delay": 1.0
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Handler, I'm not alone out here. Local fixer caught wind we're\n   moving on the barge — goes by Ratchet, says he knows this hull's\n   blind spots better than the guards do. Offering to help carry,\n   split the load 'so we're not both holding fifty grand if this goes\n   sideways.' Practical guy. I trust the practical ones less than the\n   ones who stay home, but he's not wrong about the math.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Also — Vane's people are out on the water. Not helping. Watching.\n   Undertow's got skin in this now, so no improvising, Handler.\n   They're counting on clean.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Small thing — Ratchet clocked a second patrol I hadn't logged and\n   pulled me back before I walked into their sightline. Didn't have\n   to. Didn't ask for a cut of the take to do it either. Noting that,\n   Handler, because guys like that don't usually last long down here.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "stealth",
+          "text": "\"Go quiet. Hack the ledger, take exactly what we're owed.\"",
+          "speaker": "player",
+          "effects": {
+            "combat": {
+              "enemy": "Barge Ledger Security — Stealth Contest (Code/Tech)",
+              "success_scene": "heist_stealth_success",
+              "failure_scene": "heist_stealth_fail"
+            }
+          }
+        },
+        {
+          "id": "loud",
+          "text": "\"Blow the vault. Grab it and go.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "heist_loud",
+            "flags_set": [
+              "burned_corp_sector"
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "title": "Heist",
+        "scene_type": "narrative"
+      }
+    },
+    "heist_stealth_success": {
+      "id": "heist_stealth_success",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "LEDGER ACCESS — SIPHON IN PROGRESS...",
+          "delay": 1.0
+        },
+        {
+          "speaker": "enforcer",
+          "text": "In. Quiet. Fifty thousand, clean transfer — nobody on this hull\n   even twitched.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "data",
+          "text": "TIDE WINDOW: 3 minutes remaining",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "That took longer than I wanted it to. Tide's turning under us.\n   We move now.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Decide the take.",
+          "effects": {
+            "next": "heist_amount"
+          }
+        }
+      ]
+    },
+    "heist_stealth_fail": {
+      "id": "heist_stealth_fail",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "ALARM TRIPPED — LEDGER FLAGGED SIPHON",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Every light on this hull just turned red. Guards inbound, Handler.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "engage",
+          "text": "Engage!",
+          "effects": {
+            "combat": {
+              "enemy": "Barge Security x2",
+              "success_scene": "heist_stealth_fail_victory",
+              "failure_scene": "heist_stealth_fail_defeat"
+            }
+          }
+        }
+      ]
+    },
+    "heist_stealth_fail_victory": {
+      "id": "heist_stealth_fail_victory",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Handled. Money's ours, but that alarm didn't stay local — somebody\n   heard it who isn't Undertow.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Decide the take.",
+          "effects": {
+            "next": "heist_amount"
+          }
+        }
+      ]
+    },
+    "heist_stealth_fail_defeat": {
+      "id": "heist_stealth_fail_defeat",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "STRESS APPLIED — MEAT +1",
+          "delay": 0.3
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Took a hit clearing them. We've got the money. I've got a limp and\n   a countdown that isn't slowing down for either.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Decide the take.",
+          "effects": {
+            "next": "heist_amount",
+            "stress": {
+              "meat": 1
+            }
+          }
+        }
+      ]
+    },
+    "heist_loud": {
+      "id": "heist_loud",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "CHARGES SET",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Vault's open. Grabbing and moving — this brings every guard on the\n   platform, and it's going straight up the wire to corp security\n   proper. We just made this loud in a way we don't get to walk back.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "FLAG SET: BURNED_CORP_SECTOR",
+          "delay": 0.3
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Decide the take.",
+          "effects": {
+            "next": "heist_amount"
+          }
+        }
+      ]
+    },
+    "heist_amount": {
+      "id": "heist_amount",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Ratchet's got the case open. Question's how much we take before\n   this window shuts.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "greedy",
+          "text": "\"Take more than fifty. We might need the cushion.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "heist_greedy",
+            "flags_set": [
+              "greedy_take"
+            ]
+          }
+        },
+        {
+          "id": "minimal",
+          "text": "\"Exactly fifty. Nothing extra. We're gone.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "heist_minimal"
+          }
+        }
+      ]
+    },
+    "heist_greedy": {
+      "id": "heist_greedy",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "More zeros than the number Vane gave us. Ratchet's counting it\n   twice, doesn't say much. Just looks at it a beat longer than he\n   needs to.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Head for the causeway.",
+          "effects": {
+            "next": "ambush_open"
+          }
+        }
+      ]
+    },
+    "heist_minimal": {
+      "id": "heist_minimal",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Fifty, exact, case shut. Cleanest exit we've got — but it means\n   zero margin if anything downstream goes wrong.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Head for the causeway.",
+          "effects": {
+            "next": "ambush_open"
+          }
+        }
+      ]
+    },
+    "ambush_open": {
+      "id": "ambush_open",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "TRANSIT — FLOODED CAUSEWAY — TIDE RISING",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Handler, we're mid-tunnel, water's climbing our boots, and I don't\n   like the way our footsteps are echoing back at us in here.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "fight_through",
+          "text": "\"Fight through. We keep everything.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "ambush_pre_engage"
+          }
+        },
+        {
+          "id": "split_up",
+          "text": "\"Split up — Ratchet takes the money ahead, you hold the line.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "ambush_pre_engage",
+            "flags_set": [
+              "split_route"
+            ]
+          }
+        },
+        {
+          "id": "dump_excess",
+          "text": "\"Dump the extra credits. Lighten the load, shorten this.\"",
+          "speaker": "player",
+          "conditions": {
+            "flags_set": [
+              "greedy_take"
+            ]
+          },
+          "effects": {
+            "next": "ambush_pre_engage",
+            "flags_set": [
+              "dumped_excess"
+            ]
+          }
+        },
+        {
+          "id": "call_the_favor",
+          "text": "\"Call in that favor. We need it now.\"",
+          "speaker": "player",
+          "conditions": {
+            "flags_set": [
+              "called_favor"
+            ]
+          },
+          "effects": {
+            "next": "ambush_pre_engage",
+            "flags_set": [
+              "favor_spent"
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "title": "Ambush",
+        "scene_type": "combat"
+      }
+    },
+    "ambush_pre_engage": {
+      "id": "ambush_pre_engage",
+      "messages": [],
+      "choices": [
+        {
+          "id": "continue_corp",
+          "text": "Continue",
+          "conditions": {
+            "flags_set": [
+              "burned_corp_sector"
+            ]
+          },
+          "effects": {
+            "next": "ambush_engage_corp"
+          }
+        },
+        {
+          "id": "continue_undertow",
+          "text": "Continue",
+          "conditions": {
+            "flags_set": [
+              "job_swap"
+            ],
+            "flags_not_set": [
+              "burned_corp_sector"
+            ]
+          },
+          "effects": {
+            "next": "ambush_engage_undertow"
+          }
+        },
+        {
+          "id": "continue_default",
+          "text": "Continue",
+          "conditions": {
+            "flags_not_set": [
+              "job_swap",
+              "burned_corp_sector"
+            ]
+          },
+          "effects": {
+            "next": "ambush_engage_default"
+          }
+        }
+      ]
+    },
+    "ambush_engage_corp": {
+      "id": "ambush_engage_corp",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Corp chrome up ahead, not Undertow. They want their money back, and\n   they brought the kind of gear that doesn't ask nice.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Ratchet's already got his back to the wall, hand on his own blade —\n   watching the water, not the enemy. Filing that away.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "HOSTILE ENGAGEMENT — MANDATORY",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "engage",
+          "text": "Engage!",
+          "effects": {
+            "combat": {
+              "enemy": "Corp Security Response Team",
+              "success_scene": "ambush_victory",
+              "failure_scene": "ambush_defeat"
+            }
+          }
+        }
+      ]
+    },
+    "ambush_engage_undertow": {
+      "id": "ambush_engage_undertow",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Undertow vests. Vane's boys — 'checking on their investment,' one of\n   them just said. Didn't sound like a courtesy call.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Ratchet's already got his back to the wall, hand on his own blade —\n   watching the water, not the enemy. Filing that away.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "HOSTILE ENGAGEMENT — MANDATORY",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "engage",
+          "text": "Engage!",
+          "effects": {
+            "combat": {
+              "enemy": "Undertow Muscle (Vane's Crew)",
+              "success_scene": "ambush_victory",
+              "failure_scene": "ambush_defeat"
+            }
+          }
+        }
+      ]
+    },
+    "ambush_engage_default": {
+      "id": "ambush_engage_default",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Don't recognize the colors. Not corp, not Undertow — somebody else\n   clocked we're carrying fifty grand and decided to make it their\n   problem.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Ratchet's already got his back to the wall, hand on his own blade —\n   watching the water, not the enemy. Filing that away.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "HOSTILE ENGAGEMENT — MANDATORY",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "engage",
+          "text": "Engage!",
+          "effects": {
+            "combat": {
+              "enemy": "Unmarked Water Raiders",
+              "success_scene": "ambush_victory",
+              "failure_scene": "ambush_defeat"
+            }
+          }
+        }
+      ]
+    },
+    "ambush_victory": {
+      "id": "ambush_victory",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "COMBAT RESOLVED — HOSTILES DOWN",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Clear. Everyone's still standing, mostly. Ratchet's fine, still\n   holding his half of the case. We're bruised, we're wet, and we're\n   still in the black. Moving to the meet.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Head for the meet point.",
+          "effects": {
+            "next": "betray_open"
+          }
+        }
+      ]
+    },
+    "ambush_defeat": {
+      "id": "ambush_defeat",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "CRITICAL — STRESS APPLIED, PARTIAL LOSS",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Handler — they got into the case. Some of it's gone, and I'm not\n   walking as fast as I was five minutes ago. We're going into the\n   meet worse off than we came in here.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Head for the meet point.",
+          "effects": {
+            "next": "betray_open",
+            "stress": {
+              "meat": 1
+            }
+          }
+        }
+      ]
+    },
+    "betray_open": {
+      "id": "betray_open",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "RENDEZVOUS POINT — RATCHET: NO CONTACT",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Handler, meet point's empty. Ratchet's not here.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "CORRECTION — MULTIPLE CONTACTS, VANE'S COLORS",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Scratch that. He's here. So's Vane's crew, standing around him like\n   they've been waiting a while. He's not tied up, Handler. He's just\n   standing there. This wasn't a snatch. This was a delivery — of us.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "The job was never a favor. Vane rigged it so Undertow wins either\n   way — skims a cut if we pull the heist clean, or takes the\n   collateral off Juno if we don't. Ratchet was here to make sure of\n   it. He doesn't even look sorry.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "I need to ask, Handler — did you know this route was rigged when you\n   sent us in, or did you just need it to be over? Either answer\n   changes what I do in the next ten seconds.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "chase",
+          "text": "\"Go after him. Don't let him walk with our money.\"",
+          "speaker": "player",
+          "effects": {
+            "combat": {
+              "enemy": "Ratchet — Pursuit Contest (Reflexes/Cool)",
+              "success_scene": "betray_chase_success",
+              "failure_scene": "betray_chase_fail"
+            }
+          }
+        },
+        {
+          "id": "cut_losses",
+          "text": "\"Let him go. Take what we've got and move to the meet.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "betray_cut_losses"
+          }
+        },
+        {
+          "id": "leverage",
+          "text": "\"Forget the cash. Find out who Ratchet actually answers to.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "betray_leverage",
+            "flags_set": [
+              "has_leverage"
+            ]
+          }
+        },
+        {
+          "id": "pay_cost",
+          "text": "\"Cover the gap. Whatever it costs, whoever we owe.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "betray_pay_cost"
+          }
+        }
+      ],
+      "metadata": {
+        "title": "Betrayal",
+        "scene_type": "narrative"
+      }
+    },
+    "betray_chase_success": {
+      "id": "betray_chase_success",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Caught him at the water's edge. Got most of the money back, and\n   something better — a chip off his rig with Vane's fingerprints all\n   over the setup. He's not talking. Doesn't need to. This talks for\n   him.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "FLAG SET: HAS_LEVERAGE",
+          "delay": 0.3
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Return to Undertow's den.",
+          "effects": {
+            "next": "reck_open",
+            "flags_set": [
+              "has_leverage"
+            ]
+          }
+        }
+      ]
+    },
+    "betray_chase_fail": {
+      "id": "betray_chase_fail",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Lost him in the market stalls. Fistful of nothing, worse mood. We're\n   walking into the den lighter than we've ever been, Handler.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Return to Undertow's den.",
+          "effects": {
+            "next": "reck_open"
+          }
+        }
+      ]
+    },
+    "betray_cut_losses": {
+      "id": "betray_cut_losses",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Copy. Not chasing ghosts. We've got what never left my hands — and\n   it isn't fifty thousand. We're going in with a partial payment and\n   whatever's left of a plan.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Return to Undertow's den.",
+          "effects": {
+            "next": "reck_open"
+          }
+        }
+      ]
+    },
+    "betray_leverage": {
+      "id": "betray_leverage",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "TRACE IN PROGRESS...",
+          "delay": 1.0
+        },
+        {
+          "speaker": "data",
+          "text": "TRACE COMPLETE: Ratchet's contract traces to Coral Vane — dated\nthree weeks prior. Predates tonight's 'job offer' entirely.",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Three weeks, Handler. He set this up before Juno even missed a\n   payment. Vane's whole 'work off the debt' line was theater from\n   the start.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "FLAG SET: HAS_LEVERAGE",
+          "delay": 0.3
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Return to Undertow's den.",
+          "effects": {
+            "next": "reck_open"
+          }
+        }
+      ]
+    },
+    "betray_pay_cost": {
+      "id": "betray_pay_cost",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Made a call. Traded a favor to cover the shortfall — it's done,\n   it's covered, and it's a debt with somebody else's name on it now.\n   We fixed tonight, Handler. We didn't fix the problem.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "FLAG SET: NEW_DEBT_OWED",
+          "delay": 0.3
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Return to Undertow's den.",
+          "effects": {
+            "next": "reck_open",
+            "flags_set": [
+              "new_debt_owed"
+            ]
+          }
+        }
+      ]
+    },
+    "reck_open": {
+      "id": "reck_open",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "RETURN — UNDERTOW DEN — TIDE: RISING",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "We're back where we started, Handler. Water's coming up through the\n   grates now instead of keeping us out. Vane's waiting. So's Juno.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Juno's talking before Vane even opens his mouth. Says she took the\n   loan because deep-sector work pays triple and she wasn't going to\n   sit topside and watch us cover her rent forever. Wants that said\n   out loud before whatever happens next happens.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "pay_full_marked",
+          "text": "\"Pay him. All of it. We're done here.\"",
+          "speaker": "player",
+          "conditions": {
+            "flags_set": [
+              "threatened_collective"
+            ]
+          },
+          "effects": {
+            "next": "reck_pay_full_marked"
+          }
+        },
+        {
+          "id": "pay_full_clean",
+          "text": "\"Pay him. All of it. We're done here.\"",
+          "speaker": "player",
+          "conditions": {
+            "flags_not_set": [
+              "threatened_collective"
+            ]
+          },
+          "effects": {
+            "next": "reck_pay_full_clean"
+          }
+        },
+        {
+          "id": "leverage_play",
+          "text": "\"Put the leverage on the table. See if he backs down.\"",
+          "speaker": "player",
+          "conditions": {
+            "flags_set": [
+              "has_leverage"
+            ]
+          },
+          "effects": {
+            "combat": {
+              "enemy": "Coral Vane — Leverage Standoff (Cool/Code)",
+              "success_scene": "reck_leverage_success",
+              "failure_scene": "reck_leverage_fail"
+            }
+          }
+        },
+        {
+          "id": "stall",
+          "text": "\"Stall him. Our backup's coming.\"",
+          "speaker": "player",
+          "conditions": {
+            "flags_set": [
+              "called_favor"
+            ],
+            "flags_not_set": [
+              "favor_spent"
+            ]
+          },
+          "effects": {
+            "next": "reck_stall"
+          }
+        },
+        {
+          "id": "full_combat",
+          "text": "\"We take Juno by force. Right now.\"",
+          "speaker": "player",
+          "effects": {
+            "next": "reck_combat"
+          }
+        }
+      ],
+      "metadata": {
+        "title": "Reckoning",
+        "scene_type": "decision"
+      }
+    },
+    "reck_pay_full_marked": {
+      "id": "reck_pay_full_marked",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Money's counted. Vane's satisfied — publicly, anyway. Juno's free.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "He's still got that look from when you threatened him, though. This\n   isn't over just because the math is. We're marked, Handler, paid\n   or not.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "DEBT CLEARED — UNDERTOW: MARKED (SOFT TARGET)",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "end",
+          "text": "[ENDING: CLEAN PAYOFF]",
+          "effects": {
+            "next": "story_end"
+          }
+        }
+      ]
+    },
+    "reck_pay_full_clean": {
+      "id": "reck_pay_full_clean",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Money's counted. Vane's satisfied — publicly, anyway. Juno's free.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "DEBT CLEARED — UNDERTOW: SETTLED",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "end",
+          "text": "[ENDING: CLEAN PAYOFF]",
+          "effects": {
+            "next": "story_end"
+          }
+        }
+      ]
+    },
+    "reck_leverage_success": {
+      "id": "reck_leverage_success",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Put the proof on the table. Vane's face doesn't move, but his\n   crew's does — nobody in this den wants Vane's contract habits\n   going public. He's backing off. Says the debt's forgiven. I don't\n   believe the smile, but Juno's walking out of here.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "DEBT FORGIVEN — VANE: PRIVATELY HOSTILE",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "end",
+          "text": "[ENDING: BLACKMAIL STANDOFF]",
+          "effects": {
+            "next": "story_end"
+          }
+        }
+      ]
+    },
+    "reck_leverage_fail": {
+      "id": "reck_leverage_fail",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "He called it. Says go prove it to somebody who matters — and then\n   his crew stopped pretending this was a negotiation.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "HOSTILE ENGAGEMENT — FORCED",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "engage",
+          "text": "Engage!",
+          "effects": {
+            "combat": {
+              "enemy": "Undertow Collective (den strength)",
+              "success_scene": "reck_combat_victory",
+              "failure_scene": "reck_combat_defeat"
+            }
+          }
+        }
+      ]
+    },
+    "reck_stall": {
+      "id": "reck_stall",
+      "messages": [
+        {
+          "speaker": "enforcer",
+          "text": "Stalling him — every second we hold this conversation is a second\n   closer to backup.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "INCOMING — FRIENDLY CONTACT",
+          "delay": 1.0
+        },
+        {
+          "speaker": "enforcer",
+          "text": "There. Vane's doing math on numbers he didn't expect to see walk\n   in. Changes the conversation fast.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "STANDOFF — NEGOTIATED EXIT, BACKED BY FORCE",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "end",
+          "text": "[ENDING: REINFORCED STANDOFF]",
+          "effects": {
+            "next": "story_end"
+          }
+        }
+      ]
+    },
+    "reck_combat": {
+      "id": "reck_combat",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "HOSTILE ENGAGEMENT — FULL",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "No more talking, Handler. Going in for her.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        }
+      ],
+      "choices": [
+        {
+          "id": "engage",
+          "text": "Engage!",
+          "effects": {
+            "combat": {
+              "enemy": "Undertow Collective (den strength)",
+              "success_scene": "reck_combat_victory",
+              "failure_scene": "reck_combat_defeat"
+            }
+          }
+        }
+      ]
+    },
+    "reck_combat_victory": {
+      "id": "reck_combat_victory",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "COMBAT RESOLVED — DEN CLEARED",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "She's out. Undertow's not going to forget this — we just made an\n   enemy with a long memory and a short fuse. But your sister's\n   breathing, Handler, and the regulator's still where it belongs.",
+          "delay": 0.5,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "DEBT ERASED — UNDERTOW: STANDING ENEMY",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "end",
+          "text": "[ENDING: VIOLENT OVERTHROW]",
+          "effects": {
+            "next": "story_end"
+          }
+        }
+      ]
+    },
+    "reck_combat_defeat": {
+      "id": "reck_combat_defeat",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "CRITICAL — OBJECTIVE COMPROMISED",
+          "delay": 0.5
+        },
+        {
+          "speaker": "enforcer",
+          "text": "Handler— I couldn't get to her in time. They took the regulator out\n   on the spot. No anesthetic. Exactly like Vane said they would.",
+          "delay": 1.0,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "enforcer",
+          "text": "She's gone, Handler. I'm sorry. I need orders, because right now I\n   don't have any of my own worth giving.",
+          "delay": 1.0,
+          "source": "RIPTIDE-3"
+        },
+        {
+          "speaker": "system",
+          "text": "CONNECTION HOLDING — STANDING BY",
+          "delay": 0.5
+        }
+      ],
+      "choices": [
+        {
+          "id": "end",
+          "text": "[ENDING: THE TIDE TAKES HER]",
+          "effects": {
+            "next": "story_end"
+          }
+        }
+      ]
+    },
+    "story_end": {
+      "id": "story_end",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "═══════════════════════════════════════════════════════════",
+          "delay": 0.3
+        },
+        {
+          "speaker": "system",
+          "text": "E N D   O F   S C E N A R I O",
+          "delay": 0.3
+        },
+        {
+          "speaker": "system",
+          "text": "═══════════════════════════════════════════════════════════",
+          "delay": 0.3
+        }
+      ],
+      "choices": []
+    }
+  }
+}
