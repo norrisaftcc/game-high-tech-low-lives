@@ -1,0 +1,24 @@
+# Compiled files
+*.o
+*.obj
+
+# Executables
+narrative_game
+narrative_game.exe
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
