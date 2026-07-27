@@ -243,7 +243,7 @@ woman dive
 **If Corporate Answers**:
 - Roll Cool
 - Success: Reyes is satisfied, for now. **The Review Cycle** does not advance this scene
-- Failure: Too smooth. Reyes doesn't call it out, but she requests a follow-up meeting — advance **The Review Cycle** to step 2
+- Failure: Too smooth. Reyes doesn't call it out, but she requests a follow-up meeting — advance **The Review Cycle** by 1
 
 **If Redirect Through Mara**:
 - No roll — but this pulls Mara further into the exposure than she's ever been pulled before
@@ -255,7 +255,7 @@ woman dive
 - Roll Tech to pull the right archived footage fast enough to feel natural in the room
 - Success: Reyes gets a real, honest, satisfying answer to a real question — just not the one underneath it. **The Review Cycle** does not advance
 - Success with style: Reyes is impressed enough to say so out loud. Small trust gained — useful leverage later
-- Failure: The search takes visibly too long for something that should be instant. Reyes notices the hesitation more than the content. Advance **The Review Cycle** to step 2
+- Failure: The search takes visibly too long for something that should be instant. Reyes notices the hesitation more than the content. Advance **The Review Cycle** by 1
 
 **If Sit With It**:
 - No roll for Reyes — this branch is about Reiko, not the review
