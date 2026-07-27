@@ -134,9 +134,9 @@ Auto-selects choices and plays through the full scenario. Great for:
 
 ### If This Works (Aesthetic Validation)
 
-1. **Build scene system**: Load scenes from JSON
-2. **Add combat**: Handler calls targets, Enforcer executes
-3. **Expand stress**: Track enforcer damage remotely
+1. ✅ **Build scene system**: Load scenes from JSON - done, see `engine.py`
+2. ✅ **Add combat**: Handler calls targets, Enforcer executes - done, `engine.py`/`combat.py` now run a real opposed 4dF exchange (stat mods, round-by-round rolls) instead of a coin flip
+3. ✅ **Expand stress**: Track enforcer damage remotely - done, stress tracks (Meat/Nerves/Systems) are applied and checked in `engine.py`
 4. **Add chrome**: Remote scanner shows augments
 5. **Environmental data**: Deck displays building schematics, thermals
 6. **Signal degradation**: When enforcer goes dark, limit options

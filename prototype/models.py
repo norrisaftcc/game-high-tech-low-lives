@@ -158,6 +158,7 @@ class CharacterState(BaseModel):
     stress_systems: StressTrack = Field(default_factory=StressTrack)
     chrome: List[str] = Field(default_factory=list)
     aspects: Dict[str, str] = Field(default_factory=dict)
+    fate_points: int = 3
 
 
 class Story(BaseModel):

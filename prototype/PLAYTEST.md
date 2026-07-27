@@ -62,7 +62,7 @@ venv/bin/python3 engine.py --batch
 
 **Outcomes**:
 - Stealth path: Enforcer goes dark, mission continues
-- Loud path: Combat (50/50 coin flip for now) → Victory or defeat
+- Loud path: Combat (opposed 4dF exchange, stat modifiers + stress) → Victory or defeat
 - Abort: Mission failed
 
 ---
@@ -111,11 +111,11 @@ _________________________________________
 _________________________________________
 ```
 
-### 4. Combat Feel (Even Though It's a Coin Flip!)
+### 4. Combat Feel (Now Real 4dF Dice!)
 
 - [ ] Does combat feel tense or impactful?
 - [ ] Do victory and defeat feel different?
-- [ ] Can you imagine 4dF dice making it better?
+- [ ] Does the round-by-round dice exchange add tension, or drag?
 
 **Notes:**
 ```
@@ -172,10 +172,10 @@ _________________________________________
 
 These are things we know about and are working on:
 
-- ✅ **Combat is a coin flip** - Full 4dF dice mechanics coming
+- ✅ **Combat uses 4dF dice** - Opposed rolls + stat mods, resolved round-by-round
 - ✅ **Short scenario** - This is a 5-minute demo, not full story
 - ✅ **No save/load** - Can't save progress yet
-- ✅ **Stress not tracked** - Stress boxes shown but not functional
+- ✅ **Stress is tracked** - Choice effects and combat hits apply to real stress tracks, gated conditions (e.g. `stress_meat_max`) respect current values
 - ✅ **Limited choices** - Focused demo, not full branching narrative
 
 These are **not bugs**, they're **TODOs** for the next iteration.

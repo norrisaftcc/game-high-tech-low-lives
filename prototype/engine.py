@@ -234,9 +234,30 @@ class NarrativeEngine:
             if item not in self.state.items:
                 return False
 
-        # Check stress (TODO: implement stress checks)
+        # Check stress (choice requires stress at or below a threshold,
+        # e.g. stress_meat_max: 1 means "only available if Meat stress
+        # has 1 or fewer boxes remaining")
+        character = self.state.character
+        if conditions.stress_meat_max is not None:
+            if character.stress_meat.current > conditions.stress_meat_max:
+                return False
 
-        # Check stats (TODO: implement stat checks)
+        if conditions.stress_nerves_max is not None:
+            if character.stress_nerves.current > conditions.stress_nerves_max:
+                return False
+
+        if conditions.stress_systems_max is not None:
+            if character.stress_systems.current > conditions.stress_systems_max:
+                return False
+
+        # Check stats
+        if conditions.stat_body_min is not None:
+            if character.stats.body < conditions.stat_body_min:
+                return False
+
+        if conditions.stat_cool_min is not None:
+            if character.stats.cool < conditions.stat_cool_min:
+                return False
 
         return True
 
@@ -270,10 +291,22 @@ class NarrativeEngine:
                 print(f"{Colors.GREY}[Used: {effects.consume_item}]{Colors.RESET}")
                 print()
 
-        # Apply stress (TODO: implement stress system)
+        # Apply stress. effects.stress is e.g. {"meat": -1} - a negative
+        # amount damages the track (decrements .current, clamped at 0);
+        # a positive amount recovers stress (clamped at .max).
         if effects.stress:
-            for track, amount in effects.stress.items():
-                print(f"{Colors.AMBER}[Stress: {track} {amount:+d}]{Colors.RESET}")
+            track_map = {
+                "meat": self.state.character.stress_meat,
+                "nerves": self.state.character.stress_nerves,
+                "systems": self.state.character.stress_systems,
+            }
+            for track_name, amount in effects.stress.items():
+                track = track_map.get(track_name)
+                if track is None:
+                    print(f"{Colors.BRIGHT_AMBER}[WARNING] Unknown stress track: {track_name}{Colors.RESET}")
+                    continue
+                track.current = max(0, min(track.max, track.current + amount))
+                print(f"{Colors.AMBER}[Stress: {track_name} {amount:+d} -> {track.current}/{track.max}]{Colors.RESET}")
             print()
 
         # Show data displays
@@ -328,9 +361,18 @@ class NarrativeEngine:
             True if player wins, False otherwise
         """
         enemy_name = combat_config.get("enemy", "Enemy")
-        player_name = self.state.character.name
+        character = self.state.character
+        player_name = character.name
 
-        return self.combat.run_combat(enemy_name, player_name)
+        # Body governs a straight-up physical exchange; damage lands on
+        # the character's real Meat stress track so it persists after combat.
+        return self.combat.run_combat(
+            enemy_name,
+            player_name,
+            player_stress_track=character.stress_meat,
+            player_stat_mod=character.stats.body,
+            character=character,
+        )
 
     def display_data(self, data: dict):
         """Display formatted data based on type."""
