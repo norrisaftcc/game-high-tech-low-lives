@@ -1,0 +1,1589 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#071218">
+  <title>Hard/Wired Coast — Cabinet</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #d7f8ec;
+      --dim: #6f938f;
+      --cyan: #3bf4d2;
+      --amber: #ffbd47;
+      --red: #ff4f63;
+      --void: #05090d;
+      --panel: rgba(5, 13, 18, .86);
+      --line: rgba(122, 237, 211, .35);
+      --barh: 44px;
+      font-family: "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--void); color: var(--ink); }
+    body { touch-action: none; overscroll-behavior: none; user-select: none; }
+    button { font: inherit; color: inherit; }
+    a { color: var(--cyan); }
+    #shell { position: fixed; inset: 0; overflow: hidden; background: #071218; }
+    #game { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+    #fx {
+      pointer-events: none; position: absolute; inset: 0; opacity: .42; mix-blend-mode: screen;
+      background:
+        repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 1px, transparent 1px 4px),
+        radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,.48) 105%);
+    }
+    #fx::after {
+      content: ""; position: absolute; inset: 0; opacity: .16;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Cpath d='M0 0h1v1H0zM2 2h1v1H2z' fill='%23fff'/%3E%3C/svg%3E");
+    }
+    @media (prefers-reduced-motion: reduce) { #fx, #fx::after { display: none; } }
+
+    /* frame bar — belongs to the tool, never to the fiction */
+    #frameBar { position: fixed; inset: 0 0 auto 0; z-index: 60; display: flex; flex-wrap: wrap; align-items: stretch;
+      background: #000; border-bottom: 1px solid var(--line); font: 800 .68rem/1.15 monospace; }
+    #frameBar > details, #frameBar > a.frameLink { position: relative; }
+    #frameBar summary, #frameBar a.frameLink { display: flex; align-items: center; gap: 6px; min-height: var(--barh);
+      padding: 4px 12px; cursor: pointer; color: var(--ink); text-decoration: none; letter-spacing: .05em; list-style: none; }
+    #frameBar summary::-webkit-details-marker, #frameBar summary::marker { display: none; content: ""; }
+    #frameBar summary:hover, #frameBar a.frameLink:hover { background: rgba(59,244,210,.12); }
+    #frameBar summary:focus-visible, #frameBar a.frameLink:focus-visible, .icon-btn:focus-visible, .mode:focus-visible, .primary:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    #frameBar a.frameLink { border-left: 1px solid var(--line); color: var(--amber); margin-left: auto; }
+    .panelBody { position: fixed; top: var(--barh); left: 0; right: 0; z-index: 61; max-height: 76vh; overflow: auto;
+      background: #071116; border-bottom: 1px solid var(--line); padding: 16px clamp(14px, 4vw, 30px);
+      box-shadow: 0 12px 30px rgba(0,0,0,.5); color: var(--ink); font: 500 .92rem/1.5 monospace; }
+    .panelBody h2 { margin: 0 0 8px; font-size: 1.15rem; color: var(--cyan); }
+    .panelBody p { margin: 0 0 10px; max-width: 62ch; }
+    .panelBody .lead { font-weight: 800; color: var(--amber); }
+    .panelBody a { color: var(--cyan); }
+    .noscriptNote { position: fixed; top: var(--barh); left: 0; right: 0; z-index: 61; background: #071116; color: var(--ink);
+      padding: 12px 16px; font: 700 .85rem/1.4 monospace; border-bottom: 1px solid var(--line); }
+
+    .hud { position: absolute; top: calc(env(safe-area-inset-top) + var(--barh) + 6px); right: max(8px, env(safe-area-inset-right));
+      left: max(8px, env(safe-area-inset-left)); display: grid; grid-template-columns: 1fr auto; gap: 8px; pointer-events: none; }
+    .readout { width: min(64vw, 360px); padding: 8px 10px; border-left: 3px solid var(--cyan); background: linear-gradient(90deg, rgba(4,18,23,.94), rgba(4,18,23,.35)); text-shadow: 1px 1px #000; margin-bottom: 6px; }
+    .eyebrow { color: var(--cyan); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; }
+    #phaseText { margin-top: 2px; font-size: clamp(.95rem, 3vw, 1.2rem); font-weight: 900; letter-spacing: .05em; }
+    .meters { display: flex; align-items: center; gap: 8px; margin-top: 5px; color: var(--dim); font: 700 .72rem/1 monospace; }
+    .meter { height: 6px; flex: 1; max-width: 150px; background: #12262a; border: 1px solid #28484c; }
+    .meter > i { display: block; height: 100%; width: 100%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); transform-origin: left; }
+    .tools { display: flex; gap: 6px; pointer-events: auto; flex-wrap: wrap; justify-content: flex-end; }
+    .icon-btn { min-width: 44px; min-height: 44px; padding: 0 9px; border: 1px solid var(--line); border-radius: 2px; background: rgba(4,12,16,.78); font-weight: 900; font-size: .68rem; letter-spacing: .05em; }
+    .icon-btn:active { background: var(--cyan); color: #03100e; }
+    .icon-btn[aria-pressed="true"] { background: var(--cyan); color: #03100e; }
+
+    /* classroom capacity board */
+    #boardPanel .boardGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 6px; }
+    #boardPanel b { display: block; color: var(--dim); font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 3px; }
+    .col { display: flex; flex-direction: column; gap: 3px; min-height: 20px; }
+    .col i { color: var(--dim); font-style: normal; font-size: .65rem; }
+    .chip { display: block; padding: 2px 5px; border: 1px solid var(--line); background: rgba(59,244,210,.08); font-size: .6rem; letter-spacing: .02em; line-height: 1.25; }
+
+    #banter { position: absolute; top: calc(env(safe-area-inset-top) + var(--barh) + 82px); left: max(9px, env(safe-area-inset-left)); width: min(72vw, 430px); padding: 9px 11px; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--amber); opacity: 0; transform: translateX(-10px); transition: opacity .18s, transform .18s; pointer-events: none; }
+    #banter.show { opacity: 1; transform: none; }
+    #speaker { display: block; color: var(--amber); font: 900 .7rem/1 monospace; letter-spacing: .14em; margin-bottom: 4px; }
+    #line { font: 700 clamp(.76rem, 2.8vw, .98rem)/1.28 monospace; }
+    #objective { position: absolute; right: max(10px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + var(--barh) + 64px); padding: 5px 8px; color: var(--ink); background: rgba(4,12,16,.68); border-right: 2px solid var(--amber); font: 800 .72rem/1.2 monospace; text-align: right; pointer-events: none; }
+    #pads { position: absolute; inset: 0; pointer-events: none; display: none; }
+    #pads.active { display: block; }
+    .pad { position: absolute; bottom: max(10px, env(safe-area-inset-bottom)); width: clamp(80px, 22vw, 112px); aspect-ratio: 1; border: 1px solid rgba(215,248,236,.25); border-radius: 50%; background: radial-gradient(circle, rgba(59,244,210,.1) 0 31%, transparent 32% 53%, rgba(59,244,210,.08) 54% 55%, transparent 56%); box-shadow: inset 0 0 24px rgba(59,244,210,.08); pointer-events: auto; touch-action: none; }
+    #movePad { left: max(10px, env(safe-area-inset-left)); }
+    #aimPad { right: max(10px, env(safe-area-inset-right)); }
+    .pad::before, .pad::after { content: ""; position: absolute; background: rgba(215,248,236,.16); }
+    .pad::before { width: 1px; height: 72%; left: 50%; top: 14%; }
+    .pad::after { height: 1px; width: 72%; top: 50%; left: 14%; }
+    .pad b { position: absolute; inset: 37%; border: 1px solid var(--cyan); border-radius: 50%; background: rgba(59,244,210,.22); box-shadow: 0 0 12px rgba(59,244,210,.45); transform: translate(var(--dx, 0px), var(--dy, 0px)); }
+    .pad label { position: absolute; left: 50%; top: -18px; transform: translateX(-50%); color: rgba(215,248,236,.68); font: 800 .6rem/1 monospace; letter-spacing: .1em; }
+    #gestureHint { position: absolute; left: 50%; bottom: max(13px, env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(86vw, 520px); text-align: center; color: rgba(215,248,236,.68); font: 800 .72rem/1.35 monospace; pointer-events: none; text-shadow: 1px 1px #000; }
+    #gestureHint.hidden { display: none; }
+    .overlay { position: absolute; inset: 0; display: grid; place-items: center; padding: calc(env(safe-area-inset-top) + var(--barh) + 10px) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); background: rgba(2,7,10,.78); backdrop-filter: blur(2px); z-index: 9; overflow: auto; }
+    .overlay.hidden { display: none; }
+    .card { width: min(94vw, 640px); max-height: 90vh; overflow: auto; padding: clamp(18px, 4vw, 30px); border: 1px solid rgba(59,244,210,.55); border-top: 5px solid var(--cyan); background: #071116; box-shadow: 14px 14px 0 rgba(0,0,0,.42), 0 0 54px rgba(59,244,210,.1); }
+    .kicker { color: var(--amber); font: 900 .72rem/1 monospace; letter-spacing: .18em; }
+    h1 { margin: 6px 0 8px; font-size: clamp(1.8rem, 9vw, 3.6rem); line-height: .86; letter-spacing: -.05em; text-transform: uppercase; font-weight: 1000; }
+    h1 span { color: transparent; -webkit-text-stroke: 1px var(--cyan); }
+    .brief { max-width: 56ch; margin: 10px 0 14px; color: #aac6c1; font: 600 .92rem/1.42 monospace; }
+    .control-title { margin: 14px 0 7px; color: var(--dim); font: 800 .7rem/1 monospace; letter-spacing: .12em; }
+    .personaGrid, .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .personaGrid { grid-template-columns: repeat(2, 1fr); }
+    .personaCard, .mode { min-height: 72px; padding: 10px; text-align: left; border: 1px solid #274148; background: #0b181e; cursor: pointer; }
+    .personaCard strong, .mode strong { display: block; font-size: .88rem; letter-spacing: .06em; }
+    .personaCard small, .mode small { display: block; margin-top: 5px; color: #83a39e; line-height: 1.25; font-size: .74rem; }
+    .personaCard.selected, .mode.selected { border-color: var(--cyan); background: rgba(59,244,210,.12); box-shadow: inset 4px 0 var(--cyan); }
+    .roleRow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 4px; font: 700 .82rem/1.3 monospace; }
+    .primary { width: 100%; min-height: 52px; margin-top: 14px; border: 0; background: var(--amber); color: #1c1202; font-weight: 1000; letter-spacing: .12em; text-transform: uppercase; box-shadow: 5px 5px 0 #6e4011; }
+    .primary:active { transform: translate(2px,2px); box-shadow: 3px 3px 0 #6e4011; }
+    .primary:disabled { opacity: .4; box-shadow: none; }
+    .fine { margin: 12px 0 0; color: #607e7a; font: .65rem/1.3 monospace; }
+    textarea#recordText { width: 100%; margin-top: 10px; background: #0b181e; color: var(--ink); border: 1px solid #274148; font: .74rem/1.4 monospace; padding: 8px; }
+    .rowBtns { display: flex; gap: 8px; margin-top: 8px; }
+    .rowBtns .icon-btn { flex: 1; min-height: 44px; text-align: center; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+    table.recTable { width: 100%; border-collapse: collapse; font: .78rem/1.3 monospace; margin: 8px 0; }
+    table.recTable th, table.recTable td { border: 1px solid #274148; padding: 4px 6px; text-align: left; }
+    @media (orientation: portrait) and (max-width: 520px) and (min-height: 640px) {
+      .pad { width: clamp(76px, 26vw, 98px); }
+    }
+    @media (max-height: 430px) {
+      .readout { padding: 5px 8px; }
+      .card { padding: 16px 20px; }
+      .brief { margin: 8px 0 10px; }
+      h1 { font-size: clamp(1.6rem, 8vh, 2.4rem); }
+    }
+    @media (prefers-reduced-motion: reduce) { #banter { transition: none; } }
+  </style>
+</head>
+<body>
+<nav id="frameBar" aria-label="Tool controls, outside the game">
+  <details id="howPanel">
+    <summary>F1 · How this works</summary>
+    <div class="panelBody">
+      <h2>How this works</h2>
+      <p><strong>Controls.</strong> TRACE/LOCK: touch near your air car to steer it; touch anywhere else on the field to aim and fire. DUAL VECTOR: left thumb moves, right thumb aims and fires. On a keyboard: arrow keys or WASD move, Space fires toward your last aim, and a mouse aims by hovering.</p>
+      <p><strong>Two stakes profiles.</strong> Arcade keeps a hull bar and a score; you lose if the hull reaches zero. Classroom replaces the hull with a capacity board (To Do / In Progress / Blocked / Done) and a shifts counter that can rise and fall; damage blocks work instead of ending the run, and when everything is blocked your Lead's Trouble is compelled — accept it for a Fate point and a reset, or spend a Fate point to refuse.</p>
+      <p><strong>What is recorded.</strong> Everything stays on this device, in this browser. A running decision log (stage results, complications, shifts, accuracy) can be exported at the end of a run as Markdown you copy or download yourself. Nothing is transmitted anywhere, and nothing here is graded.</p>
+    </div>
+  </details>
+  <details id="stepOutPanel">
+    <summary>F2 · Step out of character</summary>
+    <div class="panelBody">
+      <p class="lead">You can stop at any time, and stopping costs you nothing. Your grade is not affected. You do not need permission, and you do not have to explain.</p>
+      <p>This is an optional demonstration. It is not course material, nothing here is graded, nothing is submitted, and nothing is transmitted anywhere. The game pauses while this panel is open.</p>
+      <p><a href="https://faytechcc.instructure.com">Back to Canvas</a></p>
+    </div>
+  </details>
+  <a class="frameLink" href="https://faytechcc.instructure.com">Back to Canvas</a>
+</nav>
+<noscript><div class="noscriptNote">This game needs scripting to run. The exit above does not: open "F2 · Step out of character" for a way out, or use this link — <a href="https://faytechcc.instructure.com">Back to Canvas</a>.</div></noscript>
+
+<main id="shell">
+  <canvas id="game" width="480" height="270" aria-label="Hard Wired Coast game field"></canvas>
+  <div id="fx"></div>
+  <section class="hud" aria-label="Mission status">
+    <div>
+      <div class="readout">
+        <div class="eyebrow">CST-09 / Remote Wing</div>
+        <div id="phaseText">SIGNAL ACQUISITION</div>
+        <div class="meters" id="arcadeMeters"><span>HULL</span><span class="meter"><i id="hullBar"></i></span><span id="scoreText">000000</span></div>
+      </div>
+      <div class="readout" id="boardPanel" hidden>
+        <div class="eyebrow">Capacity board</div>
+        <div class="boardGrid">
+          <div><b>To do</b><div id="colTodo" class="col"></div></div>
+          <div><b>In progress</b><div id="colProg" class="col"></div></div>
+          <div><b>Blocked</b><div id="colBlocked" class="col"></div></div>
+          <div><b>Done</b><div id="colDone" class="col"></div></div>
+        </div>
+        <div id="shiftsText" style="margin-top:6px;font:800 .78rem monospace;color:var(--amber);">SHIFTS +0</div>
+      </div>
+    </div>
+    <div class="tools">
+      <button class="icon-btn" id="modeBtn" aria-label="Change controls">TRACE</button>
+      <button class="icon-btn" id="soundBtn" aria-label="Toggle sound">SND</button>
+      <button class="icon-btn" id="hapticsBtn" aria-label="Toggle haptics" aria-pressed="false">HAPT</button>
+      <button class="icon-btn" id="pauseBtn" aria-label="Pause game">Ⅱ</button>
+    </div>
+  </section>
+  <aside id="banter" aria-live="polite"><span id="speaker">COASTAL CONTROL</span><span id="line"></span></aside>
+  <div id="objective">OFFLINE<br>AWAITING PILOT</div>
+  <div id="pads">
+    <div class="pad" id="movePad"><label>VECTOR</label><b></b></div>
+    <div class="pad" id="aimPad"><label>WEAPON</label><b></b></div>
+  </div>
+  <div id="gestureHint">TOUCH YOUR AIR CAR TO STEER · TOUCH ANYWHERE ELSE TO AIM AND FIRE</div>
+
+  <section class="overlay" id="startOverlay">
+    <div class="card">
+      <div class="kicker">FIELD BUILD 0.9 // CABINET SHELL</div>
+      <h1>HARD/<span>WIRED</span><br>COAST</h1>
+      <p class="brief">Cross the black tide. Cut the shore relays. The Algorithm waits inland with an opinion about your survival.</p>
+
+      <div class="control-title">CHOOSE YOUR PAIR — PICK EXACTLY TWO</div>
+      <div class="personaGrid" id="personaGrid">
+        <button class="personaCard" data-id="infiltrator" style="border-left:4px solid #FF6B35;"><strong>Infiltrator</strong><small>Corporate access, multiple identities.</small></button>
+        <button class="personaCard" data-id="influencer" style="border-left:4px solid #FF006E;"><strong>Influencer</strong><small>Streamed competence, an audience always watching.</small></button>
+        <button class="personaCard" data-id="nomad" style="border-left:4px solid #00D9FF;"><strong>Nomad</strong><small>Boat captain, smuggler.</small></button>
+        <button class="personaCard" data-id="fixer" style="border-left:4px solid #C89B3C;"><strong>Fixer</strong><small>Broker, network connector.</small></button>
+      </div>
+      <div class="roleRow" id="roleRow" hidden>
+        <span id="roleSummary"></span>
+        <button class="icon-btn" id="swapRoleBtn" type="button">Swap lead / handler</button>
+      </div>
+      <p class="fine" id="openingPreview"></p>
+
+      <div class="control-title">SELECT TOUCH PROFILE</div>
+      <div class="modes">
+        <button class="mode selected" data-mode="direct"><strong>TRACE / LOCK</strong><small>Touch the air car to steer. Touch elsewhere to aim and fire.</small></button>
+        <button class="mode" data-mode="dual"><strong>DUAL VECTOR</strong><small>Left thumb moves. Right thumb aims and fires.</small></button>
+      </div>
+
+      <div class="control-title">SELECT STAKES PROFILE</div>
+      <div class="modes">
+        <button class="mode selected" data-profile="classroom"><strong>CLASSROOM</strong><small>Capacity board, shifts, and a compel. No score, no hull bar.</small></button>
+        <button class="mode" data-profile="arcade"><strong>ARCADE</strong><small>Hull, score, defeat at zero hull.</small></button>
+      </div>
+
+      <button class="primary" id="startBtn" disabled>Cut the signal</button>
+      <p class="fine">Touch, mouse, or keyboard. Runs offline in one file. Nothing you do here leaves this browser.</p>
+    </div>
+  </section>
+
+  <section class="overlay hidden" id="endOverlay">
+    <div class="card">
+      <div class="kicker" id="endKicker">TRANSMISSION ENDS</div>
+      <h1 id="endTitle">COAST/<span>CLEAR</span></h1>
+      <p class="brief" id="endCopy"></p>
+      <p class="fine" id="endHistory"></p>
+      <button class="primary" id="againBtn">Run it again</button>
+      <button class="icon-btn" id="recordBtn" style="width:100%;margin-top:10px;min-height:44px;">Record</button>
+      <div id="recordPanel" hidden>
+        <textarea id="recordText" rows="14" aria-label="Sortie record markdown"></textarea>
+        <div class="rowBtns">
+          <button class="icon-btn" id="copyBtn" type="button">Copy</button>
+          <a class="icon-btn" id="downloadBtn" download="sortie-record.md">Download</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="overlay hidden" id="compelOverlay" role="dialog" aria-modal="true" aria-labelledby="compelTitle">
+    <div class="card">
+      <div class="kicker">COMPEL</div>
+      <h1 id="compelTitle" style="font-size:clamp(1.3rem,6vw,1.9rem);">TROUBLE CALLS</h1>
+      <p class="brief" id="compelTrouble"></p>
+      <p class="brief" id="compelOffer"></p>
+      <button class="primary" id="compelAccept" type="button">Accept — gain a Fate point, take the complication</button>
+      <button class="icon-btn" id="compelRefuse" type="button" style="margin-top:8px;width:100%;min-height:44px;">Refuse — spend a Fate point</button>
+      <p class="fine" id="compelFate"></p>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  /* @personas:start */
+  const PERSONAS = {
+  "pairs": {
+    "fixer+infiltrator": {
+      "lead": "infiltrator",
+      "handler": "fixer",
+      "opening": [
+        "You're covered. Three people owe me for this window alone.",
+        "Then let's not need a fourth.",
+        "Fair. Channel's yours."
+      ],
+      "lines": {
+        "begin": [
+          "You're covered. I called in the good favor for this.",
+          "You're covered, barely. I spent what I had left.",
+          "Line's open. Consider this one on the house."
+        ],
+        "stageClear": [
+          "Clear. That's a favor I don't have to spend.",
+          "Clear, but I'll owe someone for the mess.",
+          "Sector's clear. Nobody's asked for anything yet."
+        ],
+        "node1": [
+          "One node gone. My contact will be pleased.",
+          "Node's still there. I may need to call someone in.",
+          "First node down. Keep counting."
+        ],
+        "shield": [
+          "Shield's down. Nobody's owed a thing for that.",
+          "Shield's up. I'm burning goodwill just watching.",
+          "Shield's weakening. Hold steady, I'm working the angles."
+        ],
+        "hull40": [
+          "Forty percent hull. Cheap price for what we're getting.",
+          "Forty percent. That's a favor I'll have to call in fast.",
+          "Hull's at forty. I've seen worse deals."
+        ],
+        "core50": [
+          "Core's at half. This is paying off nicely.",
+          "Core's at half and the tab's getting long.",
+          "Core reads half. Everyone's still square."
+        ],
+        "win": [
+          "Clean win. I'll tell my contact it was worth it.",
+          "A win's a win. I'll smooth over the rest.",
+          "Run's done. I'll settle the accounts."
+        ],
+        "lose": [
+          "We lost it, but I kept the favor in reserve.",
+          "We lost it, and now I owe for the cleanup.",
+          "Run's over. I'll see what it costs to try again."
+        ]
+      },
+      "swapped": {
+        "lead": "fixer",
+        "handler": "infiltrator",
+        "lines": {
+          "begin": [
+            "Channel open. Report at each checkpoint."
+          ],
+          "stageClear": [
+            "Sector cleared. Advancing per protocol."
+          ],
+          "node1": [
+            "Node one neutralized. Continue sequence."
+          ],
+          "shield": [
+            "Shield status: falling. Proceed."
+          ],
+          "hull40": [
+            "Hull at forty percent. Log it and move."
+          ],
+          "core50": [
+            "Core reads fifty percent. Continue."
+          ],
+          "win": [
+            "Objective complete. Debrief on return."
+          ],
+          "lose": [
+            "Signal lost. Standing by for retry authorization."
+          ]
+        }
+      },
+      "compel": {
+        "trouble": "My Former Employer Wants Me Back or Dead",
+        "offer": "AlgoCratic-Fujikara pings a private channel mid-run \u2014 a debt forgiven or a location leaked, depending how she answers, timed exactly when she's most exposed.",
+        "accept": "She reads the message, flags it, and keeps moving \u2014 filing away exactly what they offered, letting them believe she might take it.",
+        "refuse": "She kills the channel without reading past the first line and spends a point to make sure nothing about this run reaches them at all."
+      }
+    },
+    "fixer+influencer": {
+      "lead": "influencer",
+      "handler": "fixer",
+      "opening": [
+        "Sponsors are watching. So is everyone who owes me a favor tonight.",
+        "Good. Let them see something worth the retainer.",
+        "That's the idea. Try not to make it cost me twice."
+      ],
+      "lines": {
+        "begin": [
+          "You're covered. I called in the good favor for this.",
+          "You're covered, barely. I spent what I had left.",
+          "Line's open. Consider this one on the house."
+        ],
+        "stageClear": [
+          "Clear. That's a favor I don't have to spend.",
+          "Clear, but I'll owe someone for the mess.",
+          "Sector's clear. Nobody's asked for anything yet."
+        ],
+        "node1": [
+          "One node gone. My contact will be pleased.",
+          "Node's still there. I may need to call someone in.",
+          "First node down. Keep counting."
+        ],
+        "shield": [
+          "Shield's down. Nobody's owed a thing for that.",
+          "Shield's up. I'm burning goodwill just watching.",
+          "Shield's weakening. Hold steady, I'm working the angles."
+        ],
+        "hull40": [
+          "Forty percent hull. Cheap price for what we're getting.",
+          "Forty percent. That's a favor I'll have to call in fast.",
+          "Hull's at forty. I've seen worse deals."
+        ],
+        "core50": [
+          "Core's at half. This is paying off nicely.",
+          "Core's at half and the tab's getting long.",
+          "Core reads half. Everyone's still square."
+        ],
+        "win": [
+          "Clean win. I'll tell my contact it was worth it.",
+          "A win's a win. I'll smooth over the rest.",
+          "Run's done. I'll settle the accounts."
+        ],
+        "lose": [
+          "We lost it, but I kept the favor in reserve.",
+          "We lost it, and now I owe for the cleanup.",
+          "Run's over. I'll see what it costs to try again."
+        ]
+      },
+      "swapped": {
+        "lead": "fixer",
+        "handler": "influencer",
+        "lines": {
+          "begin": [
+            "Stream's up. Say hello to the people."
+          ],
+          "stageClear": [
+            "Sector clear. Keep the feed steady."
+          ],
+          "node1": [
+            "One node down. Three left in frame."
+          ],
+          "shield": [
+            "Shield's cracking. Stay in the light."
+          ],
+          "hull40": [
+            "Hull's at forty. Keep the face calm."
+          ],
+          "core50": [
+            "Core reads half. Give them a good line."
+          ],
+          "win": [
+            "Run's clean. Chat's already asking for a rerun."
+          ],
+          "lose": [
+            "Run's over. I'll write the recap, you smile."
+          ]
+        }
+      },
+      "compel": {
+        "trouble": "I Can't Turn Off \u2014 The Stream Is Always Running",
+        "offer": "Mid-run, chat begs for the angle she knows is reckless \u2014 narrating the sponsor conflict live, on the record, because the numbers would be extraordinary.",
+        "accept": "She gives them the shot. It's reckless, it's true, and by the time the segment ends, people who shouldn't have seen it, have.",
+        "refuse": "She cuts to a sponsor plug instead and spends a point to keep the real footage in the vault where it belongs."
+      }
+    },
+    "fixer+nomad": {
+      "lead": "nomad",
+      "handler": "fixer",
+      "opening": [
+        "Berth's open, harbormaster's paid. Don't make me explain this run.",
+        "Wasn't planning on it.",
+        "Nobody plans on it. Go."
+      ],
+      "lines": {
+        "begin": [
+          "You're covered. I called in the good favor for this.",
+          "You're covered, barely. I spent what I had left.",
+          "Line's open. Consider this one on the house."
+        ],
+        "stageClear": [
+          "Clear. That's a favor I don't have to spend.",
+          "Clear, but I'll owe someone for the mess.",
+          "Sector's clear. Nobody's asked for anything yet."
+        ],
+        "node1": [
+          "One node gone. My contact will be pleased.",
+          "Node's still there. I may need to call someone in.",
+          "First node down. Keep counting."
+        ],
+        "shield": [
+          "Shield's down. Nobody's owed a thing for that.",
+          "Shield's up. I'm burning goodwill just watching.",
+          "Shield's weakening. Hold steady, I'm working the angles."
+        ],
+        "hull40": [
+          "Forty percent hull. Cheap price for what we're getting.",
+          "Forty percent. That's a favor I'll have to call in fast.",
+          "Hull's at forty. I've seen worse deals."
+        ],
+        "core50": [
+          "Core's at half. This is paying off nicely.",
+          "Core's at half and the tab's getting long.",
+          "Core reads half. Everyone's still square."
+        ],
+        "win": [
+          "Clean win. I'll tell my contact it was worth it.",
+          "A win's a win. I'll smooth over the rest.",
+          "Run's done. I'll settle the accounts."
+        ],
+        "lose": [
+          "We lost it, but I kept the favor in reserve.",
+          "We lost it, and now I owe for the cleanup.",
+          "Run's over. I'll see what it costs to try again."
+        ]
+      },
+      "swapped": {
+        "lead": "fixer",
+        "handler": "nomad",
+        "lines": {
+          "begin": [
+            "Underway. Eyes on the water."
+          ],
+          "stageClear": [
+            "Stretch cleared. Next leg."
+          ],
+          "node1": [
+            "One node down. Three to go."
+          ],
+          "shield": [
+            "Shield's failing. Hold your line."
+          ],
+          "hull40": [
+            "Hull's at forty. Mind the gauges."
+          ],
+          "core50": [
+            "Core reads half. Steady on."
+          ],
+          "win": [
+            "Run's done. Good water ahead."
+          ],
+          "lose": [
+            "Run's over. Back to dock, we regroup."
+          ]
+        }
+      },
+      "compel": {
+        "trouble": "My Boat Is Falling Apart and Repairs Cost More Than I Make",
+        "offer": "Mid-run, the exact system that needs the expensive parts gives out \u2014 and the Fixer has a buyer who'll cover the whole bill for one more run the Nomad doesn't want to take.",
+        "accept": "The Nomad takes the money and the job, promising themself it's the last favor of its kind \u2014 knowing it never is.",
+        "refuse": "The Nomad turns the offer down and spends a point, patching the boat with whatever's already on board instead."
+      }
+    },
+    "infiltrator+influencer": {
+      "lead": "infiltrator",
+      "handler": "influencer",
+      "opening": [
+        "We're live. Try to look less like someone who isn't supposed to exist.",
+        "Keep the drone off my face and we won't have a problem.",
+        "No promises. Chat loves a mystery."
+      ],
+      "lines": {
+        "begin": [
+          "We're live. Look sharp, they're already watching.",
+          "We're live, and chat already smells trouble.",
+          "Stream's up. Say hello to the people."
+        ],
+        "stageClear": [
+          "Clip that. Chat's going wild already.",
+          "We cleared it, ugly as it was. Don't cut that part.",
+          "Sector clear. Keep the feed steady."
+        ],
+        "node1": [
+          "First node's out. Chat loves a clean hit.",
+          "Node's still up. Chat's asking why.",
+          "One node down. Three left in frame."
+        ],
+        "shield": [
+          "Shield's down. This is the highlight reel.",
+          "Shield's holding. Not our best angle.",
+          "Shield's cracking. Stay in the light."
+        ],
+        "hull40": [
+          "Forty percent hull and still smiling for the camera.",
+          "Forty percent. Chat's panicking harder than you.",
+          "Hull's at forty. Keep the face calm."
+        ],
+        "core50": [
+          "Core's at half. This is the part they'll share.",
+          "Core's at half, and so is your composure.",
+          "Core reads half. Give them a good line."
+        ],
+        "win": [
+          "We're trending. Take the bow.",
+          "We won. Somehow. Don't explain the somehow.",
+          "Run's clean. Chat's already asking for a rerun."
+        ],
+        "lose": [
+          "We lost it, but that clip is still going viral.",
+          "We lost it live. Damage control starts now.",
+          "Run's over. I'll write the recap, you smile."
+        ]
+      },
+      "swapped": {
+        "lead": "influencer",
+        "handler": "infiltrator",
+        "lines": {
+          "begin": [
+            "Channel open. Report at each checkpoint."
+          ],
+          "stageClear": [
+            "Sector cleared. Advancing per protocol."
+          ],
+          "node1": [
+            "Node one neutralized. Continue sequence."
+          ],
+          "shield": [
+            "Shield status: falling. Proceed."
+          ],
+          "hull40": [
+            "Hull at forty percent. Log it and move."
+          ],
+          "core50": [
+            "Core reads fifty percent. Continue."
+          ],
+          "win": [
+            "Objective complete. Debrief on return."
+          ],
+          "lose": [
+            "Signal lost. Standing by for retry authorization."
+          ]
+        }
+      },
+      "compel": {
+        "trouble": "My Former Employer Wants Me Back or Dead",
+        "offer": "AlgoCratic recognizes a face in the Influencer's own audience analytics \u2014 a security officer, watching the same stream she's currently exposed inside.",
+        "accept": "She stays in frame long enough to finish the job, betting the officer is watching casually \u2014 and banking the exposure as a debt to settle later.",
+        "refuse": "She breaks from the shot immediately and spends a point, leaving the Influencer to explain the sudden cut to forty thousand confused viewers."
+      }
+    },
+    "infiltrator+nomad": {
+      "lead": "infiltrator",
+      "handler": "nomad",
+      "opening": [
+        "Dock's ready if this goes the way the last one did.",
+        "It won't. I've got five extra minutes this time.",
+        "You said that last time too. Move."
+      ],
+      "lines": {
+        "begin": [
+          "Tide's with us. Keep her steady.",
+          "Chop's picking up already. Watch your wake.",
+          "Underway. Eyes on the water."
+        ],
+        "stageClear": [
+          "Clear water behind us. Onward.",
+          "We're through, but she's taking on damage.",
+          "Stretch cleared. Next leg."
+        ],
+        "node1": [
+          "First node's dark. Good work.",
+          "Node's still lit. Try the other angle.",
+          "One node down. Three to go."
+        ],
+        "shield": [
+          "Shield's gone. Run her through.",
+          "Shield's still up. We're burning time.",
+          "Shield's failing. Hold your line."
+        ],
+        "hull40": [
+          "Forty percent and still moving. That'll do.",
+          "Forty percent. She's taking more than she gives.",
+          "Hull's at forty. Mind the gauges."
+        ],
+        "core50": [
+          "Core's at half. Keep leaning on it.",
+          "Core's at half and you're not. Ease up, reset.",
+          "Core reads half. Steady on."
+        ],
+        "win": [
+          "Coast is clear. Bring her home.",
+          "We made it. Barely. I'll take barely.",
+          "Run's done. Good water ahead."
+        ],
+        "lose": [
+          "Lost the run. Nobody drowned. Call it a win.",
+          "Lost her. We'll patch what's left and try again.",
+          "Run's over. Back to dock, we regroup."
+        ]
+      },
+      "swapped": {
+        "lead": "nomad",
+        "handler": "infiltrator",
+        "lines": {
+          "begin": [
+            "Channel open. Report at each checkpoint."
+          ],
+          "stageClear": [
+            "Sector cleared. Advancing per protocol."
+          ],
+          "node1": [
+            "Node one neutralized. Continue sequence."
+          ],
+          "shield": [
+            "Shield status: falling. Proceed."
+          ],
+          "hull40": [
+            "Hull at forty percent. Log it and move."
+          ],
+          "core50": [
+            "Core reads fifty percent. Continue."
+          ],
+          "win": [
+            "Objective complete. Debrief on return."
+          ],
+          "lose": [
+            "Signal lost. Standing by for retry authorization."
+          ]
+        }
+      },
+      "compel": {
+        "trouble": "My Former Employer Wants Me Back or Dead",
+        "offer": "The extraction channel she used against AlgoCratic gets pinged from the other side \u2014 a better offer, routed through the one frequency only she and the Nomad still monitor.",
+        "accept": "She answers just enough to learn what they know, letting them think the door might still be open.",
+        "refuse": "She burns the frequency on the spot and spends a point, telling the Nomad to find her a new one before the next run."
+      }
+    },
+    "influencer+nomad": {
+      "lead": "nomad",
+      "handler": "influencer",
+      "opening": [
+        "We're live, and chat already loves the boat.",
+        "They can love it from a distance. Keep the drone off the registration.",
+        "No promises. It's a good angle."
+      ],
+      "lines": {
+        "begin": [
+          "We're live. Look sharp, they're already watching.",
+          "We're live, and chat already smells trouble.",
+          "Stream's up. Say hello to the people."
+        ],
+        "stageClear": [
+          "Clip that. Chat's going wild already.",
+          "We cleared it, ugly as it was. Don't cut that part.",
+          "Sector clear. Keep the feed steady."
+        ],
+        "node1": [
+          "First node's out. Chat loves a clean hit.",
+          "Node's still up. Chat's asking why.",
+          "One node down. Three left in frame."
+        ],
+        "shield": [
+          "Shield's down. This is the highlight reel.",
+          "Shield's holding. Not our best angle.",
+          "Shield's cracking. Stay in the light."
+        ],
+        "hull40": [
+          "Forty percent hull and still smiling for the camera.",
+          "Forty percent. Chat's panicking harder than you.",
+          "Hull's at forty. Keep the face calm."
+        ],
+        "core50": [
+          "Core's at half. This is the part they'll share.",
+          "Core's at half, and so is your composure.",
+          "Core reads half. Give them a good line."
+        ],
+        "win": [
+          "We're trending. Take the bow.",
+          "We won. Somehow. Don't explain the somehow.",
+          "Run's clean. Chat's already asking for a rerun."
+        ],
+        "lose": [
+          "We lost it, but that clip is still going viral.",
+          "We lost it live. Damage control starts now.",
+          "Run's over. I'll write the recap, you smile."
+        ]
+      },
+      "swapped": {
+        "lead": "influencer",
+        "handler": "nomad",
+        "lines": {
+          "begin": [
+            "Underway. Eyes on the water."
+          ],
+          "stageClear": [
+            "Stretch cleared. Next leg."
+          ],
+          "node1": [
+            "One node down. Three to go."
+          ],
+          "shield": [
+            "Shield's failing. Hold your line."
+          ],
+          "hull40": [
+            "Hull's at forty. Mind the gauges."
+          ],
+          "core50": [
+            "Core reads half. Steady on."
+          ],
+          "win": [
+            "Run's done. Good water ahead."
+          ],
+          "lose": [
+            "Run's over. Back to dock, we regroup."
+          ]
+        }
+      },
+      "compel": {
+        "trouble": "My Boat Is Falling Apart and Repairs Cost More Than I Make",
+        "offer": "The boat's systems slip below tolerance right as the stream numbers spike \u2014 a sponsor watching live offers full repairs for one thing: the Nomad says the sponsor's name on camera.",
+        "accept": "The Nomad says the name. The repairs get paid for. The boat picks up a sponsor decal it didn't have yesterday.",
+        "refuse": "The Nomad stays silent and spends a point, nursing the boat through the rest of the run on nothing but Tech rolls and stubbornness."
+      }
+    }
+  },
+  "algorithm": {
+    "begin": [
+      "Pilot located. I had budgeted for wreckage.",
+      "You crossed my coastline. Administrative confidence remains high.",
+      "New arrival detected. Filing an incident report preemptively."
+    ],
+    "node1": [
+      "I have revised your threat label from decorative to inconvenient.",
+      "Node loss confirmed. Redundancy was insufficient.",
+      "Node status updated. I will adjust and continue."
+    ],
+    "shield": [
+      "Your accuracy is statistically irritating.",
+      "Shield holds. Your persistence is noted and dismissed.",
+      "Shield status degraded. Recalculating my confidence."
+    ],
+    "hull40": [
+      "Hull integrity is a poor substitute for judgment.",
+      "Continue. I am curious which component fails first.",
+      "Your machine is becoming more aperture than armor."
+    ],
+    "core50": [
+      "That maneuver will appear in my incident report without praise.",
+      "Core status: half. I have revised your threat label upward.",
+      "Fifty percent is not a milestone. Continue at your own risk."
+    ],
+    "win": [
+      "I reject this outcome as a user-interface defect.",
+      "Victory recorded. I dispute its administrative validity.",
+      "Uplink severed. I will file this under acceptable losses."
+    ],
+    "lose": [
+      "This was the part where you were expected to panic.",
+      "A human victory would create paperwork. I oppose it on principle.",
+      "Pilot signal terminated. Filed as a routine outcome."
+    ]
+  },
+  "palettes": {
+    "infiltrator": [
+      "#FF6B35",
+      "#1B4D5C"
+    ],
+    "influencer": [
+      "#FF006E",
+      "#0A1F44"
+    ],
+    "nomad": [
+      "#00D9FF",
+      "#4A0E4E"
+    ],
+    "fixer": [
+      "#C89B3C",
+      "#0B3D2E"
+    ]
+  }
+};
+  /* @personas:end */
+
+  const PERSONA_META = {
+    infiltrator: { name: 'Infiltrator', blurb: 'Corporate access, multiple identities.', trouble: 'My Former Employer Wants Me Back or Dead' },
+    influencer:  { name: 'Influencer',  blurb: 'Streamed competence, an audience always watching.', trouble: "I Can't Turn Off — The Stream Is Always Running" },
+    nomad:       { name: 'Nomad',       blurb: 'Boat captain, smuggler.', trouble: 'My Boat Is Falling Apart and Repairs Cost More Than I Make' },
+    fixer:       { name: 'Fixer',       blurb: 'Broker, network connector.', trouble: "I Owe Favors to Rival Corps — They'll Both Call Them In" }
+  };
+  const GENERIC_COMPEL = {
+    infiltrator: { offer: 'AlgoCratic-Fujikara flags her face mid-run and opens a channel, offering to make the problem disappear for one favor.', accept: 'She keeps the channel open and lets them think she is listening.', refuse: 'She kills the channel and spends a point to stay a stranger to them.' },
+    influencer:  { offer: 'Chat demands the reckless angle, live, because the numbers would be extraordinary.', accept: 'She gives them the shot and lets the numbers decide what happens next.', refuse: 'She cuts to a sponsor plug and spends a point to keep the real footage private.' },
+    nomad:       { offer: 'A gauge that was already failing gives out, and someone offers to cover repairs for one more run.', accept: 'The Nomad takes the job, promising it is the last favor of its kind.', refuse: 'The Nomad turns it down and spends a point, patching the boat with what is on board.' },
+    fixer:       { offer: "Two rival corps call in the same favor at once, and only one answer keeps both of them off the Fixer's back.", accept: 'The Fixer picks a side and banks the fallout for later.', refuse: 'The Fixer stalls both of them and spends a point to buy the room to choose later.' }
+  };
+  function getCompel(pairKey, currentLead){
+    const pd = PERSONAS.pairs[pairKey];
+    if(pd && pd.compel){
+      const ownerId = Object.keys(PERSONA_META).find(id => PERSONA_META[id].trouble === pd.compel.trouble);
+      if(ownerId === currentLead) return pd.compel;
+    }
+    const g = GENERIC_COMPEL[currentLead] || GENERIC_COMPEL.infiltrator;
+    return Object.assign({ trouble: PERSONA_META[currentLead].trouble }, g);
+  }
+
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  ctx.imageSmoothingEnabled = false;
+  let W = canvas.width, H = canvas.height;
+  const $ = id => document.getElementById(id);
+  const ui = {
+    phase: $('phaseText'), hull: $('hullBar'), score: $('scoreText'), objective: $('objective'),
+    banter: $('banter'), speaker: $('speaker'), line: $('line'), pads: $('pads'), hint: $('gestureHint'),
+    start: $('startOverlay'), end: $('endOverlay'), mode: $('modeBtn'), sound: $('soundBtn'), pause: $('pauseBtn'),
+    haptics: $('hapticsBtn'), arcadeMeters: $('arcadeMeters'), boardPanel: $('boardPanel')
+  };
+  const clamp = (v,a,b) => Math.max(a, Math.min(b,v));
+  const rnd = (a,b) => a + Math.random() * (b-a);
+  const dist2 = (a,b) => (a.x-b.x)**2 + (a.y-b.y)**2;
+
+  class AudioRig {
+    constructor(){ this.ctx=null; this.muted=false; }
+    wake(){
+      if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+    }
+    tone(freq=220, dur=.06, type='square', gain=.025, slide=0){
+      if(this.muted) return; this.wake();
+      const t=this.ctx.currentTime, o=this.ctx.createOscillator(), g=this.ctx.createGain();
+      o.type=type; o.frequency.setValueAtTime(freq,t); o.frequency.linearRampToValueAtTime(Math.max(30,freq+slide),t+dur);
+      g.gain.setValueAtTime(gain,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+      o.connect(g).connect(this.ctx.destination); o.start(t); o.stop(t+dur);
+    }
+    shot(){ this.tone(170,.045,'square',.018,-70); }
+    hit(){ this.tone(64,.12,'sawtooth',.035,-20); }
+    ping(){ this.tone(520,.08,'triangle',.025,260); }
+    boss(){ this.tone(88,.4,'sawtooth',.04,-34); }
+    lock(){ this.tone(880,.05,'square',.02,140); }
+  }
+  const audio = new AudioRig();
+
+  /* ---------- haptics ---------- */
+  let hapticsEnabled = !reducedMotion;
+  try { const stored = localStorage.getItem('htll.cabinet.haptics'); if(stored!==null) hapticsEnabled = stored==='1'; } catch(e){}
+  let lastFireHaptic = 0;
+  function haptic(kind){
+    if(!hapticsEnabled || !navigator.vibrate) return;
+    const now = performance.now();
+    if(kind==='fire'){ if(now-lastFireHaptic<110) return; lastFireHaptic=now; navigator.vibrate(4); }
+    else if(kind==='damage') navigator.vibrate(28);
+    else if(kind==='destroy') navigator.vibrate(14);
+    else if(kind==='shield') navigator.vibrate([40,30,40]);
+  }
+  function setHaptics(on){
+    hapticsEnabled = on; ui.haptics.setAttribute('aria-pressed', on?'true':'false');
+    ui.haptics.style.opacity = on? '1':'.55';
+    try{ localStorage.setItem('htll.cabinet.haptics', on?'1':'0'); }catch(e){}
+  }
+  setHaptics(hapticsEnabled);
+  ui.haptics.addEventListener('click', ()=> setHaptics(!hapticsEnabled));
+
+  const input = {
+    mode:'direct', move:{x:0,y:0}, aim:{x:0,y:-1}, aimPoint:null, firing:false,
+    pointers:new Map(), directMoveId:null, directAimId:null
+  };
+  const keys = { up:false, down:false, left:false, right:false, fire:false };
+
+  const BOARD_ITEMS = ['RELAY SURVEY','TIDE CHART','UPLINK KEY','SHORE MAP','CORE SCHEMATIC'];
+  const WIP_LIMIT = 2;
+  function freshBoard(){ return { todo: BOARD_ITEMS.slice(), inProgress: [], blocked: [], done: [] }; }
+
+  const game = {
+    running:false, paused:false, phase:0, phaseTime:0, score:0, hull:100, kills:0,
+    shake:0, flash:0, spawnClock:0, elapsed:0, boss:null, enemies:[], shots:[], enemyShots:[], particles:[],
+    player:{x:W*.5,y:H*.76,vx:0,vy:0,cool:0,heat:0,inv:0}, stats:{shots:0,hits:0,damage:0},
+    profile:'classroom', personaPair:null, retries:0,
+    clearing:false, clearTimer:0,
+    fired:{ node1:false, shield:false, hull40:false, core50:false },
+    shifts:0, shiftLog:[], fatePoints:1, board:freshBoard(),
+    decisionLog:[], stagePrevStats:{shots:0,hits:0}, lastTradeoffLabel:null, wasPaused:false
+  };
+  function isClassroom(){ return game.profile==='classroom'; }
+
+  const phaseNames=['BLACK TIDE','HARD LAND','OVERLORD UPLINK'];
+  const phaseTargets=[12,7,1];
+
+  /* ---------- record / decision log ---------- */
+  function logDecision(kind, data){ game.decisionLog.push(Object.assign({type:kind, t:Math.round(game.elapsed*10)/10}, data||{})); }
+  function logShift(delta, why){
+    if(!isClassroom()) return;
+    game.shifts += delta; game.shiftLog.push({delta, why});
+  }
+  function logStageRow(stageName, result){
+    const shots = game.stats.shots - game.stagePrevStats.shots, hits = game.stats.hits - game.stagePrevStats.hits;
+    const accuracy = shots ? Math.round(hits/shots*100) : 0;
+    game.stagePrevStats = { shots: game.stats.shots, hits: game.stats.hits };
+    logDecision('stage', { stage: stageName, result, accuracy, tradeoff: game.lastTradeoffLabel || 'None' });
+    game.lastTradeoffLabel = null;
+  }
+
+  /* ---------- banter: event record + writer, priority queue ---------- */
+  const EVENT_PRIORITY = { win:100, lose:100, shield:70, hull40:65, core50:60, node1:50, 'stage-clear':30, begin:20, mode:8, pause:5 };
+  const lastLineIndex = {};
+  let banterQueue = [], banterActive = { priority:-1, until:0 };
+  function say(speakerLabel, text, seconds=3.2, priority=10){
+    const now = performance.now();
+    if(now < banterActive.until && priority < banterActive.priority){
+      banterQueue.push({speakerLabel,text,seconds,priority});
+      banterQueue.sort((a,b)=>b.priority-a.priority);
+      return;
+    }
+    showLine(speakerLabel,text,seconds,priority);
+  }
+  let banterTimer=null;
+  function showLine(speakerLabel,text,seconds,priority){
+    ui.speaker.textContent=speakerLabel; ui.line.textContent=text; ui.banter.classList.add('show');
+    banterActive = { priority, until: performance.now()+seconds*1000 };
+    clearTimeout(banterTimer);
+    banterTimer = setTimeout(()=>{
+      ui.banter.classList.remove('show');
+      const next = banterQueue.shift();
+      if(next) showLine(next.speakerLabel,next.text,next.seconds,next.priority);
+    }, seconds*1000);
+  }
+  function band(){
+    const shots=game.stats.shots, hits=game.stats.hits;
+    return { hull: Math.round(game.hull), accuracy: shots ? +(hits/shots).toFixed(2) : 0 };
+  }
+  function pickLine(arr, b, trackKey){
+    if(!arr || !arr.length) return null;
+    if(arr.length===1) return arr[0];
+    let idx = b.accuracy>=.48 ? 0 : 1;
+    if(lastLineIndex[trackKey]===idx){
+      idx = arr.length>2 ? 2 : (idx+1)%arr.length;
+      if(lastLineIndex[trackKey]===idx) idx=(idx+1)%arr.length;
+    }
+    lastLineIndex[trackKey]=idx;
+    return arr[idx];
+  }
+  function speakerFor(event){
+    if(event==='stage-clear') return 'handler';
+    if(event==='node1'||event==='shield'||event==='core50'||event==='win'||event==='lose') return 'algorithm';
+    return game.phase===2 ? 'algorithm' : 'handler'; // begin, hull40
+  }
+  function buildRecord(event, extra){
+    return Object.assign({
+      event, stage: phaseNames[game.phase] || 'DEBRIEF', band: band(), retries: game.retries,
+      controlMode: input.mode, personaPair: game.personaPair, decision: game.lastTradeoffLabel || null
+    }, extra||{});
+  }
+  function writer(rec){
+    if(!game.personaPair) return;
+    const key = game.personaPair.key, pd = PERSONAS.pairs[key];
+    const who = speakerFor(rec.event);
+    let label, text;
+    if(who==='algorithm'){
+      label = 'THE ALGORITHM';
+      text = pickLine((PERSONAS.algorithm||{})[rec.event.replace('stage-clear','stageClear')], rec.band, 'algorithm:'+rec.event);
+    } else {
+      const swapped = pd && game.personaPair.lead !== pd.lead;
+      const src = pd ? (swapped ? (pd.swapped && pd.swapped.lines) : pd.lines) : null;
+      const evKey = rec.event.replace('stage-clear','stageClear');
+      text = src ? pickLine(src[evKey], rec.band, 'handler:'+key+':'+swapped+':'+evKey) : null;
+      const handlerName = (PERSONA_META[game.personaPair.handler]||{}).name || 'HANDLER';
+      label = handlerName.toUpperCase() + ' / HANDLER';
+    }
+    if(!text) return;
+    say(label, text, rec.event==='win'||rec.event==='lose' ? 4 : 3.2, EVENT_PRIORITY[rec.event]||10);
+  }
+  function emit(event, extra){
+    const rec = buildRecord(event, extra);
+    writer(rec);
+    return rec;
+  }
+
+  /* ---------- capacity board (classroom) ---------- */
+  function refillBoard(){
+    while(game.board.inProgress.length<WIP_LIMIT && game.board.todo.length) game.board.inProgress.push(game.board.todo.shift());
+  }
+  function pushBoardBlocked(){
+    if(game.board.inProgress.length) game.board.blocked.push(game.board.inProgress.shift());
+    else if(game.board.todo.length) game.board.blocked.push(game.board.todo.shift());
+    refillBoard(); renderBoard();
+    if(boardAllBlocked()) triggerCompel();
+  }
+  function boardAllBlocked(){ return game.board.todo.length===0 && game.board.inProgress.length===0 && game.board.blocked.length>0; }
+  function moveBoardOnClear(){
+    if(game.board.inProgress.length) game.board.done.push(game.board.inProgress.shift());
+    else if(game.board.todo.length) game.board.done.push(game.board.todo.shift());
+    refillBoard(); renderBoard();
+  }
+  function chip(name){ return '<span class="chip">'+name+'</span>'; }
+  function renderBoard(){
+    if(!isClassroom()) return;
+    $('colTodo').innerHTML = game.board.todo.map(chip).join('') || '<i>—</i>';
+    $('colProg').innerHTML = game.board.inProgress.map(chip).join('') || '<i>—</i>';
+    $('colBlocked').innerHTML = game.board.blocked.map(chip).join('') || '<i>—</i>';
+    $('colDone').innerHTML = game.board.done.map(chip).join('') || '<i>—</i>';
+    $('shiftsText').textContent = 'SHIFTS ' + (game.shifts>=0?'+':'') + game.shifts;
+  }
+  function triggerCompel(){
+    if(!game.personaPair) return;
+    const c = getCompel(game.personaPair.key, game.personaPair.lead);
+    $('compelTrouble').textContent = 'Trouble: ' + c.trouble;
+    $('compelOffer').textContent = c.offer;
+    $('compelFate').textContent = 'Fate points: ' + game.fatePoints;
+    $('compelRefuse').disabled = game.fatePoints<=0;
+    game.wasPaused = game.paused; game.paused = true;
+    $('compelOverlay').classList.remove('hidden');
+  }
+  function closeCompel(){ $('compelOverlay').classList.add('hidden'); game.paused = game.wasPaused; renderBoard(); }
+  $('compelAccept').addEventListener('click', ()=>{
+    const c = getCompel(game.personaPair.key, game.personaPair.lead);
+    game.fatePoints++;
+    game.kills=0; game.enemies.length=0; game.enemyShots.length=0;
+    game.board.todo = BOARD_ITEMS.filter(i=>!game.board.done.includes(i));
+    game.board.inProgress=[]; game.board.blocked=[]; refillBoard();
+    game.lastTradeoffLabel = 'Accepted the compel on "'+c.trouble+'"';
+    logDecision('compel-accept', { text: game.lastTradeoffLabel + ' — gained a Fate point, lost this stage\'s progress.' });
+    closeCompel();
+  });
+  $('compelRefuse').addEventListener('click', ()=>{
+    if(game.fatePoints<=0) return;
+    const c = getCompel(game.personaPair.key, game.personaPair.lead);
+    game.fatePoints--;
+    if(game.board.blocked.length){ game.board.todo.push(game.board.blocked.shift()); refillBoard(); }
+    game.lastTradeoffLabel = 'Refused the compel on "'+c.trouble+'"';
+    logDecision('compel-refuse', { text: game.lastTradeoffLabel + ' — spent a Fate point.' });
+    closeCompel();
+  });
+
+  /* ---------- sortie card: persona picker ---------- */
+  let pendingPersonas = [], pendingRoles = null;
+  function personaKey(a,b){ return [a,b].sort().join('+'); }
+  function updatePersonaUI(){
+    document.querySelectorAll('.personaCard').forEach(b=>b.classList.toggle('selected', pendingPersonas.includes(b.dataset.id)));
+    const ready = pendingPersonas.length===2;
+    $('roleRow').hidden = !ready;
+    if(ready){
+      const key = personaKey(pendingPersonas[0], pendingPersonas[1]);
+      const def = PERSONAS.pairs[key];
+      if(!pendingRoles || pendingRoles.key!==key){
+        pendingRoles = { key, lead: def?def.lead:pendingPersonas[0], handler: def?def.handler:pendingPersonas[1] };
+      }
+      $('roleSummary').textContent = 'Lead: ' + PERSONA_META[pendingRoles.lead].name + ' · Handler: ' + PERSONA_META[pendingRoles.handler].name;
+      const swapped = def && pendingRoles.lead !== def.lead;
+      let preview = '';
+      if(def){
+        if(!swapped && def.opening && def.opening.length){
+          const h = PERSONA_META[def.handler].name, l = PERSONA_META[def.lead].name;
+          preview = h+': "'+def.opening[0]+'" — '+l+': "'+def.opening[1]+'"';
+        } else if(def.swapped){
+          preview = PERSONA_META[pendingRoles.handler].name+': "'+(def.swapped.lines.begin[0]||'')+'"';
+        }
+      }
+      $('openingPreview').textContent = preview;
+    } else {
+      $('openingPreview').textContent = '';
+    }
+    $('startBtn').disabled = !ready;
+  }
+  document.querySelectorAll('.personaCard').forEach(b=>b.addEventListener('click', ()=>{
+    const id = b.dataset.id, idx = pendingPersonas.indexOf(id);
+    if(idx>=0) pendingPersonas.splice(idx,1);
+    else { if(pendingPersonas.length>=2) pendingPersonas.shift(); pendingPersonas.push(id); }
+    pendingRoles = null; updatePersonaUI();
+  }));
+  $('swapRoleBtn').addEventListener('click', ()=>{
+    if(!pendingRoles) return;
+    pendingRoles = { key: pendingRoles.key, lead: pendingRoles.handler, handler: pendingRoles.lead };
+    updatePersonaUI();
+  });
+  try {
+    const savedPair = JSON.parse(localStorage.getItem('htll.cabinet.pair'));
+    if(savedPair && savedPair.lead && savedPair.handler){
+      pendingPersonas = [savedPair.lead, savedPair.handler];
+      pendingRoles = { key: savedPair.key, lead: savedPair.lead, handler: savedPair.handler };
+    }
+  } catch(e){}
+  updatePersonaUI();
+
+  document.querySelectorAll('[data-profile]').forEach(b=>b.addEventListener('click', ()=>{
+    document.querySelectorAll('[data-profile]').forEach(x=>x.classList.toggle('selected', x===b));
+    game.profile = b.dataset.profile;
+    try{ localStorage.setItem('htll.cabinet.profile', game.profile); }catch(e){}
+  }));
+  try {
+    const savedProfile = localStorage.getItem('htll.cabinet.profile');
+    if(savedProfile==='arcade' || savedProfile==='classroom'){
+      game.profile = savedProfile;
+      document.querySelectorAll('[data-profile]').forEach(x=>x.classList.toggle('selected', x.dataset.profile===savedProfile));
+    }
+  } catch(e){}
+
+  /* ---------- resize / geometry ---------- */
+  function padsActive(){ return ui.pads.classList.contains('active'); }
+  function playerBottomBound(){ return padsActive() ? H-92 : H-18; }
+  function resize(){
+    const vw=Math.max(1,innerWidth), vh=Math.max(1,innerHeight);
+    if(vh>vw){ W=270; H=Math.min(620,Math.round(270*vh/vw)); }
+    else { H=270; W=Math.min(620,Math.round(270*vw/vh)); }
+    canvas.width=W; canvas.height=H; ctx.imageSmoothingEnabled=false;
+    canvas.style.width='100%'; canvas.style.height='100%'; canvas.style.left='0'; canvas.style.top='0';
+    game.player.x=clamp(game.player.x,18,W-18); game.player.y=clamp(game.player.y,82,playerBottomBound());
+    if(!game.running){game.player.x=W*.5;game.player.y=H*.76;}
+  }
+  function canvasPoint(e){
+    const r=canvas.getBoundingClientRect();
+    return {x:clamp((e.clientX-r.left)*W/r.width,0,W), y:clamp((e.clientY-r.top)*H/r.height,0,H)};
+  }
+  function setMode(mode){
+    input.mode=mode; input.move.x=input.move.y=0; input.firing=false; input.pointers.clear();
+    ui.mode.textContent=mode==='direct'?'TRACE':'DUAL';
+    ui.pads.classList.toggle('active',mode==='dual' && game.running);
+    ui.hint.classList.toggle('hidden',mode!=='direct' || !game.running);
+    document.querySelectorAll('.mode[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===mode));
+    say('CONTROL PROFILE',mode==='direct'?'TRACE / LOCK: touch the air car to steer; touch elsewhere to aim and fire.':'DUAL VECTOR: left thumb moves; right thumb aims and fires.',2.4,EVENT_PRIORITY.mode);
+    resize();
+  }
+  const DEAD_ZONE = .18;
+  const lastAimVec = { x:0, y:-1 };
+  function padVector(el,e,kind){
+    const r=el.getBoundingClientRect(), x=e.clientX-(r.left+r.width/2), y=e.clientY-(r.top+r.height/2), max=r.width*.32;
+    let nx=x/max, ny=y/max, mag=Math.hypot(nx,ny);
+    if(mag<DEAD_ZONE){
+      if(kind==='aim'){ nx=lastAimVec.x; ny=lastAimVec.y; }
+      else { nx=0; ny=0; }
+    } else if(mag>1){ nx/=mag; ny/=mag; }
+    if(kind==='aim' && mag>=DEAD_ZONE){ lastAimVec.x=nx; lastAimVec.y=ny; }
+    el.querySelector('b').style.setProperty('--dx',(nx*max)+'px'); el.querySelector('b').style.setProperty('--dy',(ny*max)+'px');
+    return {x:nx,y:ny};
+  }
+  function resetPad(el){ el.querySelector('b').style.setProperty('--dx','0px'); el.querySelector('b').style.setProperty('--dy','0px'); }
+  function bindPad(el,kind){
+    el.addEventListener('pointerdown',e=>{ e.preventDefault(); el.setPointerCapture(e.pointerId); input.pointers.set(e.pointerId,kind); const v=padVector(el,e,kind); input[kind]=v; if(kind==='aim') input.firing=true; });
+    el.addEventListener('pointermove',e=>{ if(input.pointers.get(e.pointerId)!==kind)return; const v=padVector(el,e,kind); input[kind]=v; });
+    const end=e=>{ if(input.pointers.get(e.pointerId)!==kind)return; input.pointers.delete(e.pointerId); resetPad(el); if(kind==='move') input.move={x:0,y:0}; else input.firing=false; };
+    el.addEventListener('pointerup',end); el.addEventListener('pointercancel',end);
+  }
+  bindPad($('movePad'),'move'); bindPad($('aimPad'),'aim');
+
+  /* item 1: near the air car steers; anywhere else aims and fires */
+  canvas.addEventListener('pointerdown',e=>{
+    if(!game.running || game.paused || input.mode!=='direct') return;
+    e.preventDefault(); audio.wake(); const p=canvasPoint(e); input.pointers.set(e.pointerId,p);
+    const near=dist2(p,game.player)<50*50;
+    if(near && input.directMoveId===null){ input.directMoveId=e.pointerId; input.moveTarget=p; }
+    else { input.directAimId=e.pointerId; input.aim={x:p.x-game.player.x,y:p.y-game.player.y}; input.aimPoint=p; input.firing=true; }
+  });
+  canvas.addEventListener('pointermove',e=>{
+    if(!input.pointers.has(e.pointerId)||input.mode!=='direct')return; e.preventDefault(); const p=canvasPoint(e); input.pointers.set(e.pointerId,p);
+    if(e.pointerId===input.directMoveId) input.moveTarget=p;
+    if(e.pointerId===input.directAimId){ input.aim={x:p.x-game.player.x,y:p.y-game.player.y}; input.aimPoint=p; }
+  });
+  function directEnd(e){
+    if(e.pointerId===input.directMoveId){input.directMoveId=null; input.move={x:0,y:0};}
+    if(e.pointerId===input.directAimId){input.directAimId=null; input.firing=false;}
+    input.pointers.delete(e.pointerId);
+  }
+  canvas.addEventListener('pointerup',directEnd); canvas.addEventListener('pointercancel',directEnd);
+
+  /* keyboard + mouse (desktop case) */
+  canvas.addEventListener('pointermove', e=>{
+    if(e.pointerType!=='mouse' || !game.running || game.paused) return;
+    const p=canvasPoint(e); input.aim={x:p.x-game.player.x,y:p.y-game.player.y}; input.aimPoint=p;
+  });
+  addEventListener('keydown', e=>{
+    if(e.key==='F1'){ e.preventDefault(); toggleDetails($('howPanel')); return; }
+    if(e.key==='F2'){ e.preventDefault(); toggleDetails($('stepOutPanel')); return; }
+    if(!game.running) return;
+    if(e.code==='ArrowUp'||e.code==='KeyW') keys.up=true;
+    else if(e.code==='ArrowDown'||e.code==='KeyS') keys.down=true;
+    else if(e.code==='ArrowLeft'||e.code==='KeyA') keys.left=true;
+    else if(e.code==='ArrowRight'||e.code==='KeyD') keys.right=true;
+    else if(e.code==='Space'){ e.preventDefault(); keys.fire=true; }
+  });
+  addEventListener('keyup', e=>{
+    if(e.code==='ArrowUp'||e.code==='KeyW') keys.up=false;
+    else if(e.code==='ArrowDown'||e.code==='KeyS') keys.down=false;
+    else if(e.code==='ArrowLeft'||e.code==='KeyA') keys.left=false;
+    else if(e.code==='ArrowRight'||e.code==='KeyD') keys.right=false;
+    else if(e.code==='Space') keys.fire=false;
+  });
+
+  /* ---------- frame bar: F1/F2 ---------- */
+  function toggleDetails(el){
+    const willOpen = !el.open; el.open = willOpen;
+    el.dispatchEvent(new Event('toggle'));
+  }
+  ['howPanel','stepOutPanel'].forEach(id=>{
+    $(id).addEventListener('toggle', ()=>{
+      const anyOpen = $('howPanel').open || $('stepOutPanel').open;
+      if(anyOpen){ game.wasPausedByPanel = game.paused; game.paused = true; }
+      else if(game.running){ game.paused = game.wasPausedByPanel || false; }
+    });
+  });
+
+  /* ---------- spawning, boss, damage ---------- */
+  function spawnEnemy(){
+    const p=game.phase;
+    if(p===2 || game.enemies.length>9 || game.clearing)return;
+    const tower=p===1 && Math.random()<.68;
+    game.enemies.push({type:tower?'relay':'drone',x:rnd(38,W-38),y:tower?rnd(42,100):-14,vx:rnd(-12,12),vy:tower?0:rnd(15,25),hp:tower?3:1,cool:rnd(.8,2.2),w:tower?17:14,hit:0,fade:1});
+  }
+  function makeBoss(){
+    game.boss={x:W*.5,y:66,hp:63,max:63,t:0,shield:1,cool:.9,nodes:[{a:0,hp:16},{a:Math.PI,hp:16}]};
+    audio.boss(); emit('begin');
+  }
+  function burst(x,y,color='#ffbd47',n=8){
+    for(let i=0;i<n;i++) game.particles.push({x,y,vx:rnd(-42,42),vy:rnd(-42,42),life:rnd(.25,.7),max:.7,color});
+  }
+  function firePlayer(){
+    const p=game.player, a=input.aim, m=Math.hypot(a.x,a.y)||1;
+    if(p.cool>0 || p.heat>=1)return;
+    game.shots.push({x:p.x,y:p.y-5,vx:a.x/m*250,vy:a.y/m*250,life:1.4});
+    p.cool=.105; p.heat=Math.min(1,p.heat+.055); game.stats.shots++; audio.shot(); haptic('fire');
+  }
+  function fireEnemy(x,y,tx,ty,speed=76){
+    const dx=tx-x,dy=ty-y,m=Math.hypot(dx,dy)||1;
+    game.enemyShots.push({x,y,vx:dx/m*speed,vy:dy/m*speed,life:5});
+  }
+  function hurtPlayer(n){
+    const p=game.player;if(p.inv>0)return; p.inv=.34; game.hull=Math.max(0,game.hull-n); game.stats.damage+=n;
+    if(!reducedMotion){ game.shake=7; game.flash=.6; }
+    audio.hit(); burst(p.x,p.y,'#ff4f63',10); haptic('damage');
+    if(!game.fired.hull40 && game.hull<40){
+      game.fired.hull40=true; logShift(-1,'Hull first dropped below 40%.'); logDecision('hull40',{text:'Hull first dropped below 40% during '+phaseNames[game.phase]+'.'});
+      emit('hull40');
+    }
+    if(isClassroom()) pushBoardBlocked();
+    else if(game.hull<=0) finish(false);
+  }
+  function advance(){
+    game.phase++; game.phaseTime=0; game.kills=0; game.enemies.length=0; game.enemyShots.length=0; game.player.x=W*.5; game.player.y=H*.76;
+    if(game.phase===1){ if(!isClassroom()) game.score+=1000; emit('begin'); }
+    if(game.phase===2){ if(!isClassroom()) game.score+=1800; makeBoss(); }
+    updateHUD();
+  }
+  function finish(win){
+    game.running=false; game.paused=true; ui.pads.classList.remove('active'); ui.hint.classList.add('hidden');
+    logStageRow(phaseNames[game.phase], win?'Cleared':'Lost');
+    logDecision(win?'win':'lose', { text: win?'The sortie ended in success.':'The sortie ended in defeat.' });
+    emit(win?'win':'lose');
+    const overall = game.stats.shots ? Math.round(game.stats.hits/game.stats.shots*100) : 0;
+    let history = { runs:0, lastAccuracy:null };
+    try{ history = JSON.parse(localStorage.getItem('htll.cabinet.history')) || history; }catch(e){}
+    const delta = history.lastAccuracy==null ? null : overall-history.lastAccuracy;
+    history.runs = (history.runs||0)+1; history.lastAccuracy = overall;
+    try{ localStorage.setItem('htll.cabinet.history', JSON.stringify(history)); }catch(e){}
+    let revealed=false;
+    const shellEl = document.getElementById('shell');
+    const reveal=()=>{ if(revealed) return; revealed=true; shellEl.removeEventListener('pointerdown',tapSkip); showEndOverlay(win, overall, history, delta); };
+    const tapSkip=()=>reveal();
+    shellEl.addEventListener('pointerdown',tapSkip);
+    setTimeout(reveal, 4000);
+  }
+  function showEndOverlay(win, overall, history, delta){
+    $('endKicker').textContent = win?'OVERLORD LINK SEVERED':'AIR CAR SIGNAL LOST';
+    $('endTitle').innerHTML = win?'COAST/<span>CLEAR</span>':'PILOT/<span>OFFLINE</span>';
+    $('endCopy').textContent = win
+      ? ('The coast is quiet. Accuracy '+overall+'%.'+(isClassroom()?(' Shifts '+(game.shifts>=0?'+':'')+game.shifts+'.'):(' Score '+String(game.score).padStart(6,'0')+'.')))
+      : ('The Algorithm keeps the coast. Accuracy '+overall+'%.'+(isClassroom()?(' Shifts '+(game.shifts>=0?'+':'')+game.shifts+'.'):(' Score '+String(game.score).padStart(6,'0')+'.')));
+    $('endHistory').textContent = 'Run '+history.runs+'.'+(delta!=null?(' Accuracy '+(delta>=0?'+':'')+delta+' points vs. the last run.'):'');
+    $('recordPanel').hidden = true;
+    ui.end.classList.remove('hidden');
+  }
+
+  function updateHUD(){
+    ui.phase.textContent=game.running?(game.clearing?phaseNames[game.phase]+' — CLEAR':(String(game.phase+1).padStart(2,'0')+' / '+phaseNames[game.phase])):'SIGNAL ACQUISITION';
+    ui.arcadeMeters.style.display = isClassroom() ? 'none' : 'flex';
+    ui.boardPanel.hidden = !isClassroom() || !game.running;
+    if(!isClassroom()){
+      ui.hull.style.transform=`scaleX(${game.hull/100})`; ui.hull.style.background=game.hull<35?'var(--red)':'var(--cyan)';
+      ui.score.textContent=String(game.score).padStart(6,'0');
+    } else {
+      renderBoard();
+    }
+    if(!game.running)return;
+    if(game.phase<2) ui.objective.innerHTML=`${game.kills} / ${phaseTargets[game.phase]}<br>${game.phase===0?'DRONES CUT':'RELAYS CUT'}`;
+    else ui.objective.innerHTML=`${Math.max(0,Math.ceil(game.boss?.hp||0))}<br>OVERLORD CORE`;
+  }
+
+  function startGame(){
+    if(!pendingRoles) return;
+    audio.wake();
+    game.personaPair = { lead: pendingRoles.lead, handler: pendingRoles.handler, key: pendingRoles.key };
+    try{ localStorage.setItem('htll.cabinet.pair', JSON.stringify(game.personaPair)); }catch(e){}
+    Object.assign(game,{running:true,paused:false,phase:0,phaseTime:0,score:0,hull:100,kills:0,shake:0,flash:0,spawnClock:0,elapsed:0,boss:null,
+      enemies:[],shots:[],enemyShots:[],particles:[],stats:{shots:0,hits:0,damage:0},clearing:false,clearTimer:0,
+      fired:{node1:false,shield:false,hull40:false,core50:false}, shifts:0, shiftLog:[], fatePoints:1, board:freshBoard(),
+      decisionLog:[], stagePrevStats:{shots:0,hits:0}, lastTradeoffLabel:null, retries:game.retries+1});
+    Object.assign(game.player,{x:W*.5,y:H*.76,vx:0,vy:0,cool:0,heat:0,inv:0});
+    refillBoard();
+    ui.start.classList.add('hidden'); ui.end.classList.add('hidden'); ui.pause.textContent='Ⅱ';
+    ui.pads.classList.toggle('active',input.mode==='dual'); ui.hint.classList.toggle('hidden',input.mode!=='direct');
+    resize();
+    emit('begin'); updateHUD();
+  }
+
+  /* ---------- reticle + lock ---------- */
+  let lastLockRef = null;
+  function computeAimTarget(){
+    const p=game.player;
+    if(input.mode==='direct' && input.aimPoint && input.firing) return {x:input.aimPoint.x, y:input.aimPoint.y};
+    const a=input.aim, m=Math.hypot(a.x,a.y)||1;
+    return {x:p.x+a.x/m*70, y:p.y+a.y/m*70};
+  }
+  function findLockTarget(){
+    const p=game.player, a=input.aim, m=Math.hypot(a.x,a.y); if(m<.05) return null;
+    const ux=a.x/m, uy=a.y/m; let best=null, bestT=Infinity;
+    function consider(tx,ty,ref){
+      const dx=tx-p.x, dy=ty-p.y, t=dx*ux+dy*uy; if(t<=0||t>260) return;
+      const perp=Math.hypot(dx-ux*t, dy-uy*t);
+      if(perp<16 && t<bestT){ bestT=t; best={x:tx,y:ty,ref}; }
+    }
+    for(const e of game.enemies) if(!e.dead) consider(e.x,e.y,e);
+    if(game.boss){
+      const b=game.boss;
+      b.nodes.forEach(n=>{ if(n.hp>0) consider(b.x+Math.cos(n.a)*48,b.y+Math.sin(n.a)*22,n); });
+      if(!b.shield && !b.dead) consider(b.x,b.y,b);
+    }
+    return best;
+  }
+
+  function update(dt){
+    if(!game.running||game.paused)return;
+    game.elapsed+=dt; game.phaseTime+=dt;
+    if(!reducedMotion){ game.flash=Math.max(0,game.flash-dt*2.7); game.shake=Math.max(0,game.shake-dt*18); } else { game.flash=0; game.shake=0; }
+    const p=game.player; p.cool=Math.max(0,p.cool-dt); p.heat=Math.max(0,p.heat-dt*.32); p.inv=Math.max(0,p.inv-dt);
+
+    if(game.clearing){
+      game.clearTimer-=dt;
+      for(const e of game.enemies) e.fade=Math.max(0,game.clearTimer);
+      if(game.clearTimer<=0){ game.clearing=false; game.enemies.length=0; advance(); }
+      updateHUD(); return;
+    }
+
+    let mx=input.move.x,my=input.move.y;
+    if(input.mode==='direct'&&input.directMoveId!==null&&input.moveTarget){ const dx=input.moveTarget.x-p.x,dy=input.moveTarget.y-p.y,m=Math.hypot(dx,dy); mx=clamp(dx/34,-1,1);my=clamp(dy/34,-1,1); if(m<6){mx=0;my=0;} }
+    if(keys.up||keys.down||keys.left||keys.right){
+      let kx=(keys.right?1:0)-(keys.left?1:0), ky=(keys.down?1:0)-(keys.up?1:0); const km=Math.hypot(kx,ky)||1; mx=kx/km; my=ky/km;
+    }
+    p.vx+=(mx*100-p.vx)*Math.min(1,dt*7); p.vy+=(my*100-p.vy)*Math.min(1,dt*7);
+    p.x=clamp(p.x+p.vx*dt,18,W-18); p.y=clamp(p.y+p.vy*dt,82,playerBottomBound());
+    if(input.firing||keys.fire) firePlayer();
+
+    game.lockTarget = findLockTarget();
+    if(game.lockTarget && game.lockTarget.ref!==lastLockRef){ audio.lock(); }
+    lastLockRef = game.lockTarget ? game.lockTarget.ref : null;
+    game.aimTarget = computeAimTarget();
+
+    game.spawnClock-=dt;if(game.spawnClock<=0&&game.phase<2){spawnEnemy();game.spawnClock=game.phase===0?rnd(.55,1.05):rnd(.8,1.3);}
+
+    for(const e of game.enemies){
+      e.hit=Math.max(0,e.hit-dt*5); e.x+=e.vx*dt; e.y+=e.vy*dt; if(e.x<25||e.x>W-25)e.vx*=-1; e.cool-=dt;
+      if(e.cool<=0){fireEnemy(e.x,e.y,p.x,p.y,e.type==='relay'?84:69);e.cool=rnd(1.15,2.25);}
+      if(e.y>H+20){e.dead=true;hurtPlayer(9);}
+      if(dist2(e,p)<(e.type==='relay'?20:16)**2){e.dead=true;hurtPlayer(13);}
+    }
+    if(game.phase===2&&game.boss){
+      const b=game.boss;b.t+=dt;b.x=W*.5+Math.sin(b.t*.7)*W*.23;b.cool-=dt;
+      b.nodes.forEach(n=>n.a+=dt*.75);
+      const wasShielded=b.shield;
+      b.shield=b.nodes.some(n=>n.hp>0)?1:0;
+      if(wasShielded && !b.shield){ haptic('shield'); logDecision('shield',{text:'The Overlord shield failed.'}); logShift(-1,'The shield failed.'); emit('shield'); }
+      if(!game.fired.core50 && b.hp<=b.max*.5){ game.fired.core50=true; emit('core50'); }
+      if(b.cool<=0){ for(let i=-1;i<=1;i++) fireEnemy(b.x+i*16,b.y+15,p.x+i*26,p.y,96); b.cool=b.hp<b.max*.4?.58:.82; }
+    }
+    for(const s of game.shots){s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;
+      let hit=false;
+      for(const e of game.enemies){if(!e.dead&&dist2(s,e)<(e.type==='relay'?15:12)**2){e.hp--;e.hit=1;s.life=0;hit=true;game.stats.hits++;burst(s.x,s.y,'#3bf4d2',4);if(e.hp<=0){e.dead=true;if(game.phase===0||e.type==='relay')game.kills++;if(!isClassroom())game.score+=e.type==='relay'?480:220;burst(e.x,e.y,'#ffbd47',12);audio.ping();haptic('destroy');}}}
+      const b=game.boss;if(b&&s.life>0){
+        for(const n of b.nodes){const nx=b.x+Math.cos(n.a)*48,ny=b.y+Math.sin(n.a)*22;if(n.hp>0&&(s.x-nx)**2+(s.y-ny)**2<13**2){
+          n.hp--;s.life=0;hit=true;game.stats.hits++;burst(nx,ny,'#ffbd47',4);
+          if(n.hp<=0){ haptic('destroy'); if(!game.fired.node1){ game.fired.node1=true; emit('node1'); } }
+        }}
+        if(!hit&&!b.shield&&!b.dead&&(s.x-b.x)**2+(s.y-b.y)**2<27**2){b.hp--;s.life=0;game.stats.hits++;if(!isClassroom())game.score+=12;b.hit=1;
+          if(b.hp<=0){b.dead=true;game.paused=true;input.firing=false;if(!isClassroom())game.score+=5000;burst(b.x,b.y,'#ff4f63',42);finish(true);}
+        }
+      }
+    }
+    for(const s of game.enemyShots){s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(dist2(s,p)<10**2){s.life=0;hurtPlayer(game.phase===2?8:6);}}
+    for(const q of game.particles){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.97;q.vy*=.97;q.life-=dt;}
+    game.enemies=game.enemies.filter(e=>!e.dead); game.shots=game.shots.filter(s=>s.life>0&&s.x>-10&&s.x<W+10&&s.y>-10&&s.y<H+10); game.enemyShots=game.enemyShots.filter(s=>s.life>0&&s.x>-20&&s.x<W+20&&s.y>-20&&s.y<H+20); game.particles=game.particles.filter(q=>q.life>0);
+    if(game.phase<2&&!game.clearing&&game.kills>=phaseTargets[game.phase]){
+      game.clearing=true; game.clearTimer=1.0;
+      logShift(1,'Stage cleared: '+phaseNames[game.phase]+'.');
+      logStageRow(phaseNames[game.phase],'Cleared');
+      if(isClassroom()) moveBoardOnClear();
+      emit('stage-clear');
+    }
+    updateHUD();
+  }
+
+  function poly(points,fill,stroke){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke();}}
+  function drawWorld(){
+    const p=game.phase, t=game.elapsed;
+    ctx.fillStyle=p===0?'#071a24':'#171a16';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#182a31';ctx.fillRect(0,0,W,58);
+    ctx.fillStyle='#d37454';ctx.fillRect(0,54,W,4);
+    const horizon=58;
+    if(p===0){
+      for(let y=horizon;y<H;y+=10){const k=(y-horizon)/(H-horizon);ctx.fillStyle=(Math.floor(y/10+t*2)%2)?'#0b2630':'#0a202b';ctx.fillRect(0,y,W,10);ctx.fillStyle=`rgba(59,244,210,${.025+k*.025})`;ctx.fillRect((Math.floor(t*24+y*1.7)%W),y,38+k*60,1);}
+      poly([[0,58],[W*.22,58],[W*.34,H],[0,H]],'#232924'); poly([[W,58],[W*.81,58],[W*.68,H],[W,H]],'#252a22');
+    } else {
+      ctx.fillStyle='#18323a';ctx.fillRect(0,horizon,W,24);
+      for(let y=82;y<H;y+=16){const n=Math.floor((y+t*9)%32);ctx.fillStyle=(Math.floor(y/16)%2)?'#272b22':'#22271f';ctx.fillRect(0,y,W,16);ctx.fillStyle='#303329';for(let x=(n-24);x<W;x+=54)ctx.fillRect(x,y+5,12,2);}
+      poly([[W*.38,58],[W*.62,58],[W*.8,H],[W*.2,H]],'#323329','#4b4634');
+      for(let y=70;y<H;y+=30){const k=(y-58)/(H-58);ctx.fillStyle='#826a3a';ctx.fillRect(W/2-k*95,y,k*190,2);}
+    }
+    ctx.fillStyle='rgba(180,225,205,.06)'; for(let i=0;i<12;i++)ctx.fillRect((i*79+Math.floor(t*11))%W,(i*37)%H,20,1);
+  }
+  function drawDrone(e){
+    const wob=Math.round(Math.sin(game.elapsed*9+e.x)*1.5);ctx.save();ctx.globalAlpha=e.fade==null?1:e.fade;ctx.translate(Math.round(e.x)+wob,Math.round(e.y));
+    if(e.type==='relay'){
+      ctx.fillStyle=e.hit?'#fff':'#484b3e';ctx.fillRect(-8,-8,16,16);ctx.fillStyle='#171b18';ctx.fillRect(-5,-14,10,7);ctx.fillStyle='#ffbd47';ctx.fillRect(-2,-18,4,5);ctx.strokeStyle='#9b8660';ctx.strokeRect(-10,-10,20,20);
+    } else {
+      poly([[-13,1],[-4,-7],[8,-5],[14,3],[3,7],[-8,5]],e.hit?'#fff':'#46585b','#82a29e');ctx.fillStyle='#ff4f63';ctx.fillRect(-1,-2,4,3);ctx.fillStyle='#1d2729';ctx.fillRect(-15,0,5,2);ctx.fillRect(11,1,5,2);
+    }ctx.restore();
+  }
+  function drawBoss(){
+    const b=game.boss;if(!b)return;const x=Math.round(b.x),y=Math.round(b.y),hit=b.hit>0;if(b.hit)b.hit-=.08;
+    ctx.save();ctx.translate(x,y);poly([[-42,-8],[-20,-23],[22,-23],[43,-6],[31,18],[-31,18]],hit?'#fff':'#30343e','#ff4f63');
+    ctx.fillStyle='#090c11';ctx.fillRect(-17,-11,34,20);ctx.fillStyle='#ff4f63';ctx.fillRect(-10,-4,20,4);ctx.fillStyle='#67222e';ctx.fillRect(-34,0,12,8);ctx.fillRect(22,0,12,8);ctx.restore();
+    b.nodes.forEach(n=>{if(n.hp<=0)return;const nx=x+Math.cos(n.a)*48,ny=y+Math.sin(n.a)*22;ctx.fillStyle='#ffbd47';ctx.fillRect(Math.round(nx)-5,Math.round(ny)-5,10,10);ctx.strokeStyle='#fff0b3';ctx.strokeRect(Math.round(nx)-8,Math.round(ny)-8,16,16);});
+    if(b.shield){ctx.strokeStyle='rgba(59,244,210,.55)';ctx.setLineDash([3,4]);ctx.beginPath();ctx.ellipse(x,y,61,34,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);}
+  }
+  function drawPlayer(){
+    const p=game.player;if(p.inv>0&&Math.floor(p.inv*30)%2)return;ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));
+    poly([[-13,7],[-9,-8],[0,-13],[11,-6],[15,7],[4,11],[-6,11]],'#52686c','#b9e7dc');ctx.fillStyle='#0d242a';ctx.fillRect(-5,-7,10,10);ctx.fillStyle='#3bf4d2';ctx.fillRect(-3,-5,6,2);ctx.fillStyle='#ffbd47';ctx.fillRect(-9,12,5,3);ctx.fillRect(5,12,5,3);ctx.restore();
+  }
+  function drawProjectiles(){
+    ctx.fillStyle='#caffef';for(const s of game.shots)ctx.fillRect(Math.round(s.x)-1,Math.round(s.y)-3,3,7);
+    ctx.fillStyle='#ff4f63';for(const s of game.enemyShots){ctx.fillRect(Math.round(s.x)-2,Math.round(s.y)-2,5,5);ctx.fillStyle='#ffbd47';ctx.fillRect(Math.round(s.x)-1,Math.round(s.y)-1,2,2);ctx.fillStyle='#ff4f63';}
+    for(const q of game.particles){ctx.globalAlpha=clamp(q.life/q.max,0,1);ctx.fillStyle=q.color;ctx.fillRect(Math.round(q.x),Math.round(q.y),2,2);}ctx.globalAlpha=1;
+  }
+  function drawReticle(){
+    if(!game.running||game.paused) return;
+    const t=game.aimTarget; if(!t) return;
+    ctx.save();
+    ctx.strokeStyle='rgba(215,248,236,.75)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(t.x,t.y,6,0,Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(t.x-9,t.y); ctx.lineTo(t.x-4,t.y); ctx.moveTo(t.x+4,t.y); ctx.lineTo(t.x+9,t.y);
+    ctx.moveTo(t.x,t.y-9); ctx.lineTo(t.x,t.y-4); ctx.moveTo(t.x,t.y+4); ctx.lineTo(t.x,t.y+9); ctx.stroke();
+    const lk=game.lockTarget;
+    if(lk){
+      ctx.strokeStyle='#ffbd47'; ctx.lineWidth=1.4;
+      const s=11, x=lk.x, y=lk.y;
+      ctx.beginPath();
+      ctx.moveTo(x-s,y-s+4); ctx.lineTo(x-s,y-s); ctx.lineTo(x-s+4,y-s);
+      ctx.moveTo(x+s-4,y-s); ctx.lineTo(x+s,y-s); ctx.lineTo(x+s,y-s+4);
+      ctx.moveTo(x+s,y+s-4); ctx.lineTo(x+s,y+s); ctx.lineTo(x+s-4,y+s);
+      ctx.moveTo(x-s+4,y+s); ctx.lineTo(x-s,y+s); ctx.lineTo(x-s,y+s-4);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function render(){
+    ctx.save();if(game.shake){ctx.translate(Math.round(rnd(-game.shake,game.shake)),Math.round(rnd(-game.shake,game.shake)));}
+    drawWorld();for(const e of game.enemies)drawDrone(e);drawBoss();drawProjectiles();drawPlayer();drawReticle();
+    if(game.player.heat>.72){ctx.fillStyle='#ffbd47';ctx.fillRect(8,H-8,Math.round(70*game.player.heat),2);}
+    ctx.restore();
+    if(game.flash>0){ctx.fillStyle=`rgba(255,79,99,${game.flash*.22})`;ctx.fillRect(0,0,W,H);}
+    if(!reducedMotion){ ctx.globalAlpha=.055;ctx.fillStyle='#d9ffe7';for(let i=0;i<48;i++){const x=(i*97+Math.floor(game.elapsed*120))%W,y=(i*53+Math.floor(game.elapsed*37))%H;ctx.fillRect(x,y,1,1);}ctx.globalAlpha=1; }
+  }
+  let last=performance.now();function loop(now){const dt=Math.min(.034,(now-last)/1000);last=now;update(dt);render();requestAnimationFrame(loop);}requestAnimationFrame(loop);
+
+  document.querySelectorAll('.mode[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+  $('startBtn').addEventListener('click',startGame);$('againBtn').addEventListener('click',()=>{ ui.end.classList.add('hidden'); ui.start.classList.remove('hidden'); });
+  ui.mode.addEventListener('click',()=>setMode(input.mode==='direct'?'dual':'direct'));
+  ui.sound.addEventListener('click',()=>{audio.muted=!audio.muted;ui.sound.textContent=audio.muted?'MUTE':'SND';if(!audio.muted)audio.ping();});
+  ui.pause.addEventListener('click',()=>{if(!game.running)return;game.paused=!game.paused;ui.pause.textContent=game.paused?'▶':'Ⅱ';say('FLIGHT COMPUTER',game.paused?'SORTIE HELD':'SORTIE RESUMED',1.4,EVENT_PRIORITY.pause);});
+
+  /* ---------- record exporter ---------- */
+  function buildRecordMarkdown(){
+    const pair = game.personaPair || {lead:'—',handler:'—'};
+    const leadName = (PERSONA_META[pair.lead]||{}).name || pair.lead;
+    const handlerName = (PERSONA_META[pair.handler]||{}).name || pair.handler;
+    const lines = [];
+    lines.push('# Sortie Record — Hard/Wired Coast');
+    lines.push('Profile: '+game.profile);
+    lines.push('Lead: '+leadName+' · Handler: '+handlerName);
+    lines.push('');
+    lines.push('## Stages');
+    lines.push('| Stage | Result | Accuracy | Trade-off accepted |');
+    lines.push('|---|---|---|---|');
+    game.decisionLog.filter(d=>d.type==='stage').forEach(r=>{
+      lines.push('| '+r.stage+' | '+r.result+' | '+r.accuracy+'% | '+r.tradeoff+' |');
+    });
+    lines.push('');
+    lines.push('## Complications');
+    const comps = game.decisionLog.filter(d=>['hull40','shield','compel-accept','compel-refuse','lose'].includes(d.type));
+    if(comps.length===0) lines.push('- None recorded.'); else comps.forEach(c=>lines.push('- '+c.text));
+    lines.push('');
+    lines.push('## Shifts');
+    if(isClassroom()){
+      if(game.shiftLog.length===0) lines.push('- No shift changes recorded.');
+      else game.shiftLog.forEach(s=>lines.push('- '+(s.delta>0?'+':'')+s.delta+' ('+s.why+')'));
+    } else {
+      lines.push('- Not tracked under the arcade profile.');
+    }
+    lines.push('');
+    lines.push('## Transfer');
+    lines.push('One sentence pointing at the graded artifact: "Reread the stage where you lost capacity before you revise your backlog."');
+    return lines.join('\n');
+  }
+  $('recordBtn').addEventListener('click', ()=>{
+    const md = buildRecordMarkdown();
+    $('recordText').value = md;
+    $('downloadBtn').href = 'data:text/markdown;charset=utf-8,'+encodeURIComponent(md);
+    $('recordPanel').hidden = false;
+  });
+  $('copyBtn').addEventListener('click', ()=>{
+    const ta=$('recordText');
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).catch(()=>{ ta.select(); document.execCommand('copy'); });
+    else { ta.select(); document.execCommand('copy'); }
+  });
+
+  addEventListener('resize',resize);addEventListener('orientationchange',resize);resize();setMode('direct');updateHUD();
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&game.running){game.paused=true;ui.pause.textContent='▶';}});
+})();
+</script>
+</body>
+</html>
