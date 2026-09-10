@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hard Land, Rising — spike</title>
+<style>
+  :root{
+    --ink:#e8f1f2; --dim:#93a5ab; --void:#05080a; --concrete:#1b2226; --concrete-2:#262f34;
+    --amber:#e3b23c; --amber-dim:#8a6a24; --cyan:#2fd6e8; --cyan-dim:#0f4b52;
+    --danger:#c0503a; --line:#3a454b; --panel:#12171a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--void);color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  body{padding:0 0 24px;}
+  .wrap{max-width:480px;margin:0 auto;padding:12px 16px 8px;position:relative;}
+  .scanlines{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.05;
+    background:repeating-linear-gradient(to bottom, #000 0 1px, transparent 1px 3px);}
+  header.readout{font:700 13px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    letter-spacing:.03em; color:var(--amber); background:var(--panel); border:1px solid var(--line);
+    border-radius:6px; padding:8px 10px; margin:10px 0; text-align:center;}
+  canvas#shaft{display:block; width:100%; height:auto; max-width:100%; background:var(--void);
+    border:1px solid var(--line); border-radius:8px; margin-bottom:10px;}
+  .fixer{font-style:italic; color:var(--cyan); border-left:3px solid var(--cyan-dim);
+    padding:2px 0 2px 10px; margin:0 0 10px; font-size:14px;}
+  .fixer::before{content:"HANDLER — "; font-style:normal; font-weight:700; color:var(--dim);
+    font-size:11px; letter-spacing:.06em;}
+  h1{font-size:19px; margin:.2em 0 .3em; color:var(--ink);}
+  h2{font-size:16px; margin:1em 0 .3em; color:var(--amber-dim); text-transform:uppercase;
+    letter-spacing:.04em; font-weight:700;}
+  p{margin:.4em 0;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:12px;}
+  .cap-line{font:700 13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:var(--ink); margin:6px 0 10px;}
+  .cap-line.over{color:var(--danger);}
+  .items{display:grid; gap:8px; margin-bottom:10px;}
+  button.item{display:flex; flex-direction:column; align-items:flex-start; gap:2px;
+    text-align:left; width:100%; background:var(--concrete); border:1px solid var(--line);
+    border-radius:8px; padding:9px 10px; color:var(--ink); font:inherit; cursor:pointer;}
+  button.item:disabled{opacity:.45; cursor:not-allowed;}
+  button.item[aria-pressed="true"]{border-color:var(--amber); background:var(--concrete-2);
+    box-shadow:inset 0 0 0 1px var(--amber);}
+  button.item .row1{display:flex; width:100%; justify-content:space-between; align-items:center; gap:8px;}
+  button.item .k{display:inline-block; min-width:1.4em; text-align:center; font:700 11px ui-monospace,monospace;
+    background:var(--amber-dim); color:#1b1400; border-radius:4px; padding:1px 4px; margin-right:6px;}
+  button.item .t{font-weight:700; flex:1;}
+  button.item .w{font:700 12px ui-monospace,monospace; color:var(--amber); white-space:nowrap;}
+  button.item .m{font-size:12px; color:var(--dim);}
+  button.item .badge{display:inline-block; margin-top:2px; font-size:11px; font-weight:700;
+    padding:1px 6px; border-radius:999px; letter-spacing:.02em;}
+  .badge.keep{background:#1e3a24; color:#7be08f;}
+  .badge.tide{background:#3a2420; color:#e08f7b;}
+  .badge.reopen{background:#213a3c; color:#7bd6e0;}
+  .badge.locked{background:#3a3220; color:#e3b23c;}
+  label{display:block; font-weight:700; font-size:13px; margin:10px 0 4px;}
+  textarea{width:100%; min-height:64px; background:#0c0f11; color:var(--ink); border:1px solid var(--line);
+    border-radius:6px; padding:8px; font:inherit; resize:vertical;}
+  .cta{display:inline-block; width:100%; background:var(--amber); color:#1b1400; border:0;
+    border-radius:8px; padding:11px 12px; font-weight:700; font-size:15px; cursor:pointer; margin-top:10px;}
+  .cta:disabled{background:#4a4230; color:#7a725a; cursor:not-allowed;}
+  .cta.secondary{background:var(--concrete-2); color:var(--ink); border:1px solid var(--line);}
+  .flash{min-height:1.4em; color:var(--danger); font-size:13px; font-weight:700; margin-top:6px;}
+  [hidden]{display:none !important;}
+  pre#recordOut{white-space:pre-wrap; background:#0a0d0f; color:#dfe7e9; border:1px solid var(--line);
+    border-radius:6px; padding:10px; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    max-height:340px; overflow:auto;}
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap;}
+  .btnrow .cta{width:auto; flex:1 1 auto;}
+  .frame-bar{margin-top:22px; border-top:1px solid var(--line); padding-top:10px; font-size:13px;}
+  .frame-bar summary{cursor:pointer; font-weight:700; color:var(--amber); padding:6px 0;}
+  .frame-bar details{background:var(--panel); border:1px solid var(--line); border-radius:6px;
+    padding:6px 10px; margin-bottom:8px;}
+  .frame-bar a{color:var(--cyan); display:inline-block; margin-top:2px;}
+  .compel-box{border:1px solid var(--amber-dim); background:#1d1808; border-radius:8px; padding:10px 12px; margin:8px 0;}
+  @media (max-width:400px){ .wrap{padding:8px 10px;} }
+</style>
+</head>
+<body>
+<div class="scanlines" aria-hidden="true"></div>
+<main class="wrap">
+
+  <header id="readout" class="readout" aria-live="polite">LEDGE 1 · PACK 0/13 · SHIFTS +0 · FP 1</header>
+
+  <canvas id="shaft" width="400" height="230" role="img"
+    aria-label="A flooding concrete shaft. A small figure climbs upward carrying amber cargo tiles while a cyan waterline rises below."></canvas>
+
+  <div id="flash" class="flash" role="status" aria-live="polite"></div>
+
+  <!-- INTRO -->
+  <section id="stage-intro" class="stage panel">
+    <h1>Hard Land, Rising</h1>
+    <p class="fixer">Water's coming up faster than the paperwork. Pack, then climb. I'll count what it costs.</p>
+    <p>The hull's open below you. The Meridian platform shaft is flooding deck by deck. You're the
+    one in the water; I'm the one on the line telling you what's still worth carrying.</p>
+    <p>Two ledges between here and dry steel. What you carry up the first one is what ships.</p>
+    <button type="button" class="cta" id="btnStart">Start the climb</button>
+  </section>
+
+  <!-- ROUND 1 -->
+  <section id="stage-round1" class="stage panel" hidden>
+    <h2>Ledge 1 — pack for the climb</h2>
+    <p class="cap-line" id="capLine1">Pack used: 0 / 13</p>
+    <div class="items" id="items1"></div>
+    <label for="r1reason">Why is this slice defensible?</label>
+    <textarea id="r1reason" placeholder="What you're carrying up, and why it earns the weight."></textarea>
+    <label for="r1defer">One thing you deliberately left behind, and why?</label>
+    <textarea id="r1defer" placeholder="Name it. Say why it can wait."></textarea>
+    <button type="button" class="cta" id="btnClimb1">Climb</button>
+  </section>
+
+  <!-- CLIMBING 1 (transition) -->
+  <section id="stage-climbing1" class="stage panel" hidden>
+    <p class="fixer" id="fixerClimb1">Nice pace. The tide disagrees with your itinerary.</p>
+    <p>Climbing to Ledge 1&hellip;</p>
+  </section>
+
+  <!-- COMPLICATION -->
+  <section id="stage-complication" class="stage panel" hidden>
+    <h2>Complication</h2>
+    <p class="fixer">Deck's gone under. No chrome, no ladder — that release just became the whole plan.</p>
+    <p>The water has taken the lower deck. Pack limit drops to <strong>10</strong>. Half the crew
+    below have no neural chrome — the <strong>manual ladder release</strong> is now load-bearing.
+    The next ledge cannot be climbed without it.</p>
+    <button type="button" class="cta" id="btnToCompel">Continue</button>
+  </section>
+
+  <!-- COMPEL -->
+  <section id="stage-compel" class="stage panel" hidden>
+    <h2>Offer</h2>
+    <p class="fixer">Meridian will fix your boat if the sponsor feed climbs with you. Your call, sailor.</p>
+    <div class="compel-box">
+      <p style="margin:0 0 .4em;"><strong>Against your trouble:</strong> <em>My Boat Is Falling Apart and Repairs Cost More Than I Make.</em></p>
+      <p style="margin:0;">Meridian will cover the repairs — if the sponsor stream feed ships on this ledge.</p>
+    </div>
+    <div class="btnrow">
+      <button type="button" class="cta" id="btnCompelAccept">Accept — gain 1 Fate point, feed is forced into the pack</button>
+      <button type="button" class="cta secondary" id="btnCompelRefuse">Refuse — spend 1 Fate point</button>
+    </div>
+  </section>
+
+  <!-- ROUND 2 -->
+  <section id="stage-round2" class="stage panel" hidden>
+    <h2>Ledge 2 — revise the pack</h2>
+    <p class="cap-line" id="capLine2">Pack used: 0 / 10</p>
+    <div class="items" id="items2"></div>
+    <label for="r2change">What changed, and why?</label>
+    <textarea id="r2change" placeholder="What you kept, dropped, or brought back — and why."></textarea>
+    <label for="r2tradeoff">What trade-off did you accept?</label>
+    <textarea id="r2tradeoff" placeholder="What did the reduced pack cost you?"></textarea>
+    <button type="button" class="cta" id="btnClimb2">Climb</button>
+  </section>
+
+  <!-- CLIMBING 2 (transition) -->
+  <section id="stage-climbing2" class="stage panel" hidden>
+    <p class="fixer">Higher, lighter, still breathing. Don't waste it looking down.</p>
+    <p>Climbing to the top of the shaft&hellip;</p>
+  </section>
+
+  <!-- TOP -->
+  <section id="stage-top" class="stage panel" hidden>
+    <h2>Top of the shaft</h2>
+    <p class="fixer">You made the top with something to show for it. Buy your own drink this time.</p>
+    <p id="topSummary"></p>
+    <div class="btnrow">
+      <button type="button" class="cta secondary" id="btnCopy">Copy record</button>
+      <a class="cta" id="btnDownload" download="m3-product-owner-decision-record-hard-land-rising.md" style="text-decoration:none; text-align:center;">Download record</a>
+    </div>
+    <pre id="recordOut"></pre>
+    <button type="button" class="cta secondary" id="btnRestart">Run the climb again</button>
+  </section>
+
+  <footer class="frame-bar">
+    <details>
+      <summary>F1 · How this works</summary>
+      <p>Tap an item (or press its number key, 1–8) to pack or unpack it. Some items need another
+      item packed first — an anchor. The pack has a weight limit; you can't go over it. After you
+      climb the first ledge, the water rises and the limit drops. Nothing here is graded by speed
+      or by score. Enter activates the highlighted button.</p>
+    </details>
+    <details>
+      <summary>F2 · Step out of character</summary>
+      <p>You can stop at any time, and stopping costs you nothing. Your grade is not affected. You
+      do not need permission, and you do not have to explain.</p>
+      <p>This is a demonstration of a course decision-making pattern. It is not itself course material.</p>
+    </details>
+    <a href="https://faytechcc.instructure.com">Back to Canvas</a>
+  </footer>
+
+</main>
+
+<script>
+(function(){
+"use strict";
+
+var ITEMS = [
+  {id:'pump-bypass', k:1, title:'Pump bypass', weight:3, value:'High', dep:[], risk:'Low', ready:'Ready',
+    note:'Reroutes intake before the lower deck goes under. Nothing else here holds if this doesn’t.'},
+  {id:'bulkhead-seal', k:2, title:'Bulkhead seal', weight:2, value:'High', dep:['pump-bypass'], risk:'Low', ready:'Ready',
+    note:'Confirms the reroute holds. Cheap once the bypass is in.'},
+  {id:'crew-beacon-relay', k:3, title:'Crew beacon relay', weight:3, value:'High', dep:['pump-bypass'], risk:'Medium', ready:'Ready',
+    note:'Recalls crew who missed the first call to climb.'},
+  {id:'ladder-release', k:4, title:'Manual ladder release', weight:2, value:'High', dep:['pump-bypass'], risk:'Low', ready:'Ready',
+    note:'Works with no chrome. Nobody has needed it yet.'},
+  {id:'cargo-manifest-sync', k:5, title:'Cargo manifest sync', weight:4, value:'Medium', dep:['pump-bypass','bulkhead-seal'], risk:'Medium', ready:'Ready',
+    note:'Tracks what’s still down there once the deck goes under.'},
+  {id:'sponsor-stream-feed', k:6, title:'Sponsor stream feed', weight:2, value:'Low', dep:[], risk:'Low', ready:'Ready',
+    note:'Meridian’s cameras. Good optics, no bearing on anyone’s survival.'},
+  {id:'auto-route-advisory', k:7, title:'Auto-route advisory', weight:5, value:'Medium', dep:[], depNote:'a crew telemetry feed that doesn’t exist yet', risk:'High', ready:'Needs refinement',
+    note:'Routes crew by predicted risk. The predicting part still isn’t settled.'},
+  {id:'medbay-uplink', k:8, title:'Medbay uplink', weight:5, value:'Medium', dep:['cargo-manifest-sync'], risk:'Medium', ready:'Needs refinement',
+    note:'Pipes vitals topside. Nobody’s agreed what Meridian gets to see.'}
+];
+var LADDER_ID = 'ladder-release';
+var SPONSOR_ID = 'sponsor-stream-feed';
+
+function byId(id){ for(var i=0;i<ITEMS.length;i++){ if(ITEMS[i].id===id) return ITEMS[i]; } return null; }
+function titleOf(id){ var it=byId(id); return it?it.title:id; }
+function $(sel){ return document.querySelector(sel); }
+function reducedMotion(){
+  try{ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; }
+}
+
+var state = {
+  stage: 'intro',
+  packed: new Set(),
+  round1Selection: null,
+  round2Selection: null,
+  compelChoice: null,
+  fatePoints: 1,
+  ledgesClimbed: 0,
+  forcedLocked: new Set()
+};
+
+function weightOf(set){
+  var w=0; set.forEach(function(id){ var it=byId(id); if(it) w+=it.weight; });
+  return w;
+}
+function capacityLimit(){
+  return (state.stage==='round1' || state.stage==='intro' || state.stage==='climbing1') ? 13 : 10;
+}
+
+function flash(msg){
+  var f = $('#flash');
+  f.textContent = msg;
+  if(f._t) clearTimeout(f._t);
+  f._t = setTimeout(function(){ f.textContent=''; }, 4000);
+}
+
+function dependenciesSatisfied(item){
+  return item.dep.every(function(d){ return state.packed.has(d); });
+}
+
+function toggleItem(id){
+  var item = byId(id);
+  if(!item) return;
+  if(state.forcedLocked.has(id)){
+    flash('Locked — that’s Meridian’s price for this ledge.');
+    return;
+  }
+  if(state.packed.has(id)){
+    var toRemove=[id];
+    var changed=true;
+    while(changed){
+      changed=false;
+      for(var i=0;i<ITEMS.length;i++){
+        var it=ITEMS[i];
+        if(state.packed.has(it.id) && toRemove.indexOf(it.id)===-1 &&
+           it.dep.some(function(d){ return toRemove.indexOf(d)!==-1; })){
+          toRemove.push(it.id); changed=true;
+        }
+      }
+    }
+    toRemove.forEach(function(r){ state.packed.delete(r); });
+    if(toRemove.length>1){
+      flash('Dropping '+item.title+' also drops '+(toRemove.length-1)+' item(s) anchored to it.');
+    }
+  } else {
+    if(!dependenciesSatisfied(item)){
+      var missing = item.dep.filter(function(d){ return !state.packed.has(d); }).map(titleOf);
+      flash('Anchor missing — pack '+missing.join(', ')+' first.');
+      return;
+    }
+    var limit = capacityLimit();
+    var newWeight = weightOf(state.packed)+item.weight;
+    if(newWeight>limit){
+      flash('Over the ledge limit ('+newWeight+'/'+limit+'). Drop something first.');
+      return;
+    }
+    state.packed.add(id);
+  }
+  render();
+}
+
+function itemStatusBadge(item){
+  if(!state.round1Selection) return null;
+  var wasIn = state.round1Selection.has(item.id);
+  var isIn = state.packed.has(item.id);
+  if(wasIn && isIn) return {cls:'keep', text:'Keep'};
+  if(wasIn && !isIn) return {cls:'tide', text:'Deferred by the tide'};
+  if(!wasIn && isIn) return {cls:'reopen', text:'Reopened'};
+  return null;
+}
+
+function renderItems(containerId, showBadges){
+  var el = $(containerId);
+  el.innerHTML='';
+  ITEMS.forEach(function(item){
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.className='item';
+    btn.dataset.id=item.id;
+    var packed = state.packed.has(item.id);
+    btn.setAttribute('aria-pressed', packed?'true':'false');
+    var depOk = dependenciesSatisfied(item);
+    var wouldExceed = !packed && (weightOf(state.packed)+item.weight)>capacityLimit();
+    var lockedForced = state.forcedLocked.has(item.id);
+    if(!packed && !depOk){
+      btn.disabled = true;
+      var missingNames = item.dep.filter(function(d){ return !state.packed.has(d); }).map(titleOf);
+      btn.title = 'Anchor missing — pack '+missingNames.join(', ')+' first.';
+    } else if(!packed && wouldExceed){
+      btn.disabled = true;
+      btn.title = 'Would push the pack over the ledge limit.';
+    } else if(lockedForced){
+      btn.title = 'Locked — forced into the pack by the compel.';
+    }
+    var depText = item.dep.length ? item.dep.map(titleOf).join(', ') : (item.depNote || 'None');
+    var badge = showBadges ? itemStatusBadge(item) : null;
+    var badgeHtml = '';
+    if(badge) badgeHtml += '<span class="badge '+badge.cls+'">'+badge.text+'</span> ';
+    if(lockedForced) badgeHtml += '<span class="badge locked">Locked — forced by the compel</span>';
+    btn.innerHTML =
+      '<span class="row1"><span><span class="k">'+item.k+'</span><span class="t">'+item.title+'</span></span>'+
+      '<span class="w">'+item.weight+'</span></span>'+
+      '<span class="m">'+item.value+' value · '+item.risk+' risk · '+item.ready+' · anchors: '+depText+'</span>'+
+      '<span class="m">'+item.note+'</span>'+
+      badgeHtml;
+    btn.addEventListener('click', function(){ toggleItem(item.id); });
+    el.appendChild(btn);
+  });
+}
+
+function updateCapLine(elId, limit){
+  var used = weightOf(state.packed);
+  var el = $(elId);
+  el.textContent = 'Pack used: '+used+' / '+limit;
+  el.className = 'cap-line'+(used>limit?' over':'');
+}
+
+function shiftsValue(){
+  var deferred=0;
+  if(state.round1Selection){
+    var comparisonSet = state.round2Selection || state.packed;
+    state.round1Selection.forEach(function(id){ if(!comparisonSet.has(id)) deferred++; });
+  }
+  return state.ledgesClimbed - deferred;
+}
+
+function ledgeLabel(){
+  if(state.stage==='top') return 'TOP';
+  if(state.stage==='complication' || state.stage==='compel' || state.stage==='round2' || state.stage==='climbing2') return '2';
+  return '1';
+}
+
+function updateReadout(){
+  var used = weightOf(state.packed);
+  var limit = capacityLimit();
+  var shifts = shiftsValue();
+  var shiftsText = (shifts>=0?'+':'')+shifts;
+  $('#readout').textContent = 'LEDGE '+ledgeLabel()+' · PACK '+used+'/'+limit+' · SHIFTS '+shiftsText+' · FP '+state.fatePoints;
+}
+
+function setVisible(id, on){
+  var el = document.getElementById(id);
+  if(el) el.hidden = !on;
+}
+
+var STAGE_IDS = ['stage-intro','stage-round1','stage-climbing1','stage-complication','stage-compel','stage-round2','stage-climbing2','stage-top'];
+
+function showStage(name){
+  state.stage = name;
+  STAGE_IDS.forEach(function(id){ setVisible(id, id==='stage-'+name); });
+  render();
+}
+
+function render(){
+  updateReadout();
+  if(state.stage==='round1'){
+    renderItems('#items1', false);
+    updateCapLine('#capLine1', 13);
+    $('#btnClimb1').disabled = false;
+  }
+  if(state.stage==='round2'){
+    renderItems('#items2', true);
+    updateCapLine('#capLine2', 10);
+  }
+  drawShaft();
+}
+
+/* ---------- canvas ---------- */
+var canvas = $('#shaft');
+var ctx = canvas.getContext('2d');
+var waterFrac = 0.90;   // 0 = top of canvas, 1 = bottom
+var figureFrac = 0.86;
+
+function drawShaft(){
+  var w=canvas.width, h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  var bg = ctx.createLinearGradient(0,0,0,h);
+  bg.addColorStop(0,'#0d1214'); bg.addColorStop(1,'#05080a');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
+
+  // shaft walls
+  ctx.strokeStyle='#3a454b'; ctx.lineWidth=1;
+  ctx.strokeRect(w*0.12,0,w*0.02,h);
+  ctx.strokeRect(w*0.86,0,w*0.02,h);
+  for(var y=6;y<h;y+=26){
+    ctx.beginPath(); ctx.moveTo(w*0.13,y); ctx.lineTo(w*0.13,y+12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(w*0.87,y); ctx.lineTo(w*0.87,y+12); ctx.stroke();
+  }
+
+  // ledges (fixed positions)
+  drawLedge(0.62, 'Ledge 1');
+  drawLedge(0.24, 'Ledge 2 / top');
+
+  function drawLedge(frac, label){
+    var ly = h*frac;
+    ctx.fillStyle='#2a3338'; ctx.fillRect(w*0.10, ly, w*0.80, 8);
+    ctx.strokeStyle='#565f64'; ctx.lineWidth=1;
+    for(var x=w*0.12;x<w*0.88;x+=14){ ctx.beginPath(); ctx.moveTo(x,ly); ctx.lineTo(x+6,ly+8); ctx.stroke(); }
+  }
+
+  // water
+  var wy = h*waterFrac;
+  var wg = ctx.createLinearGradient(0,wy,0,h);
+  wg.addColorStop(0,'rgba(47,214,232,0.55)'); wg.addColorStop(1,'rgba(4,20,24,0.95)');
+  ctx.fillStyle=wg; ctx.fillRect(0,wy,w,h-wy);
+  ctx.strokeStyle='#2fd6e8'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(0,wy); ctx.lineTo(w,wy); ctx.stroke();
+
+  // pack tiles (decorative)
+  var n = state.packed.size;
+  var tileW=16, tileH=12, startX=w*0.5-(Math.min(n,8)*tileW)/2;
+  for(var i=0;i<Math.min(n,8);i++){
+    ctx.fillStyle='#e3b23c';
+    ctx.fillRect(startX+i*tileW, h*figureFrac-30, tileW-3, tileH);
+  }
+
+  // figure (Nomad)
+  var fx=w*0.5, fy=h*figureFrac;
+  ctx.fillStyle='#cfd8db';
+  ctx.beginPath();
+  ctx.moveTo(fx, fy-16); ctx.lineTo(fx-8, fy+2); ctx.lineTo(fx+8, fy+2); ctx.closePath(); ctx.fill();
+  ctx.fillRect(fx-6, fy+2, 12, 10);
+  ctx.fillStyle='#2fd6e8';
+  ctx.beginPath(); ctx.arc(fx, fy-20, 4, 0, Math.PI*2); ctx.fill();
+}
+
+function animateWater(fromW,toW,fromF,toF,done){
+  if(reducedMotion()){
+    waterFrac=toW; figureFrac=toF; drawShaft(); done();
+    return;
+  }
+  var start=null, dur=850;
+  function step(ts){
+    if(!start) start=ts;
+    var t=Math.min(1,(ts-start)/dur);
+    var ease = 1-Math.pow(1-t,3);
+    waterFrac = fromW + (toW-fromW)*ease;
+    figureFrac = fromF + (toF-fromF)*ease;
+    drawShaft();
+    if(t<1){ requestAnimationFrame(step); } else { done(); }
+  }
+  requestAnimationFrame(step);
+}
+
+/* ---------- flow ---------- */
+$('#btnStart').addEventListener('click', function(){
+  showStage('round1');
+});
+
+$('#btnClimb1').addEventListener('click', function(){
+  var w = weightOf(state.packed);
+  var r1reason = $('#r1reason').value.trim();
+  var r1defer = $('#r1defer').value.trim();
+  if(w>13){ flash('Pack exceeds 13. Fix it before you climb.'); return; }
+  if(!r1reason || !r1defer){ flash('Fill both fields before you climb.'); return; }
+  state.fields = state.fields || {};
+  state.fields.r1reason = r1reason;
+  state.fields.r1defer = r1defer;
+  state.round1Selection = new Set(state.packed);
+  state.ledgesClimbed = 1;
+  showStage('climbing1');
+  animateWater(0.90, 0.60, 0.86, 0.58, function(){
+    showStage('complication');
+  });
+});
+
+$('#btnToCompel').addEventListener('click', function(){
+  showStage('compel');
+});
+
+$('#btnCompelAccept').addEventListener('click', function(){
+  state.compelChoice = 'accept';
+  state.fatePoints += 1;
+  state.packed.add(SPONSOR_ID);
+  state.forcedLocked.add(SPONSOR_ID);
+  showStage('round2');
+});
+$('#btnCompelRefuse').addEventListener('click', function(){
+  state.compelChoice = 'refuse';
+  state.fatePoints -= 1;
+  showStage('round2');
+});
+
+$('#btnClimb2').addEventListener('click', function(){
+  var w = weightOf(state.packed);
+  var r2change = $('#r2change').value.trim();
+  var r2tradeoff = $('#r2tradeoff').value.trim();
+  if(w>10){ flash('Pack exceeds 10 ('+w+'/10). The tide won’t wait.'); return; }
+  if(!state.packed.has(LADDER_ID)){ flash('The manual ladder release has to be in the pack. No chrome, no other way up.'); return; }
+  if(!r2change || !r2tradeoff){ flash('Fill both fields before you climb.'); return; }
+  state.fields.r2change = r2change;
+  state.fields.r2tradeoff = r2tradeoff;
+  state.round2Selection = new Set(state.packed);
+  state.ledgesClimbed = 2;
+  showStage('climbing2');
+  animateWater(0.60, 0.30, 0.58, 0.14, function(){
+    showStage('top');
+    buildRecord();
+  });
+});
+
+$('#btnRestart').addEventListener('click', function(){
+  location.reload();
+});
+
+/* ---------- record export ---------- */
+function buildRecord(){
+  var r1 = state.round1Selection, r2 = state.round2Selection;
+  var r1Table = ITEMS.map(function(it){
+    var dep = it.dep.length ? it.dep.map(titleOf).join(', ') : (it.depNote || 'None');
+    return '| '+it.title+' | '+it.weight+' | '+it.value+' | '+dep+' | '+it.risk+' | '+it.ready+' | '+(r1.has(it.id)?'Packed':'Left behind')+' |';
+  }).join('\n');
+
+  var removed = ITEMS.filter(function(it){ return r1.has(it.id) && !r2.has(it.id); })
+    .map(function(it){ return '- '+it.title+' — deferred by the tide'; });
+  var added = ITEMS.filter(function(it){ return !r1.has(it.id) && r2.has(it.id); })
+    .map(function(it){ return '- '+it.title+' — '+(it.id===SPONSOR_ID && state.compelChoice==='accept' ? 'forced in by the compel' : 'reopened after the tide'); });
+  var revisedList = ITEMS.filter(function(it){ return r2.has(it.id); })
+    .map(function(it){ return '- '+it.title+' ('+it.weight+' pts)'; });
+
+  var compelText = state.compelChoice==='accept'
+    ? 'Accepted. Gained 1 Fate point. Meridian’s sponsor stream feed was forced into the pack (weight 2), against the Nomad’s trouble “My Boat Is Falling Apart and Repairs Cost More Than I Make.”'
+    : 'Refused. Spent 1 Fate point rather than let Meridian force the sponsor stream feed into the pack.';
+
+  var shifts = shiftsValue();
+  var shiftsText = (shifts>=0?'+':'')+shifts;
+
+  var md =
+'# M3 Product Owner Decision Record\n\n'+
+'## Scenario\n'+
+'A hull breach has flooded the lower decks of a Meridian Holdings platform shaft. You are the Nomad, climbing with everything you can carry before the water decides for you; the Fixer is on comms, keeping count of what it costs.\n\n'+
+'## Round 1 (capacity 13)\n\n'+
+'| Item | Weight | Value | Anchors | Risk | Readiness | Status |\n'+
+'|---|---|---|---|---|---|---|\n'+
+r1Table+'\n\n'+
+'**Why this slice was defensible:**\n'+state.fields.r1reason+'\n\n'+
+'**One thing deliberately left behind, and why:**\n'+state.fields.r1defer+'\n\n'+
+'## Complication\n'+
+'The water took the lower deck. Pack limit dropped from 13 to 10. Half the crew below have no neural chrome, so the manual ladder release became load-bearing — the next ledge cannot be climbed without it.\n\n'+
+'## Revised slice (capacity 10)\n\n'+
+revisedList.join('\n')+'\n\n'+
+'### Removed after complication\n'+
+(removed.length?removed.join('\n'):'- None')+'\n\n'+
+'### Added after complication\n'+
+(added.length?added.join('\n'):'- None')+'\n\n'+
+'**What changed and why:**\n'+state.fields.r2change+'\n\n'+
+'**Trade-off accepted:**\n'+state.fields.r2tradeoff+'\n\n'+
+'## Compel\n'+compelText+'\n\n'+
+'## Shifts\n'+shiftsText+'\n\n'+
+'## Transfer to DataMan\n'+
+'Reread the ledge where you lost capacity before you revise docs/product-backlog.md.\n';
+
+  state.recordText = md;
+  $('#recordOut').textContent = md;
+  $('#topSummary').textContent = 'Ledges climbed: 2. Shifts: '+shiftsText+'. Fate points remaining: '+state.fatePoints+'.';
+
+  try{
+    var blob = new Blob([md], {type:'text/markdown'});
+    var url = URL.createObjectURL(blob);
+    $('#btnDownload').href = url;
+  }catch(e){ /* download unavailable; copy still works */ }
+}
+
+$('#btnCopy').addEventListener('click', function(){
+  var text = state.recordText || '';
+  var done = function(ok){ flash(ok?'Record copied.':'Could not copy — select and copy manually.'); };
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ fallbackCopy(); });
+    } else {
+      fallbackCopy();
+    }
+  }catch(e){ fallbackCopy(); }
+  function fallbackCopy(){
+    try{
+      var ta=document.createElement('textarea');
+      ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      var ok=false;
+      try{ ok=document.execCommand('copy'); }catch(e2){ ok=false; }
+      document.body.removeChild(ta);
+      done(ok);
+    }catch(e3){ done(false); }
+  }
+});
+
+/* ---------- keyboard ---------- */
+document.addEventListener('keydown', function(ev){
+  var tag = (document.activeElement && document.activeElement.tagName) || '';
+  if(tag==='TEXTAREA') return;
+  if(ev.key>='1' && ev.key<='8'){
+    var idx = parseInt(ev.key,10)-1;
+    if(state.stage==='round1' || state.stage==='round2'){
+      if(ITEMS[idx]) toggleItem(ITEMS[idx].id);
+    }
+  } else if(ev.key==='Enter'){
+    var map = {
+      intro:'#btnStart', round1:'#btnClimb1', complication:'#btnToCompel',
+      round2:'#btnClimb2', top:'#btnCopy'
+    };
+    var sel = map[state.stage];
+    if(sel && tag!=='BUTTON'){ var b=$(sel); if(b) b.click(); }
+  }
+});
+
+/* ---------- init ---------- */
+showStage('intro');
+
+})();
+</script>
+</body>
+</html>
