@@ -92,24 +92,25 @@ and every `cartridges/*/index.html`.
 
 ## E · M2 cartridge, Suspended Coastal (`cartridges/m2-suspended-coastal/index.html`)
 
-Rows to fill with selectors when the cartridge lands. The checks are fixed now.
-
-| ID | Check | Expected |
-|---|---|---|
-| E-01 | Wizard | Two units of four must be chosen; Next disabled otherwise |
-| E-02 | Ping confirm | Every ping shows *Pings remaining after: n* and needs Yes |
-| E-03 | Budget three | Fourth ping unavailable without reopen |
-| E-04 | Channel rule | The same ping through two units returns different evidence text |
-| E-05 | Technology ping | Error dialog; ping still spent; nothing added to the evidence board |
-| E-06 | Cosmetic ping | *Did you know…* tip; ping spent; nothing on the board |
-| E-07 | Sort gate | Marking a preference as evidence opens the assistant; marking it assumption does not |
-| E-08 | Position commit | Six fields required; commit dialog states no more pings |
-| E-09 | Complication | Alert dialog names intermittent uplink and half-booked berths |
-| E-10 | Four moves | Revise, keep, defer, reopen each confirm with a stated cost; reopen costs 1 FP and grants one ping |
-| E-11 | Compel | Accept +1 FP and a recorded solution-without-evidence; Refuse spends 1 FP |
-| E-12 | Record shape | `# M2 Elicitation Decision Record`, `Investigation Path`, `Initial Position`, `Complication`, `Transfer` |
-| E-13 | Human: does the technology-ping error read as the lesson or as a bug? | — |
-| E-14 | Human: do the confirm dialogs read as gates or as nagging? | — |
+| ID | Check | Expected | Probe |
+|---|---|---|---|
+| E-01 | Wizard | Two units of four must be chosen; the brief follows | `#keypad` unit choices; second pick enables Next |
+| E-02 | Ping confirm | Every ping passes a Confirm scene (`#dialogTitle` = Confirm) with Yes / No | `#dialogTitle` text; `#keypad` buttons 1–2 |
+| E-03 | Budget three | `#ledReadout` reads `PINGS: 3 / 3` at start and `0 / 3` after three; no fourth ping without reopen | `#ledReadout` |
+| E-04 | Channel rule | The same ping through two units returns different data text | run twice with different pairs; compare `#crt` data lines |
+| E-05 | Technology ping | Error scene (`#dialogTitle` = Error, red-X icon); budget still drops; nothing on the evidence board | `#dialogIcon`, `#ledReadout`, `#boardsBody` |
+| E-06 | Cosmetic ping | *Did you know…* tip scene; budget drops; nothing on the board | `#dialogTitle`, `#boardsBody` |
+| E-07 | Sort gate | Filing ping 5 or 6 as Evidence opens the Office Assistant scene first; filing as Assumption does not | `#dialogTitle` = Office Assistant |
+| E-08 | Position commit | `#formOverlay` requires six fields; commit confirm states no more pings | `#formOverlay textarea[required]` count = 6 |
+| E-09 | Complication | Alert scene (yellow triangle) names intermittent uplink and half-booked berths | `#dialogIcon`, `#crt` text |
+| E-10 | Four moves | Revise, keep, defer, reopen each pass a Confirm with a stated cost; reopen sets Fate 1 → 0 and `#ledReadout` to `1 / 4` | `#statusStrip` Fate chip; `#ledReadout` |
+| E-11 | Compel | Accept: Fate +1 and a recorded solution without evidence; Refuse: Fate −1, disabled at 0 | `#statusStrip`; `#keypad button[disabled]` |
+| E-12 | Record shape | `# M2 Elicitation Decision Record`, `Investigation Path`, `Initial Position`, `Complication`, `Revision`, `Transfer` | `#recordText` |
+| E-13 | Inline equals file | `CARTRIDGE` in the HTML parses equal to `cartridge.json` | `node check-cartridge-equal.js` |
+| E-14 | Empty keypad slots | Unused choice slots are blank or absent, never a disabled button with stale text | `#keypad button[disabled]` text empty |
+| E-15 | Human: does the technology-ping error read as the lesson or as a bug? | — | — |
+| E-16 | Human: do the confirm dialogs read as gates or as nagging? | — | — |
+| E-17 | Human: does the confirm read as a dialog box, or as text in the log with a Yes key? | — | — |
 
 ## F · Persona data (`personas/personas.json`)
 
