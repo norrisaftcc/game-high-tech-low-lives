@@ -3,7 +3,7 @@
 Single-file HTML mini-games in the High Tech Low Lives world. Each cartridge carries one
 CTS-285 module's decision mechanic underneath an in-character surface. The pedagogy, the
 governance, and the per-module cartridge concepts are recorded on the course side, in
-`AMLW05/cts-285_SOURCE/planning/HTLL-SIMULATIONS-AND-ARCADE-CABINET-PLAN-2026-09-10.md`.
+`AMLW05/cts-285-course-simulations/planning/HTLL-SIMULATIONS-AND-ARCADE-CABINET-PLAN-2026-09-10.md`.
 This file holds what is HTLL's to define: the personas, the format, and the reference build.
 
 **Status: proposed.** The reference build is the only runnable thing here.
