@@ -454,6 +454,7 @@
         if ((state.stats[stat] || 0) < cond.stat_min[stat]) return false;
       }
     }
+    if (typeof cond.fate_min === 'number' && state.fate < cond.fate_min) return false;
     return true;
   }
 
@@ -748,14 +749,14 @@
     var shifts = total - difficulty;
     var tier, targetScene, fateDelta = 0, stressDelta = 0;
 
-    // Generalised from the four-tier Twine ladder (scene2-contact.tw), which states its
-    // thresholds as offsets from a difficulty of 2: style at difficulty+3, success at
-    // difficulty+1, tie at difficulty-1, fail below that. See SCENE-FORMAT.md "check node".
+    // Canonical success ladder (build/docs-v2/core_moves_sheet.md lines 114-119):
+    // style on 3+ shifts, success on 1-2 shifts, tie at exactly 0 shifts, fail below.
+    // See SCENE-FORMAT.md "check node".
     if (total >= difficulty + 3) {
       tier = 'style'; targetScene = check.on_style; fateDelta = 1; state.fate += 1;
     } else if (total >= difficulty + 1) {
       tier = 'success'; targetScene = check.on_success;
-    } else if (total >= difficulty - 1) {
+    } else if (total === difficulty) {
       tier = 'tie'; targetScene = check.on_tie;
     } else {
       tier = 'fail'; targetScene = check.on_fail; stressDelta = 1;
@@ -807,8 +808,9 @@
     els.recordPanel.hidden = false;
     var md = Runner.exportRecord();
     els.recordText.value = md;
-    var blob = new Blob([md], { type: 'text/markdown' });
-    els.downloadLink.href = URL.createObjectURL(blob);
+    // A data: URL, not blob: — the test contract (A-12) requires the link be
+    // usable without a live object URL (e.g. read back out of the DOM).
+    els.downloadLink.href = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
     var fileTitle = ((cartridge.record && cartridge.record.title) || 'decision-record')
       .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     els.downloadLink.setAttribute('download', (fileTitle || 'decision-record') + '.md');
@@ -942,6 +944,12 @@
 
   // ---------- keyboard ----------
   function onKeydown(e) {
+    if (e.key === 'F1' || e.key === 'F2') {
+      e.preventDefault();
+      var panel = document.getElementById(e.key === 'F1' ? 'f1' : 'f2');
+      if (panel) panel.open = !panel.open;
+      return;
+    }
     if (els.formOverlay && !els.formOverlay.hidden) {
       // SKIN ADDITION: Enter submits the open Properties dialog; Esc backs out of it
       // (F1 promises this); number keys don't apply.
@@ -963,9 +971,11 @@
       if (btn && !btn.disabled) btn.click();
     } else if (e.key === 'Enter') {
       var active = document.activeElement;
-      if (active && els.keypad && els.keypad.contains(active) && active.tagName === 'BUTTON') {
-        // A keypad button already has native focus — Enter's default action activates
-        // it on its own. Don't also fire the synthetic click below, or two choices apply.
+      if (active && (active.tagName === 'SUMMARY' || active.tagName === 'A' ||
+          (els.keypad && els.keypad.contains(active) && active.tagName === 'BUTTON'))) {
+        // A keypad button, a details summary, or a link already has native focus —
+        // Enter's default action activates it on its own. Don't also fire the
+        // synthetic click below, or two choices apply.
         return;
       }
       var primary = els.keypad.querySelector('[data-primary]') || els.keypad.querySelector('button');
@@ -1060,6 +1070,17 @@
     if (els.formOverlay) els.formOverlay.hidden = true;
     delete formDrafts[sceneId]; // submitted — the cached draft is no longer needed
     applyEffects(eff);
+    // If the next scene has its own form, renderForm already focused its first
+    // field; this is a no-op then, since the keypad is empty until a form closes.
+    focusKeypadPrimary();
+  }
+
+  // Focus returns to the keypad's highlighted choice (or its first button)
+  // whenever the Properties dialog closes, by Esc or by submit, so keyboard
+  // and screen-reader users land back on an actionable control.
+  function focusKeypadPrimary() {
+    var btn = els.keypad && (els.keypad.querySelector('[data-primary]') || els.keypad.querySelector('button'));
+    if (btn) btn.focus();
   }
 
   // SKIN ADDITION: Esc backs out of the open Properties dialog without losing typed
@@ -1075,11 +1096,19 @@
     }
     formDrafts[formSceneId] = draft;
     els.formOverlay.hidden = true;
-    var prevId = state.visited.length > 1 ? state.visited[state.visited.length - 2] : state.sceneId;
+    // Pop the form's own visited entry first. Otherwise a form that gets
+    // reopened (Esc -> Yes -> back into the same form scene) pushes a second
+    // consecutive entry for it, and a later Esc computes "previous scene" as
+    // the form itself instead of the scene that led here, stranding the run.
+    if (state.visited.length && state.visited[state.visited.length - 1] === formSceneId) {
+      state.visited.pop();
+    }
+    var prevId = state.visited.length ? state.visited[state.visited.length - 1] : formSceneId;
     var prevScene = cartridge.scenes[prevId];
     state.sceneId = prevId;
     clearKeypad();
     if (prevScene) renderChoices(prevScene.choices || [], prevId);
+    focusKeypadPrimary();
   }
 
   function renderForm(formSpec, sceneId) {
@@ -1089,9 +1118,13 @@
     overlay.hidden = false;
     var win = document.createElement('div');
     win.className = 'win98-window win98-form';
+    win.setAttribute('role', 'dialog');
+    win.setAttribute('aria-modal', 'true');
+    var titleId = 'form-title-' + sceneId;
+    win.setAttribute('aria-labelledby', titleId);
     var bar = document.createElement('div');
     bar.className = 'win98-titlebar';
-    bar.innerHTML = '<span>' + escapeHtml(formSpec.title || 'Properties') + '</span>' +
+    bar.innerHTML = '<span id="' + titleId + '">' + escapeHtml(formSpec.title || 'Properties') + '</span>' +
       '<span class="win98-closebox" aria-hidden="true">&#10005;</span>';
     win.appendChild(bar);
     var body = document.createElement('div');
@@ -11852,6 +11885,9 @@ var CARTRIDGE = {
         {
           "id": "reopen",
           "text": "Reopen — spend 1 Fate point for one more ping",
+          "conditions": {
+            "fate_min": 1
+          },
           "effects": {
             "next": "reopen-confirm"
           }
@@ -11959,6 +11995,9 @@ var CARTRIDGE = {
         {
           "id": "yes",
           "text": "Yes",
+          "conditions": {
+            "fate_min": 1
+          },
           "effects": {
             "fate": -1,
             "budget": 1,

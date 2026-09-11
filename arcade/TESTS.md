@@ -64,7 +64,7 @@ and every `cartridges/*/index.html`.
 | ID | Check | Expected | Probe |
 |---|---|---|---|
 | C-01 | Public surface | `Runner.load`, `Runner.start`, `Runner.exportRecord` exist | `typeof window.Runner.exportRecord === 'function'` |
-| C-02 | Check node tiers | With forced dice, difficulty 2: sum 5 → style (+1 FP), 3 → success, 1 → tie, 0 → fail (+1 Nerves) | stub the dice; read `#statusStrip` |
+| C-02 | Check node tiers | With forced dice, difficulty 2: sum 5 → style (+1 FP), 3 → success, 2 → tie, 1 → fail (+1 Nerves) | stub the dice; read `#statusStrip` |
 | C-03 | Conditions grey, not hide | A choice failing its conditions is disabled and still numbered | `#keypad button[disabled]` present |
 | C-04 | Boards | `board_add` writes to the named board; evidence and assumptions render separately | `#boardsBody` sections |
 | C-05 | Budget | `budget:-n` lowers the readout; `budget_min` gates a choice | `#ledReadout` |
@@ -77,7 +77,7 @@ and every `cartridges/*/index.html`.
 
 | ID | Check | Expected | Probe |
 |---|---|---|---|
-| D-01 | Anchors | Unpacking pump bypass drops its three dependents; a dependent cannot be packed first | `#items1` states; `#capLine1` |
+| D-01 | Anchors | Unpacking pump bypass drops its four dependents; a dependent cannot be packed first | `#items1` states; `#capLine1` |
 | D-02 | Over-limit disabled | An item that would exceed the limit is disabled with a stated reason | `button[disabled][title]` |
 | D-03 | Two fields gate the climb | `#btnClimb1` disabled until `#r1reason` and `#r1defer` are filled | fill, assert enabled |
 | D-04 | Water rises = capacity drops | After the first climb the readout reads `LEDGE 2 · PACK n/10` and the complication names the ladder release | `#readout`, `#stage-complication` visible |
@@ -122,3 +122,27 @@ and every `cartridges/*/index.html`.
 | F-04 | Complete | Each pair: 3 lines × 8 events, swapped 1 × 8, opening, compel with four fields; `algorithm` 3 × 7; four palettes | shape walk |
 | F-05 | No course vocabulary in a character's mouth | No *backlog*, *requirement*, *acceptance criteria* in `lines`, `opening`, `swapped` | grep |
 | F-06 | No DataMan behaviour | No *DataMan* in any line | grep |
+
+## G · M3 cartridge, Hard Land Rising (`cartridges/m3-hard-land-rising/index.html`)
+
+| ID | Check | Expected | Probe |
+|---|---|---|---|
+| G-01 | Wizard picks Lead then Handler | Handler-pick choices exclude the chosen Lead (3 of 4) | click a Lead choice; `#keypad` buttons text excludes that Lead's name |
+| G-02 | Anchor cascade | Packing a dependent before its anchor is disabled with a `title`; unpacking an anchor drops its dependents | `#formOverlay button.item[data-id]:disabled` + `title`; toggle anchor off, dependents `aria-pressed=false` |
+| G-03 | Over-limit disabled | An item that would exceed the round's limit is disabled with a stated `title`, not refuse-on-click | `button.item[disabled][title]` |
+| G-04 | Two fields gate Climb | The Climb button stays disabled until both textareas are non-empty | fill both `#formOverlay textarea`; Climb `disabled` flips false |
+| G-05 | Confirm shows weight/limit | Clicking Climb opens a nested Confirm whose text names the current weight and the round's limit | `#formOverlay[data-confirm="1"] p` text |
+| G-06 | Esc closes the Confirm | Esc on the Confirm returns to the pack list with toggles and field text intact, not to the previous scene | press Escape; `#formOverlay:not([hidden])` with no `data-confirm`; cap line unchanged |
+| G-07 | Enter fires once | Reopening Confirm and pressing Enter commits exactly one round (no double-apply) | `window.Runner._debugState().ledgesClimbed` equals 1 after the first commit |
+| G-08 | Water rises | After the Ledge 1 climb, `#ledReadout` reads `LEDGE 2 · PACK n/10`, replacing the round 1 limit of 13 | `#ledReadout` text before and after `climbing-1` |
+| G-09 | Alert names the ladder release | The complication's System Alert text names the manual ladder release by name | `#crt` text at the complication scene includes "ladder release" |
+| G-10 | Ladder release gates Climb | With the manual ladder release unpacked, Ledge 2's Climb is disabled; repacking it re-enables Climb (fields and weight held constant) | toggle `data-id="ladder-release"` off/on; Climb `disabled` |
+| G-11 | Compel accept | Accepting forces the sponsor stream feed into the pack, locked (`title` names the compel), and Fate rises by 1 | click Accept; `window.Runner._debugState().fate`; sponsor item `aria-pressed=true` + `title` |
+| G-12 | Compel refuse | Refusing spends 1 Fate point and leaves the sponsor feed out of the pack | click Refuse; `_debugState().fate` drops by 1; sponsor item `aria-pressed=false` |
+| G-13 | Badges, one render | Keep, Deferred by the tide, a genuine Swapped in / Swapped out pair, and Locked all appear together in one Ledge-2 edit | badge text in `#formOverlay .pack-items` |
+| G-14 | Badges, sixth class | A plain Reopened badge appears when an item is added before any item has been dropped in Ledge 2 (a lighter Ledge-1 pack) | badge text on the freshly-added item, deferred list still empty |
+| G-15 | Digit keys | 1–8 toggle the matching item (by the cartridge's declared order, not DOM position) while the pack overlay is open and focus is outside a textarea | press `1`…`8`; matching `button.item[data-id]` `aria-pressed` |
+| G-16 | Record shape | `# M3 Product Owner Decision Record`, `## Scenario`, `## Round 1 — Capacity 13`, `## Complication`, `## Revised Release Slice — Capacity 10`, `### Removed after complication`, `### Added after complication`, `## Compel`, `## Shifts`, `## Transfer to DataMan` | `#recordText` value |
+| G-17 | Inline equals file | `CARTRIDGE` in the HTML parses equal to `cartridge.json` | `node check-cartridge-equal.js` |
+| G-18 | Human: does the flood bar read as rising water on its own, before reading the LED? | — | — |
+| G-19 | Human: does losing the plain Reopened badge alongside a swap (see CARTRIDGE.md) feel like a real capacity trade-off, or an arbitrary gap? | — | — |

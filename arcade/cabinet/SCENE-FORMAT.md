@@ -20,20 +20,21 @@ CSS class each; `stakeholder` renders as a `<blockquote>`. Example:
 `{"speaker":"stakeholder","text":"Manager Chen is here."}`
 
 **choices** — `{id, text, conditions?, effects?}`, max 4 visible (amber keycaps, number keys
-1–4), more scroll. `conditions: {flags_set[], flags_not_set[], items[], budget_min, stat_min{stat:n}}`
-gray out (not hide) an unmet choice so hotkey numbering stays stable. `effects: {next, flags_set[],
+1–4), more scroll. `conditions: {flags_set[], flags_not_set[], items[], budget_min, stat_min{stat:n},
+fate_min}` gray out (not hide) an unmet choice so hotkey numbering stays stable. `effects: {next, flags_set[],
 flags_unset[], items_add[], items_remove[], stress{track:+n}, budget:-n, board_add{board,id,text,kind},
 fate:+n, return_to_choices}`. Example: `{"id":"proceed","text":"Proceed.","effects":{"next":"roll-1"}}`
 
 **check** — `{stat, difficulty, on_style, on_success, on_tie, on_fail}`. Rolls 4dF (each die
-−1/0/+1, shown as `[+] [0] [−]`), `total = sum(dice) + stats[stat]`. **Tier thresholds are
-offsets from `difficulty`, generalized from the four-tier Twine ladder in
-`build/shodann-solo/scene2-contact.tw`, which states them against difficulty 2** (style 5,
-success 3, tie 1, else fail): `style: total ≥ difficulty+3`, `success: total ≥ difficulty+1`,
-`tie: total ≥ difficulty−1`, else `fail`. Displayed "shifts" = `total − difficulty`. Style
-grants +1 Fate point automatically; fail marks +1 Nerves stress automatically; every roll is
-logged for `## Shifts`. The demo's `split-roll` scene reaches the Twine "split attention, CODE
-−1" case by raising `difficulty` to 3 instead of penalizing the stat — same odds, one lever.
+−1/0/+1, shown as `[+] [0] [−]`), `total = sum(dice) + stats[stat]`. **Tier thresholds follow the
+canonical success ladder in `build/docs-v2/core_moves_sheet.md` (lines 114–119)**: `style: total ≥
+difficulty+3`, `success: total ≥ difficulty+1`, `tie: total === difficulty` (exactly 0 shifts),
+else `fail`. Displayed "shifts" = `total − difficulty`. Style grants +1 Fate point automatically;
+fail marks +1 Nerves stress automatically; every roll is logged for `## Shifts`. The Twine
+prototype in `build/shodann-solo/scene2-contact.tw` widens the tie band by one, to
+`difficulty−1` through `difficulty`, rather than the canonical single point — that widened band is
+not followed here. The demo's `split-roll` scene reaches the Twine "split attention, CODE −1"
+case by raising `difficulty` to 3 instead of penalizing the stat — same odds, one lever.
 
 **board** — declares named boards up front: `[{name, label?, columns?, limit?}]`. Entries arrive
 only via `effects.board_add {board,id,text,kind}`; `kind` doubles as the column name when

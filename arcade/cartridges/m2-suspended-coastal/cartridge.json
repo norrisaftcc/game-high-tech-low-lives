@@ -10637,6 +10637,9 @@
         {
           "id": "reopen",
           "text": "Reopen — spend 1 Fate point for one more ping",
+          "conditions": {
+            "fate_min": 1
+          },
           "effects": {
             "next": "reopen-confirm"
           }
@@ -10744,6 +10747,9 @@
         {
           "id": "yes",
           "text": "Yes",
+          "conditions": {
+            "fate_min": 1
+          },
           "effects": {
             "fate": -1,
             "budget": 1,

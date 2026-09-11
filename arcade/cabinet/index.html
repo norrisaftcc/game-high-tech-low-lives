@@ -806,7 +806,7 @@
     "hull40": [
       "Hull integrity is a poor substitute for judgment.",
       "Continue. I am curious which component fails first.",
-      "Your machine is becoming more aperture than armor."
+      "Hull integrity is at forty percent. Structural failure is now probable."
     ],
     "core50": [
       "That maneuver will appear in my incident report without praise.",
@@ -1257,8 +1257,7 @@
 
   /* ---------- frame bar: F1/F2 ---------- */
   function toggleDetails(el){
-    const willOpen = !el.open; el.open = willOpen;
-    el.dispatchEvent(new Event('toggle'));
+    el.open = !el.open;
   }
   ['howPanel','stepOutPanel'].forEach(id=>{
     $(id).addEventListener('toggle', ()=>{
@@ -1356,6 +1355,11 @@
   function startGame(){
     if(!pendingRoles) return;
     audio.wake();
+    // A new run must not inherit banter left queued or in flight from the last one.
+    banterQueue = [];
+    clearTimeout(banterTimer);
+    banterActive = { priority:-1, until:0 };
+    ui.banter.classList.remove('show');
     game.personaPair = { lead: pendingRoles.lead, handler: pendingRoles.handler, key: pendingRoles.key };
     try{ localStorage.setItem('htll.cabinet.pair', JSON.stringify(game.personaPair)); }catch(e){}
     Object.assign(game,{running:true,paused:false,phase:0,phaseTime:0,score:0,hull:100,kills:0,shake:0,flash:0,spawnClock:0,elapsed:0,boss:null,
@@ -1467,7 +1471,9 @@
 
   function poly(points,fill,stroke){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke();}}
   function drawWorld(){
-    const p=game.phase, t=game.elapsed;
+    // Water bands and ambient drift are purely time-driven; under reduced motion
+    // they must hold still like every other looping animation in the frame.
+    const p=game.phase, t=reducedMotion ? 0 : game.elapsed;
     ctx.fillStyle=p===0?'#071a24':'#171a16';ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#182a31';ctx.fillRect(0,0,W,58);
     ctx.fillStyle='#d37454';ctx.fillRect(0,54,W,4);

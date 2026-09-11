@@ -70,10 +70,12 @@
   .btnrow{display:flex; gap:8px; flex-wrap:wrap;}
   .btnrow .cta{width:auto; flex:1 1 auto;}
   .frame-bar{margin-top:22px; border-top:1px solid var(--line); padding-top:10px; font-size:13px;}
-  .frame-bar summary{cursor:pointer; font-weight:700; color:var(--amber); padding:6px 0;}
+  .frame-bar summary{cursor:pointer; font-weight:700; color:var(--amber); padding:6px 0;
+    display:flex; align-items:center; min-height:44px;}
   .frame-bar details{background:var(--panel); border:1px solid var(--line); border-radius:6px;
     padding:6px 10px; margin-bottom:8px;}
-  .frame-bar a{color:var(--cyan); display:inline-block; margin-top:2px;}
+  .frame-bar a{color:var(--cyan); display:inline-flex; align-items:center; min-height:44px;
+    padding:0 8px; margin-top:2px;}
   .compel-box{border:1px solid var(--amber-dim); background:#1d1808; border-radius:8px; padding:10px 12px; margin:8px 0;}
   @media (max-width:400px){ .wrap{padding:8px 10px;} }
 </style>
@@ -174,14 +176,14 @@
   </section>
 
   <footer class="frame-bar">
-    <details>
+    <details id="f1">
       <summary>F1 · How this works</summary>
       <p>Tap an item (or press its number key, 1–8) to pack or unpack it. Some items need another
       item packed first — an anchor. The pack has a weight limit; you can't go over it. After you
       climb the first ledge, the water rises and the limit drops. Nothing here is graded by speed
       or by score. Enter activates the highlighted button.</p>
     </details>
-    <details>
+    <details id="f2">
       <summary>F2 · Step out of character</summary>
       <p>You can stop at any time, and stopping costs you nothing. Your grade is not affected. You
       do not need permission, and you do not have to explain.</p>
@@ -465,6 +467,18 @@ var ctx = canvas.getContext('2d');
 var waterFrac = 0.90;   // 0 = top of canvas, 1 = bottom
 var figureFrac = 0.86;
 
+/* the water animation must not advance while F1/F2 is open (stepping out of
+   character should not cost the player animated time) */
+var framePaused = false;
+function updateFramePause(){
+  framePaused = !!document.querySelector('.frame-bar details[open]');
+}
+(function(){
+  var f1 = document.getElementById('f1'), f2 = document.getElementById('f2');
+  if(f1) f1.addEventListener('toggle', updateFramePause);
+  if(f2) f2.addEventListener('toggle', updateFramePause);
+})();
+
 function drawShaft(){
   var w=canvas.width, h=canvas.height;
   ctx.clearRect(0,0,w,h);
@@ -523,9 +537,15 @@ function animateWater(fromW,toW,fromF,toF,done){
     waterFrac=toW; figureFrac=toF; drawShaft(); done();
     return;
   }
-  var start=null, dur=850;
+  var start=null, dur=850, pausedAt=null;
   function step(ts){
-    if(!start) start=ts;
+    if(framePaused){
+      if(pausedAt===null) pausedAt=ts;
+      requestAnimationFrame(step);
+      return;
+    }
+    if(start===null){ start=ts; pausedAt=null; }
+    else if(pausedAt!==null){ start += (ts-pausedAt); pausedAt=null; }
     var t=Math.min(1,(ts-start)/dur);
     var ease = 1-Math.pow(1-t,3);
     waterFrac = fromW + (toW-fromW)*ease;
@@ -670,9 +690,9 @@ revisedList.join('\n')+'\n\n'+
   $('#topSummary').textContent = 'Ledges climbed: 2. Shifts: '+shiftsText+'. Fate points remaining: '+state.fatePoints+'.';
 
   try{
-    var blob = new Blob([md], {type:'text/markdown'});
-    var url = URL.createObjectURL(blob);
-    $('#btnDownload').href = url;
+    // A data: URL, not blob: — the test contract (A-12) requires the link be
+    // usable without a live object URL (e.g. read back out of the DOM).
+    $('#btnDownload').href = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
   }catch(e){ /* download unavailable; copy still works */ }
 }
 
@@ -703,6 +723,12 @@ $('#btnCopy').addEventListener('click', function(){
 document.addEventListener('keydown', function(ev){
   var tag = (document.activeElement && document.activeElement.tagName) || '';
   if(tag==='TEXTAREA') return;
+  if(ev.key==='F1' || ev.key==='F2'){
+    ev.preventDefault();
+    var panel = document.getElementById(ev.key==='F1' ? 'f1' : 'f2');
+    if(panel) panel.open = !panel.open;
+    return;
+  }
   if(ev.key>='1' && ev.key<='8'){
     var idx = parseInt(ev.key,10)-1;
     if(state.stage==='round1' || state.stage==='round2'){
@@ -714,7 +740,7 @@ document.addEventListener('keydown', function(ev){
       round2:'#btnClimb2', top:'#btnCopy'
     };
     var sel = map[state.stage];
-    if(sel && tag!=='BUTTON'){ var b=$(sel); if(b) b.click(); }
+    if(sel && tag!=='BUTTON' && tag!=='SUMMARY' && tag!=='A'){ var b=$(sel); if(b) b.click(); }
   } else if(ev.key==='Escape' || ev.key==='Esc'){
     var openPanels = document.querySelectorAll('.frame-bar details[open]');
     for(var i=0;i<openPanels.length;i++){ openPanels[i].removeAttribute('open'); }

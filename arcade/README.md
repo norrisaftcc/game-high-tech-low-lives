@@ -6,9 +6,10 @@ governance, and the per-module cartridge concepts are recorded on the course sid
 `AMLW05/cts-285-course-simulations/planning/HTLL-SIMULATIONS-AND-ARCADE-CABINET-PLAN-2026-09-10.md`.
 This file holds what is HTLL's to define: the personas, the format, and the reference build.
 
-**Status: in build.** Five files run today: `cabinet/index.html`, `cabinet/scene-runner.html`,
-`spikes/hard-land-rising/index.html`, `cartridges/m2-suspended-coastal/index.html`, and the
-unchanged reference build at `hardwired-coast/index.html`.
+**Status: in build.** Six files run today: `cabinet/index.html`, `cabinet/scene-runner.html`,
+`spikes/hard-land-rising/index.html`, `cartridges/m2-suspended-coastal/index.html`,
+`cartridges/m3-hard-land-rising/index.html`, and the unchanged reference build at
+`hardwired-coast/index.html`.
 
 ## Layout
 
@@ -25,6 +26,7 @@ arcade/
     build.py                      checks the inlined persona block against personas.json
   cartridges/
     m2-suspended-coastal/         M2's cartridge: wizard, pings, position, complication, revision
+    m3-hard-land-rising/          M3's cartridge: wizard, pack/climb, complication, compel, revision
   spikes/
     hard-land-rising/             M3 spike: capacity, complication, compel
   personas/                       six pair sheets plus personas.json and the palette record
@@ -91,7 +93,7 @@ launched from Canvas, and it converts each stake instead of removing it:
 
 | Arcade | Classroom |
 |---|---|
-| Hull | A three-column capacity board with a WIP limit; damage pushes an item back to *blocked* |
+| Hull | A four-column capacity board (To Do, In Progress, Blocked, Done) with a WIP limit; damage pushes an item back to *blocked* |
 | Score | Shifts, the Fate term, written into the record as the trade-off accepted |
 | Rising threat on a clock | Complication rounds, turn-based; the water rises one round per decision |
 | Lives, retries | A compel on the Lead's Trouble: accept for a Fate point, or spend one to refuse |
@@ -136,9 +138,9 @@ conditions and effects, flat additive state. Three nodes are added and two conve
 ```
 
 The Twine scene at `build/shodann-solo/scene2-contact.tw` is the working model for the check
-node: thresholds `+5` style, `+3` success, `+1` tie, else fail, with a Fate point on style and
-Nerves stress on fail. Port that, not the prototype's combat loop, which flattens the ladder to
-one stress per exchange.
+node: the canonical ladder is `+3` shifts style, `+1` success, `0` tie, else fail, with a Fate
+point on style and Nerves stress on fail. Port that, not the prototype's combat loop, which
+flattens the ladder to one stress per exchange.
 
 Conventions fixed on the way in:
 

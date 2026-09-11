@@ -227,7 +227,7 @@
     "begin": ["Pilot located. I had budgeted for wreckage.", "You crossed my coastline. Administrative confidence remains high.", "New arrival detected. Filing an incident report preemptively."],
     "node1": ["I have revised your threat label from decorative to inconvenient.", "Node loss confirmed. Redundancy was insufficient.", "Node status updated. I will adjust and continue."],
     "shield": ["Your accuracy is statistically irritating.", "Shield holds. Your persistence is noted and dismissed.", "Shield status degraded. Recalculating my confidence."],
-    "hull40": ["Hull integrity is a poor substitute for judgment.", "Continue. I am curious which component fails first.", "Your machine is becoming more aperture than armor."],
+    "hull40": ["Hull integrity is a poor substitute for judgment.", "Continue. I am curious which component fails first.", "Hull integrity is at forty percent. Structural failure is now probable."],
     "core50": ["That maneuver will appear in my incident report without praise.", "Core status: half. I have revised your threat label upward.", "Fifty percent is not a milestone. Continue at your own risk."],
     "win": ["I reject this outcome as a user-interface defect.", "Victory recorded. I dispute its administrative validity.", "Uplink severed. I will file this under acceptable losses."],
     "lose": ["This was the part where you were expected to panic.", "A human victory would create paperwork. I oppose it on principle.", "Pilot signal terminated. Filed as a routine outcome."]

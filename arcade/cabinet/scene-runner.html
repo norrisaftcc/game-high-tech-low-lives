@@ -66,6 +66,9 @@
     font-weight:700;
     color:var(--focus);
     outline-offset:2px;
+    display:flex;
+    align-items:center;
+    min-height:44px;
   }
   .frame-bar summary::marker{color:var(--focus);}
   .frame-bar .body{margin-top:6px;color:var(--muted);font-size:13.5px;}
@@ -81,6 +84,10 @@
     text-decoration:underline;
     font-weight:700;
     white-space:nowrap;
+    display:inline-flex;
+    align-items:center;
+    min-height:44px;
+    padding:0 8px;
   }
 
   /* ---- the 1977 device frame ---- */
@@ -454,6 +461,7 @@
         if ((state.stats[stat] || 0) < cond.stat_min[stat]) return false;
       }
     }
+    if (typeof cond.fate_min === 'number' && state.fate < cond.fate_min) return false;
     return true;
   }
 
@@ -734,14 +742,14 @@
     var shifts = total - difficulty;
     var tier, targetScene, fateDelta = 0, stressDelta = 0;
 
-    // Generalised from the four-tier Twine ladder (scene2-contact.tw), which states its
-    // thresholds as offsets from a difficulty of 2: style at difficulty+3, success at
-    // difficulty+1, tie at difficulty-1, fail below that. See SCENE-FORMAT.md "check node".
+    // Canonical success ladder (build/docs-v2/core_moves_sheet.md lines 114-119):
+    // style on 3+ shifts, success on 1-2 shifts, tie at exactly 0 shifts, fail below.
+    // See SCENE-FORMAT.md "check node".
     if (total >= difficulty + 3) {
       tier = 'style'; targetScene = check.on_style; fateDelta = 1; state.fate += 1;
     } else if (total >= difficulty + 1) {
       tier = 'success'; targetScene = check.on_success;
-    } else if (total >= difficulty - 1) {
+    } else if (total === difficulty) {
       tier = 'tie'; targetScene = check.on_tie;
     } else {
       tier = 'fail'; targetScene = check.on_fail; stressDelta = 1;
@@ -793,8 +801,9 @@
     els.recordPanel.hidden = false;
     var md = Runner.exportRecord();
     els.recordText.value = md;
-    var blob = new Blob([md], { type: 'text/markdown' });
-    els.downloadLink.href = URL.createObjectURL(blob);
+    // A data: URL, not blob: — the test contract (A-12) requires the link be
+    // usable without a live object URL (e.g. read back out of the DOM).
+    els.downloadLink.href = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
     var fileTitle = ((cartridge.record && cartridge.record.title) || 'decision-record')
       .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     els.downloadLink.setAttribute('download', (fileTitle || 'decision-record') + '.md');
@@ -928,14 +937,22 @@
 
   // ---------- keyboard ----------
   function onKeydown(e) {
+    if (e.key === 'F1' || e.key === 'F2') {
+      e.preventDefault();
+      var panel = document.getElementById(e.key === 'F1' ? 'f1' : 'f2');
+      if (panel) panel.open = !panel.open;
+      return;
+    }
     if (e.key >= '1' && e.key <= '4') {
       var btn = els.keypad.querySelector('[data-hotkey="' + e.key + '"]');
       if (btn && !btn.disabled) btn.click();
     } else if (e.key === 'Enter') {
       var active = document.activeElement;
-      if (active && els.keypad && els.keypad.contains(active) && active.tagName === 'BUTTON') {
-        // A keypad button already has native focus — Enter's default action activates
-        // it on its own. Don't also fire the synthetic click below, or two choices apply.
+      if (active && (active.tagName === 'SUMMARY' || active.tagName === 'A' ||
+          (els.keypad && els.keypad.contains(active) && active.tagName === 'BUTTON'))) {
+        // A keypad button, a details summary, or a link already has native focus —
+        // Enter's default action activates it on its own. Don't also fire the
+        // synthetic click below, or two choices apply.
         return;
       }
       var primary = els.keypad.querySelector('[data-primary]') || els.keypad.querySelector('button');
