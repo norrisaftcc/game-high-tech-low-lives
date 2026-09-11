@@ -293,11 +293,14 @@
     padding:8px;
   }
   .record-panel .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
-  .record-panel button{
+  .record-panel button,
+  .record-panel .actions a{
+    display:inline-flex;align-items:center;justify-content:center;
     background:linear-gradient(180deg,var(--key-amber-hi),var(--key-amber));
     color:var(--key-amber-ink);
     border:none;border-bottom:3px solid #8a5c0f;
     border-radius:5px;padding:7px 12px;font:inherit;font-weight:700;cursor:pointer;
+    text-decoration:none;min-height:44px;min-width:44px;
   }
   .record-panel .copy-feedback{color:#8ff2c2;font-size:12.5px;align-self:center;}
 
@@ -365,9 +368,7 @@
     <textarea id="recordText" readonly aria-label="Exported Markdown decision record"></textarea>
     <div class="actions">
       <button id="copyBtn" type="button">Copy Markdown</button>
-      <a id="downloadLink" download="decision-record.md">
-        <button type="button">Download .md</button>
-      </a>
+      <a id="downloadLink" download="decision-record.md">Download .md</a>
       <span class="copy-feedback" id="copyFeedback" role="status"></span>
     </div>
   </div>
@@ -666,6 +667,7 @@
 
   function renderChoices(choices, sceneId) {
     var visibleIdx = 0;
+    var primarySet = false;
     choices.forEach(function (choice) {
       var enabled = conditionsMet(choice.conditions);
       visibleIdx++;
@@ -673,7 +675,9 @@
       var btn = makeKeycap(hotkey, choice.text, null, function () {
         applyChoice(choice, sceneId);
       }, !enabled);
-      if (visibleIdx === 1) btn.setAttribute('data-primary', '1');
+      // Primary is the first ENABLED choice, not just the first choice — an Enter
+      // press must never target a disabled button.
+      if (enabled && !primarySet) { btn.setAttribute('data-primary', '1'); primarySet = true; }
     });
   }
 
@@ -695,6 +699,9 @@
       });
     }
     if (typeof effects.budget === 'number' && state.budget) {
+      // A positive effect (e.g. "you will get one more ping") raises the cap, not just
+      // the value — otherwise a reopened budget can't be spent past the old start.
+      if (effects.budget > 0) state.budget.start = (state.budget.start || 0) + effects.budget;
       state.budget.value = clamp(state.budget.value + effects.budget, 0, state.budget.start || 999);
     }
     if (typeof effects.fate === 'number') {
@@ -812,6 +819,10 @@
               revised: entry.text,
               changed: state.complication ? summarize(state.complication.text) : 'new information'
             });
+            // The family is closed by this pairing — remove it so a later close of the
+            // same flag (without an intervening flags_set reopening it) doesn't pair
+            // with this now-stale original again.
+            delete families[uf];
           }
         });
       }
@@ -921,8 +932,14 @@
       var btn = els.keypad.querySelector('[data-hotkey="' + e.key + '"]');
       if (btn && !btn.disabled) btn.click();
     } else if (e.key === 'Enter') {
+      var active = document.activeElement;
+      if (active && els.keypad && els.keypad.contains(active) && active.tagName === 'BUTTON') {
+        // A keypad button already has native focus — Enter's default action activates
+        // it on its own. Don't also fire the synthetic click below, or two choices apply.
+        return;
+      }
       var primary = els.keypad.querySelector('[data-primary]') || els.keypad.querySelector('button');
-      if (primary && !primary.disabled) primary.click();
+      if (primary && !primary.disabled) { e.preventDefault(); primary.click(); }
     }
   }
 

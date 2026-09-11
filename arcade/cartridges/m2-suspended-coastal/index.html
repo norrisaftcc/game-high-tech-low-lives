@@ -137,7 +137,7 @@
     border:2px solid var(--face-hi);
     border-right-color:var(--face-lolo); border-bottom-color:var(--face-lolo);
     padding:8px 10px; font:inherit; font-size:13px; font-weight:400; cursor:pointer;
-    min-height:40px;
+    min-height:44px;
   }
   .keycap:hover{background:var(--face-hi2);}
   .keycap:active{
@@ -210,10 +210,12 @@
   .win98-form-error{color:var(--danger); font-weight:700; font-size:12.5px;}
   .win98-btnrow{display:flex; justify-content:flex-end; gap:8px; margin-top:12px;}
   .win98-btn{
+    display:inline-flex; align-items:center; justify-content:center;
     background:var(--face); color:#000;
     border:2px solid var(--face-hi);
     border-right-color:var(--face-lolo); border-bottom-color:var(--face-lolo);
     padding:6px 18px; font:inherit; font-size:13px; cursor:pointer; min-width:88px;
+    min-height:44px; text-decoration:none;
   }
   .win98-btn:active{
     border-color:var(--face-lolo); border-right-color:var(--face-hi);
@@ -241,7 +243,7 @@
     background:var(--face); color:#000; text-decoration:none; font-weight:700;
     border:2px solid var(--face-hi); border-right-color:var(--face-lolo);
     border-bottom-color:var(--face-lolo);
-    padding:5px 10px; font-size:13px;
+    padding:5px 10px; font-size:13px; min-height:44px;
   }
   .taskbar .start-item a:active{
     border-color:var(--face-lolo); border-right-color:var(--face-hi);
@@ -253,7 +255,7 @@
     background:var(--face); color:#000; font-weight:700; font-size:13px;
     border:2px solid var(--face-hi); border-right-color:var(--face-lolo);
     border-bottom-color:var(--face-lolo);
-    padding:6px 10px; display:inline-flex; align-items:center; height:100%;
+    padding:6px 10px; display:inline-flex; align-items:center; height:100%; min-height:44px;
   }
   .taskbar summary::-webkit-details-marker{display:none;}
   .taskbar summary:focus-visible{outline:2px dotted #000;}
@@ -334,9 +336,7 @@
       <textarea id="recordText" readonly aria-label="Exported Markdown decision record"></textarea>
       <div class="actions">
         <button class="win98-btn" id="copyBtn" type="button">Copy Markdown</button>
-        <a id="downloadLink" download="m2-elicitation-decision-record.md" style="text-decoration:none;">
-          <button class="win98-btn" type="button">Download .md</button>
-        </a>
+        <a class="win98-btn" id="downloadLink" download="m2-elicitation-decision-record.md">Download .md</a>
         <span class="copy-feedback" id="copyFeedback" role="status"></span>
       </div>
     </div>
@@ -402,6 +402,9 @@
   // ---------- engine state ----------
   var cartridge = null;
   var state = null;
+  // SKIN ADDITION: draft cache for the Properties form, keyed by scene id, so backing
+  // out with Esc and reopening the same form in the same scene keeps what was typed.
+  var formDrafts = {};
 
   var els = {}; // filled on DOMContentLoaded
 
@@ -678,6 +681,7 @@
     });
     choices = order.map(function (t) { return byText[t]; });
     var visibleIdx = 0;
+    var primarySet = false;
     choices.forEach(function (choice) {
       var enabled = conditionsMet(choice.conditions);
       visibleIdx++;
@@ -685,7 +689,9 @@
       var btn = makeKeycap(hotkey, choice.text, null, function () {
         applyChoice(choice, sceneId);
       }, !enabled);
-      if (visibleIdx === 1) btn.setAttribute('data-primary', '1');
+      // Primary is the first ENABLED choice, not just the first choice — an Enter
+      // press must never target a disabled button.
+      if (enabled && !primarySet) { btn.setAttribute('data-primary', '1'); primarySet = true; }
     });
   }
 
@@ -707,6 +713,9 @@
       });
     }
     if (typeof effects.budget === 'number' && state.budget) {
+      // A positive effect (e.g. "you will get one more ping") raises the cap, not just
+      // the value — otherwise a reopened budget can't be spent past the old start.
+      if (effects.budget > 0) state.budget.start = (state.budget.start || 0) + effects.budget;
       state.budget.value = clamp(state.budget.value + effects.budget, 0, state.budget.start || 999);
     }
     if (typeof effects.fate === 'number') {
@@ -824,6 +833,10 @@
               revised: entry.text,
               changed: state.complication ? summarize(state.complication.text) : 'new information'
             });
+            // The family is closed by this pairing — remove it so a later close of the
+            // same flag (without an intervening flags_set reopening it) doesn't pair
+            // with this now-stale original again.
+            delete families[uf];
           }
         });
       }
@@ -930,10 +943,18 @@
   // ---------- keyboard ----------
   function onKeydown(e) {
     if (els.formOverlay && !els.formOverlay.hidden) {
-      // SKIN ADDITION: Enter submits the open Properties dialog; number keys don't apply.
+      // SKIN ADDITION: Enter submits the open Properties dialog; Esc backs out of it
+      // (F1 promises this); number keys don't apply.
       if (e.key === 'Enter' && e.target && e.target.tagName !== 'TEXTAREA') {
+        if (e.target.tagName === 'BUTTON' && els.formOverlay.contains(e.target)) {
+          // The OK button already has native focus — its own Enter activation fires
+          // on its own. Don't also fire the synthetic click below.
+          return;
+        }
         var formOk = els.formOverlay.querySelector('[data-primary]');
-        if (formOk) formOk.click();
+        if (formOk) { e.preventDefault(); formOk.click(); }
+      } else if (e.key === 'Escape') {
+        closeFormToChoices();
       }
       return;
     }
@@ -941,8 +962,14 @@
       var btn = els.keypad.querySelector('[data-hotkey="' + e.key + '"]');
       if (btn && !btn.disabled) btn.click();
     } else if (e.key === 'Enter') {
+      var active = document.activeElement;
+      if (active && els.keypad && els.keypad.contains(active) && active.tagName === 'BUTTON') {
+        // A keypad button already has native focus — Enter's default action activates
+        // it on its own. Don't also fire the synthetic click below, or two choices apply.
+        return;
+      }
       var primary = els.keypad.querySelector('[data-primary]') || els.keypad.querySelector('button');
-      if (primary && !primary.disabled) primary.click();
+      if (primary && !primary.disabled) { e.preventDefault(); primary.click(); }
     } else if (e.key === 'Escape') {
       // SKIN ADDITION: Esc cancels a dialog — click whichever visible button reads
       // No / Back / Refuse, matching the "Are you sure?" convention.
@@ -1031,7 +1058,28 @@
     // entry exactly as it would a normal choice's effects.
     state.log.push({ type: 'choice', sceneId: sceneId, choiceId: 'form-submit', text: text, effects: eff });
     if (els.formOverlay) els.formOverlay.hidden = true;
+    delete formDrafts[sceneId]; // submitted — the cached draft is no longer needed
     applyEffects(eff);
+  }
+
+  // SKIN ADDITION: Esc backs out of the open Properties dialog without losing typed
+  // text, and returns to the choices of the scene that opened it (the form's own
+  // scene carries no `choices` of its own — it is a dead end without this).
+  function closeFormToChoices() {
+    if (!els.formOverlay) return;
+    var formSceneId = state.sceneId;
+    var draft = {};
+    var tas = els.formOverlay.querySelectorAll('textarea');
+    for (var i = 0; i < tas.length; i++) {
+      draft[tas[i].id.replace(/^field-/, '')] = tas[i].value;
+    }
+    formDrafts[formSceneId] = draft;
+    els.formOverlay.hidden = true;
+    var prevId = state.visited.length > 1 ? state.visited[state.visited.length - 2] : state.sceneId;
+    var prevScene = cartridge.scenes[prevId];
+    state.sceneId = prevId;
+    clearKeypad();
+    if (prevScene) renderChoices(prevScene.choices || [], prevId);
   }
 
   function renderForm(formSpec, sceneId) {
@@ -1056,6 +1104,8 @@
       var ta = document.createElement('textarea');
       ta.id = 'field-' + f.id;
       ta.rows = 2;
+      ta.required = true;
+      if (formDrafts[sceneId] && formDrafts[sceneId][f.id] != null) ta.value = formDrafts[sceneId][f.id];
       lbl.appendChild(document.createElement('br'));
       body.appendChild(lbl);
       body.appendChild(ta);

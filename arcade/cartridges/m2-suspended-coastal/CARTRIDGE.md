@@ -82,3 +82,12 @@ fails its conditions rather than hiding it, so a confirm scene showed one live "
 disabled ones. `renderChoices` in this copy now shows one keycap per label: the first enabled
 choice with that text, else the first. `cartridge.json` is unchanged. Test row E-14 in
 `arcade/TESTS.md` covers it.
+
+**Runner-fixes review, 2026-09-11.** Fixed in both this file and `scene-runner.html`: Enter no
+longer double-activates a focused keypad/OK button; `data-primary` now marks the first *enabled*
+choice; a positive `budget` effect now raises `start` too (reopen reads `PINGS: 1 / 4`); a closed
+revision family is deleted so a later close can't pair with a stale original; Copy/Download
+controls are now 44px and the download control is a plain styled `<a download>`, not a button
+nested in one. M2-only: keypad/win98/taskbar controls raised to 44px; Esc now closes the
+Properties form and returns to the calling scene's choices, caching typed text per scene id so
+a reopen restores it; generated textareas carry `required`.

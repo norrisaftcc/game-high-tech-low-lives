@@ -66,6 +66,8 @@ skipped in the walk).
    Pairing rule, generic over any cartridge: a choice's `effects.flags_set` opens a "decision
    family" keyed by that flag; a later choice whose `effects.flags_unset` closes that same flag
    while also setting a new one is logged as a revision of the family's most recent choice text.
+   Closing a family consumes it: a further close of the same flag pairs again only if some
+   choice in between reopened it with a matching `effects.flags_set`.
    No matching pair → "No item decisions were revised after the complication."
 5. `## Shifts` (only if any roll or compel occurred): one line per roll (dice, stat, total,
    difficulty, tier, shifts, any Fate/Nerves delta) and per compel (accepted/refused, cost).
