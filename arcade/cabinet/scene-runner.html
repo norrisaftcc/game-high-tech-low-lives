@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scene Runner — HTLL Arcade Cabinet</title>
+<style>
+  :root{
+    color-scheme: dark;
+    --bezel-hi:#8a8f97;
+    --bezel-lo:#3a3d43;
+    --bezel-face:#5b5f68;
+    --panel-blue:#17223a;
+    --panel-blue-edge:#0b1224;
+    --key-amber:#e8a325;
+    --key-amber-hi:#ffcf6b;
+    --key-amber-ink:#241300;
+    --led-bg:#0c0d08;
+    --led-amber:#ffb020;
+    --crt-bg:#04120c;
+    --crt-fg:#8ff2c2;
+    --crt-dim:#4f9c82;
+    --ink:#e9ecf1;
+    --muted:#9aa3b2;
+    --board-bg:#101826;
+    --board-edge:#28344a;
+    --danger:#ff6a5e;
+    --focus:#ffd873;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:#05070a;
+    color:var(--ink);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    font-size:15px;
+    line-height:1.5;
+    padding:12px;
+  }
+  .cabinet{
+    max-width:52rem;
+    margin:0 auto;
+  }
+
+  /* ---- frame bar: belongs to the tool, never the fiction ---- */
+  .frame-bar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:flex-start;
+    background:#0d1017;
+    border:1px solid #262c38;
+    border-radius:8px;
+    padding:8px 10px;
+    margin-bottom:10px;
+  }
+  .frame-bar > details{
+    flex:1 1 220px;
+    background:#131826;
+    border:1px solid #262c38;
+    border-radius:6px;
+    padding:6px 8px;
+  }
+  .frame-bar summary{
+    cursor:pointer;
+    font-weight:700;
+    color:var(--focus);
+    outline-offset:2px;
+    display:flex;
+    align-items:center;
+    min-height:44px;
+  }
+  .frame-bar summary::marker{color:var(--focus);}
+  .frame-bar .body{margin-top:6px;color:var(--muted);font-size:13.5px;}
+  .frame-bar .body p{margin:0 0 6px 0;}
+  .frame-bar .canvas-link{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    padding:6px 10px;
+  }
+  .frame-bar .canvas-link a{
+    color:#8fd0ff;
+    text-decoration:underline;
+    font-weight:700;
+    white-space:nowrap;
+    display:inline-flex;
+    align-items:center;
+    min-height:44px;
+    padding:0 8px;
+  }
+
+  /* ---- the 1977 device frame ---- */
+  .device{
+    background:linear-gradient(180deg,var(--bezel-hi),var(--bezel-face) 12%,var(--bezel-lo));
+    border-radius:14px;
+    padding:14px;
+    box-shadow:0 6px 18px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.15);
+  }
+  .device .rail{
+    height:6px;
+    border-radius:3px;
+    background:repeating-linear-gradient(90deg,#2b2e34 0 3px,#4a4e57 3px 6px);
+    margin-bottom:10px;
+    opacity:.7;
+  }
+
+  .led-readout{
+    background:var(--led-bg);
+    border:2px solid #000;
+    border-radius:6px;
+    padding:8px 12px;
+    color:var(--led-amber);
+    font-weight:700;
+    letter-spacing:.06em;
+    font-size:14px;
+    white-space:nowrap;
+    overflow-x:auto;
+    text-shadow:0 0 6px rgba(255,176,32,.55);
+    margin-bottom:10px;
+  }
+
+  .screen-row{
+    display:flex;
+    gap:10px;
+    align-items:stretch;
+    flex-wrap:wrap;
+  }
+
+  .crt{
+    flex:1 1 320px;
+    min-width:0;
+    background:
+      repeating-linear-gradient(180deg, rgba(0,0,0,.18) 0 2px, transparent 2px 4px),
+      radial-gradient(120% 120% at 30% 0%, #0a2018 0%, var(--crt-bg) 70%);
+    border:2px solid #000;
+    border-radius:6px;
+    padding:10px 12px;
+    color:var(--crt-fg);
+    height:min(48vh, 360px);
+    overflow-y:auto;
+  }
+  .crt .msg{margin:0 0 10px 0; white-space:pre-wrap;}
+  .crt .msg .who{
+    display:block;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--crt-dim);
+    margin-bottom:2px;
+  }
+  .crt .msg.speaker-handler{color:#8ff2c2;}
+  .crt .msg.speaker-algorithm{color:#ff9d6b;}
+  .crt .msg.speaker-system{color:#7fc7ff;}
+  .crt .msg.speaker-lead{color:#e9ecf1;}
+  .crt .msg.speaker-data{color:#c9d16b;}
+  .crt .msg.speaker-stakeholder{
+    color:#dfe6ee;
+    border-left:3px solid #4f9c82;
+    background:rgba(143,242,194,.06);
+    margin:0 0 10px 0;
+    padding:6px 8px;
+    font-style:italic;
+  }
+  .crt .msg.speaker-stakeholder blockquote{margin:0;}
+  .crt .roll{
+    border:1px dashed var(--crt-dim);
+    padding:6px 8px;
+    border-radius:4px;
+    margin:6px 0 10px 0;
+    color:#e9ecf1;
+  }
+  .crt .roll .dice{letter-spacing:.15em;color:var(--led-amber);}
+  .crt hr.divider{border:none;border-top:1px dashed #1f3a30;margin:8px 0;}
+
+  .side-panel{
+    flex:0 1 220px;
+    min-width:200px;
+    background:var(--board-bg);
+    border:2px solid #000;
+    border-radius:6px;
+    padding:8px 10px;
+    height:min(48vh, 360px);
+    overflow-y:auto;
+  }
+  .side-panel h3{
+    margin:0 0 4px 0;
+    font-size:12px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:#9fd6ff;
+    border-bottom:1px solid var(--board-edge);
+    padding-bottom:4px;
+  }
+  .side-panel .board{margin-bottom:12px;}
+  .side-panel .board:last-child{margin-bottom:0;}
+  .side-panel .board .limit{color:var(--muted); font-size:12px;}
+  .side-panel .column-label{
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin:6px 0 2px 0;
+  }
+  .side-panel ul{margin:2px 0 0 0; padding-left:16px;}
+  .side-panel li{margin:0 0 4px 0; font-size:13px;}
+  .side-panel .empty{color:var(--muted); font-size:12px; font-style:italic;}
+
+  /* ---- keypad panel ---- */
+  .keypad{
+    margin-top:10px;
+    background:linear-gradient(180deg,var(--panel-blue),var(--panel-blue-edge));
+    border:2px solid #000;
+    border-radius:6px;
+    padding:10px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+    max-height:calc(4 * 54px + 3 * 8px + 20px);
+    overflow-y:auto;
+  }
+  .keycap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    width:100%;
+    text-align:left;
+    background:linear-gradient(180deg,var(--key-amber-hi),var(--key-amber));
+    color:var(--key-amber-ink);
+    border:none;
+    border-bottom:4px solid #8a5c0f;
+    border-radius:6px;
+    padding:10px 12px;
+    font:inherit;
+    font-weight:700;
+    cursor:pointer;
+    min-height:44px;
+  }
+  .keycap:hover{filter:brightness(1.06);}
+  .keycap:active{transform:translateY(2px); border-bottom-width:2px;}
+  .keycap:focus-visible{outline:3px solid var(--focus); outline-offset:2px;}
+  .keycap[disabled]{
+    background:linear-gradient(180deg,#6b6f76,#54585f);
+    color:#c7cbd2;
+    border-bottom-color:#33363b;
+    cursor:not-allowed;
+    filter:none;
+  }
+  .keycap .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;height:22px;
+    background:#241300;
+    color:var(--key-amber-hi);
+    border-radius:4px;
+    font-size:12px;
+    flex:0 0 auto;
+  }
+  .keycap .why{
+    display:block;
+    font-weight:400;
+    font-size:12px;
+    color:#4a3200;
+    margin-top:2px;
+  }
+
+  .status-strip{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:10px;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+  .status-strip .chip{
+    background:#0d1017;
+    border:1px solid #262c38;
+    border-radius:4px;
+    padding:4px 8px;
+  }
+  .status-strip .track-bad{color:var(--danger);}
+
+  .record-panel{
+    margin-top:14px;
+    background:#0d1017;
+    border:1px solid #262c38;
+    border-radius:8px;
+    padding:10px 12px;
+  }
+  .record-panel h2{font-size:15px;margin:0 0 6px 0;color:var(--focus);}
+  .record-panel textarea{
+    width:100%;
+    min-height:260px;
+    background:#04120c;
+    color:var(--crt-fg);
+    border:1px solid #1f3a30;
+    border-radius:6px;
+    font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    padding:8px;
+  }
+  .record-panel .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  .record-panel button,
+  .record-panel .actions a{
+    display:inline-flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,var(--key-amber-hi),var(--key-amber));
+    color:var(--key-amber-ink);
+    border:none;border-bottom:3px solid #8a5c0f;
+    border-radius:5px;padding:7px 12px;font:inherit;font-weight:700;cursor:pointer;
+    text-decoration:none;min-height:44px;min-width:44px;
+  }
+  .record-panel .copy-feedback{color:#8ff2c2;font-size:12.5px;align-self:center;}
+
+  @media (max-width:480px){
+    .led-readout{font-size:12.5px;}
+    .crt{height:44vh;}
+    .side-panel{height:auto; max-height:220px; flex:1 1 100%;}
+  }
+
+  @media (prefers-reduced-motion:no-preference){
+    .keycap{transition:filter .08s ease, transform .05s ease;}
+  }
+</style>
+</head>
+<body>
+<div class="cabinet">
+
+  <div class="frame-bar" role="group" aria-label="Cabinet frame controls">
+    <details id="f1">
+      <summary>F1 · How this works</summary>
+      <div class="body">
+        <p>This is a decision cartridge, not a puzzle with one right answer. Read the messages,
+        pick from the amber buttons (or press the number key shown, 1–4; press Enter to
+        continue past a dice roll or a result screen). Some choices roll four Fate dice — each
+        die shows <strong>+</strong>, <strong>0</strong>, or <strong>−</strong> — added to a
+        stat and compared against a difficulty. A side panel tracks any evidence or capacity
+        boards the cartridge keeps; a one-line readout at the top tracks any budget (pings,
+        points) in play. Nothing you do here is graded directly — at the end you can export a
+        Markdown decision record shaped like the one you write for class.</p>
+      </div>
+    </details>
+    <details id="f2">
+      <summary>F2 · Step out of character</summary>
+      <div class="body">
+        <p>You can stop at any time, and stopping costs you nothing. Your grade is not
+        affected. You do not need permission, and you do not have to explain.</p>
+        <p>Close this tab, or use the Canvas link at the right, whenever you want out. The
+        cartridge keeps no record of leaving early.</p>
+      </div>
+    </details>
+    <div class="canvas-link">
+      <a href="https://faytechcc.instructure.com">Back to Canvas</a>
+    </div>
+  </div>
+
+  <div class="device">
+    <div class="rail" aria-hidden="true"></div>
+    <div class="led-readout" id="ledReadout" aria-live="polite">READY</div>
+
+    <div class="screen-row">
+      <div class="crt" id="crt" aria-live="polite" aria-label="Scene log"></div>
+      <div class="side-panel" id="sidePanel" aria-label="Boards">
+        <h3>Boards</h3>
+        <div id="boardsBody"><p class="empty">No boards declared yet.</p></div>
+      </div>
+    </div>
+
+    <div class="keypad" id="keypad" role="group" aria-label="Choices"></div>
+
+    <div class="status-strip" id="statusStrip"></div>
+  </div>
+
+  <div class="record-panel" id="recordPanel" hidden>
+    <h2>Decision record</h2>
+    <textarea id="recordText" readonly aria-label="Exported Markdown decision record"></textarea>
+    <div class="actions">
+      <button id="copyBtn" type="button">Copy Markdown</button>
+      <a id="downloadLink" download="decision-record.md">Download .md</a>
+      <span class="copy-feedback" id="copyFeedback" role="status"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* =====================================================================
+   RUNNER ENGINE — scene-runner.html
+   Public surface: Runner.load(cartridgeObject), Runner.start(), Runner.exportRecord()
+   See arcade/cabinet/SCENE-FORMAT.md for the exact format this implements.
+   ===================================================================== */
+(function (global) {
+  'use strict';
+
+  // ---------- small utilities ----------
+  function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function globToRegExp(glob) {
+    const parts = glob.split('*').map(escapeRegExp);
+    return new RegExp('^' + parts.join('.*') + '$');
+  }
+  function matchesAnyGlob(id, globs) {
+    return (globs || []).some(function (g) { return globToRegExp(g).test(id); });
+  }
+  function rollDie() { return [-1, 0, 1][Math.floor(Math.random() * 3)]; }
+  function dieGlyph(d) { return d === 1 ? '[+]' : (d === 0 ? '[0]' : '[−]'); }
+  function fmtSigned(n) { return (n >= 0 ? '+' : '') + n; }
+
+  // ---------- engine state ----------
+  var cartridge = null;
+  var state = null;
+
+  var els = {}; // filled on DOMContentLoaded
+
+  function freshState(card) {
+    var stats = Object.assign({ body: 0, reflexes: 0, cool: 0, code: 0, tech: 0 },
+      (card.character && card.character.stats) || {});
+    var stressSrc = (card.character && card.character.stress) || {};
+    var stress = {};
+    ['meat', 'nerves', 'systems'].forEach(function (track) {
+      var t = stressSrc[track] || { max: 3, current: 0 };
+      stress[track] = { max: t.max == null ? 3 : t.max, current: t.current == null ? 0 : t.current };
+    });
+    var budget = null;
+    if (card.budget && typeof card.budget.start === 'number') {
+      budget = { label: card.budget.label || 'Budget', value: card.budget.start, start: card.budget.start };
+    }
+    return {
+      sceneId: null,
+      flags: new Set(),
+      items: new Set(),
+      stats: stats,
+      stress: stress,
+      fate: (card.character && typeof card.character.fate_points === 'number') ? card.character.fate_points : 3,
+      budget: budget,
+      boards: {},           // name -> {label, columns, limit, entries:[{id,text,kind}]}
+      log: [],               // {type:'choice'|'check'|'compel', ...}
+      visited: [],            // ordered list of scene ids entered
+      evidenceByScene: {},    // sceneId -> [{speaker, text}] for data/stakeholder messages
+      complication: null,     // {sceneId, text, decisionsBeforeCount}
+      profile: card.profile_default || 'classroom',
+      ended: false
+    };
+  }
+
+  // ---------- conditions ----------
+  function conditionsMet(cond) {
+    if (!cond) return true;
+    if (cond.flags_set && cond.flags_set.some(function (f) { return !state.flags.has(f); })) return false;
+    if (cond.flags_not_set && cond.flags_not_set.some(function (f) { return state.flags.has(f); })) return false;
+    if (cond.items && cond.items.some(function (i) { return !state.items.has(i); })) return false;
+    if (typeof cond.budget_min === 'number') {
+      var have = state.budget ? state.budget.value : 0;
+      if (have < cond.budget_min) return false;
+    }
+    if (cond.stat_min) {
+      for (var stat in cond.stat_min) {
+        if ((state.stats[stat] || 0) < cond.stat_min[stat]) return false;
+      }
+    }
+    if (typeof cond.fate_min === 'number' && state.fate < cond.fate_min) return false;
+    return true;
+  }
+
+  // ---------- boards ----------
+  function declareBoards(defs) {
+    (defs || []).forEach(function (def) {
+      if (!def || !def.name) return;
+      if (!state.boards[def.name]) {
+        state.boards[def.name] = {
+          label: def.label || def.name,
+          columns: def.columns || null,
+          limit: (typeof def.limit === 'number') ? def.limit : null,
+          entries: []
+        };
+      }
+    });
+    renderBoards();
+  }
+
+  function addBoardEntry(add) {
+    if (!add || !add.board) return;
+    if (!state.boards[add.board]) {
+      state.boards[add.board] = { label: add.board, columns: null, limit: null, entries: [] };
+    }
+    var board = state.boards[add.board];
+    var existingIdx = board.entries.findIndex(function (e) { return e.id === add.id; });
+    var entry = { id: add.id || ('e' + board.entries.length), text: add.text || '', kind: add.kind || null };
+    if (existingIdx >= 0) board.entries[existingIdx] = entry; else board.entries.push(entry);
+    renderBoards();
+  }
+
+  function renderBoards() {
+    var names = Object.keys(state.boards);
+    if (!names.length) {
+      els.boardsBody.innerHTML = '<p class="empty">No boards declared yet.</p>';
+      return;
+    }
+    var html = '';
+    names.forEach(function (name) {
+      var board = state.boards[name];
+      html += '<div class="board"><h3 style="border:none;padding:0;margin-bottom:2px;">' + escapeHtml(board.label) + '</h3>';
+      if (board.limit != null) {
+        html += '<div class="limit">Limit: ' + board.entries.length + ' / ' + board.limit + '</div>';
+      }
+      if (!board.entries.length) {
+        html += '<p class="empty">Nothing logged yet.</p>';
+      } else if (board.columns && board.columns.length) {
+        board.columns.forEach(function (col) {
+          var inCol = board.entries.filter(function (e) { return (e.kind || board.columns[0]) === col; });
+          html += '<div class="column-label">' + escapeHtml(col) + '</div>';
+          if (!inCol.length) { html += '<p class="empty">—</p>'; }
+          else {
+            html += '<ul>' + inCol.map(function (e) { return '<li>' + escapeHtml(e.text) + '</li>'; }).join('') + '</ul>';
+          }
+        });
+      } else {
+        html += '<ul>' + board.entries.map(function (e) {
+          var kind = e.kind ? '<em>' + escapeHtml(e.kind) + ':</em> ' : '';
+          return '<li>' + kind + escapeHtml(e.text) + '</li>';
+        }).join('') + '</ul>';
+      }
+      html += '</div>';
+    });
+    els.boardsBody.innerHTML = html;
+  }
+
+  // ---------- readout / status ----------
+  function renderReadout() {
+    var parts = [];
+    if (state.budget) {
+      parts.push(state.budget.label.toUpperCase() + ': ' + state.budget.value + (state.budget.start != null ? ' / ' + state.budget.start : ''));
+    }
+    if (state.profile === 'arcade' && cartridge.score) {
+      var total = state.log.filter(function (e) { return e.type === 'check'; })
+        .reduce(function (sum, e) { return sum + Math.max(0, e.shifts); }, 0);
+      parts.push((cartridge.score.label || 'SCORE').toUpperCase() + ': ' + total);
+    }
+    if (!parts.length) {
+      parts.push('FATE: ' + state.fate);
+    }
+    els.ledReadout.textContent = parts.join('   •   ');
+  }
+
+  function renderStatusStrip() {
+    var chips = [];
+    chips.push('<span class="chip">Fate: ' + state.fate + '</span>');
+    ['meat', 'nerves', 'systems'].forEach(function (track) {
+      var t = state.stress[track];
+      var bad = t.current >= t.max;
+      chips.push('<span class="chip' + (bad ? ' track-bad' : '') + '">' +
+        track[0].toUpperCase() + track.slice(1) + ': ' + t.current + '/' + t.max + '</span>');
+    });
+    chips.push('<span class="chip">Profile: ' + state.profile + '</span>');
+    els.statusStrip.innerHTML = chips.join('');
+  }
+
+  function renderStatus() {
+    renderReadout();
+    renderStatusStrip();
+  }
+
+  // ---------- CRT log ----------
+  function printMessages(messages) {
+    (messages || []).forEach(function (m) {
+      var div = document.createElement('div');
+      div.className = 'msg speaker-' + (m.speaker || 'system');
+      var label = document.createElement('span');
+      label.className = 'who';
+      label.textContent = m.speaker || 'system';
+      if (m.speaker === 'stakeholder') {
+        var bq = document.createElement('blockquote');
+        bq.textContent = m.text;
+        div.appendChild(label);
+        div.appendChild(bq);
+      } else {
+        div.appendChild(label);
+        div.appendChild(document.createTextNode(m.text));
+      }
+      els.crt.appendChild(div);
+    });
+    els.crt.scrollTop = els.crt.scrollHeight;
+  }
+
+  function printDivider() {
+    var hr = document.createElement('hr');
+    hr.className = 'divider';
+    els.crt.appendChild(hr);
+  }
+
+  function printRollResult(entry) {
+    var div = document.createElement('div');
+    div.className = 'roll';
+    var dice = entry.dice.map(dieGlyph).join(' ');
+    div.innerHTML =
+      '<div class="dice">' + dice + ' &nbsp;(' + fmtSigned(entry.diceSum) + ')</div>' +
+      '<div>+ ' + escapeHtml(entry.stat.toUpperCase()) + ' ' + fmtSigned(entry.statVal) +
+      ' = <strong>' + entry.total + '</strong> vs difficulty ' + entry.difficulty + '</div>' +
+      '<div><strong>' + entry.tier.toUpperCase() + '</strong> (shifts ' + fmtSigned(entry.shifts) + ')' +
+      (entry.fateDelta ? ' — +1 Fate point' : '') +
+      (entry.stressDelta ? ' — +1 Nerves stress' : '') + '</div>';
+    els.crt.appendChild(div);
+    els.crt.scrollTop = els.crt.scrollHeight;
+  }
+
+  function captureEvidence(scene, sceneId) {
+    var lines = (scene.messages || []).filter(function (m) {
+      return m.speaker === 'data' || m.speaker === 'stakeholder';
+    });
+    if (lines.length) {
+      state.evidenceByScene[sceneId] = (state.evidenceByScene[sceneId] || []).concat(lines);
+    }
+  }
+
+  // ---------- keypad ----------
+  function clearKeypad() { els.keypad.innerHTML = ''; }
+
+  function makeKeycap(hotkey, label, sub, onClick, disabled) {
+    var btn = document.createElement('button');
+    btn.className = 'keycap';
+    btn.type = 'button';
+    if (hotkey) btn.setAttribute('data-hotkey', hotkey);
+    if (disabled) btn.disabled = true;
+    var num = document.createElement('span');
+    num.className = 'num';
+    num.textContent = hotkey || '▶';
+    btn.appendChild(num);
+    var textWrap = document.createElement('span');
+    textWrap.innerHTML = escapeHtml(label) + (sub ? '<span class="why">' + escapeHtml(sub) + '</span>' : '');
+    btn.appendChild(textWrap);
+    btn.addEventListener('click', function () { if (!btn.disabled) onClick(); });
+    els.keypad.appendChild(btn);
+    return btn;
+  }
+
+  // ---------- scene flow ----------
+  function goToScene(id) {
+    var scene = cartridge.scenes[id];
+    if (!scene) {
+      printMessages([{ speaker: 'system', text: '[ERROR] Scene not found: ' + id }]);
+      clearKeypad();
+      return;
+    }
+    printDivider();
+    state.sceneId = id;
+    state.visited.push(id);
+    captureEvidence(scene, id);
+    if (scene.board) declareBoards(scene.board);
+    printMessages(scene.messages);
+
+    if (scene.complication && !state.complication) {
+      state.complication = {
+        sceneId: id,
+        text: (scene.messages || []).map(function (m) { return m.text; }).join(' '),
+        decisionsBeforeCount: state.log.filter(function (e) { return e.type === 'choice'; }).length
+      };
+    }
+
+    renderStatus();
+
+    clearKeypad();
+    if (scene.compel) {
+      renderCompel(scene.compel, id);
+    } else if (scene.check) {
+      renderCheckPrompt(scene.check, id);
+    } else if (scene.choices && scene.choices.length) {
+      renderChoices(scene.choices, id);
+    } else {
+      endRun();
+    }
+  }
+
+  function renderChoices(choices, sceneId) {
+    var visibleIdx = 0;
+    var primarySet = false;
+    choices.forEach(function (choice) {
+      var enabled = conditionsMet(choice.conditions);
+      visibleIdx++;
+      var hotkey = visibleIdx <= 4 ? String(visibleIdx) : null;
+      var btn = makeKeycap(hotkey, choice.text, null, function () {
+        applyChoice(choice, sceneId);
+      }, !enabled);
+      // Primary is the first ENABLED choice, not just the first choice — an Enter
+      // press must never target a disabled button.
+      if (enabled && !primarySet) { btn.setAttribute('data-primary', '1'); primarySet = true; }
+    });
+  }
+
+  function applyChoice(choice, sceneId) {
+    state.log.push({ type: 'choice', sceneId: sceneId, choiceId: choice.id, text: choice.text, effects: choice.effects || {} });
+    applyEffects(choice.effects);
+  }
+
+  function applyEffects(effects, opts) {
+    if (!effects) { renderStatus(); return; }
+    (effects.flags_set || []).forEach(function (f) { state.flags.add(f); });
+    (effects.flags_unset || []).forEach(function (f) { state.flags.delete(f); });
+    (effects.items_add || []).forEach(function (i) { state.items.add(i); });
+    (effects.items_remove || []).forEach(function (i) { state.items.delete(i); });
+    if (effects.stress) {
+      Object.keys(effects.stress).forEach(function (track) {
+        var t = state.stress[track];
+        if (t) t.current = clamp(t.current + effects.stress[track], 0, t.max);
+      });
+    }
+    if (typeof effects.budget === 'number' && state.budget) {
+      // A positive effect (e.g. "you will get one more ping") raises the cap, not just
+      // the value — otherwise a reopened budget can't be spent past the old start.
+      if (effects.budget > 0) state.budget.start = (state.budget.start || 0) + effects.budget;
+      state.budget.value = clamp(state.budget.value + effects.budget, 0, state.budget.start || 999);
+    }
+    if (typeof effects.fate === 'number') {
+      state.fate = Math.max(0, state.fate + effects.fate);
+    }
+    if (effects.board_add) addBoardEntry(effects.board_add);
+    renderStatus();
+    if (effects.return_to_choices) {
+      var scene = cartridge.scenes[state.sceneId];
+      clearKeypad();
+      if (scene) renderChoices(scene.choices || [], state.sceneId);
+      return;
+    }
+    if (effects.next) goToScene(effects.next);
+  }
+
+  // ---------- check node ----------
+  function renderCheckPrompt(check, sceneId) {
+    makeKeycap('1', 'Roll the dice ▶', check.stat.toUpperCase() + ' vs difficulty ' + check.difficulty,
+      function () { performCheck(check, sceneId); });
+  }
+
+  function performCheck(check, sceneId) {
+    clearKeypad();
+    var dice = [rollDie(), rollDie(), rollDie(), rollDie()];
+    var diceSum = dice.reduce(function (a, b) { return a + b; }, 0);
+    var statVal = state.stats[check.stat] || 0;
+    var total = diceSum + statVal;
+    var difficulty = check.difficulty;
+    var shifts = total - difficulty;
+    var tier, targetScene, fateDelta = 0, stressDelta = 0;
+
+    // Canonical success ladder (build/docs-v2/core_moves_sheet.md lines 114-119):
+    // style on 3+ shifts, success on 1-2 shifts, tie at exactly 0 shifts, fail below.
+    // See SCENE-FORMAT.md "check node".
+    if (total >= difficulty + 3) {
+      tier = 'style'; targetScene = check.on_style; fateDelta = 1; state.fate += 1;
+    } else if (total >= difficulty + 1) {
+      tier = 'success'; targetScene = check.on_success;
+    } else if (total === difficulty) {
+      tier = 'tie'; targetScene = check.on_tie;
+    } else {
+      tier = 'fail'; targetScene = check.on_fail; stressDelta = 1;
+      var nerves = state.stress.nerves;
+      if (nerves) nerves.current = clamp(nerves.current + 1, 0, nerves.max);
+    }
+
+    var entry = {
+      type: 'check', sceneId: sceneId, stat: check.stat, statVal: statVal,
+      dice: dice, diceSum: diceSum, total: total, difficulty: difficulty,
+      shifts: shifts, tier: tier, targetScene: targetScene,
+      fateDelta: fateDelta, stressDelta: stressDelta
+    };
+    state.log.push(entry);
+    renderStatus();
+    printRollResult(entry);
+    makeKeycap('1', 'Continue ▶', null, function () { goToScene(targetScene); }).setAttribute('data-primary', '1');
+  }
+
+  // ---------- compel ----------
+  function renderCompel(compel, sceneId) {
+    printMessages([{ speaker: 'algorithm', text: compel.trouble + ' — ' + compel.offer }]);
+    var refuseDisabled = state.fate < 1;
+    makeKeycap('1', 'Accept the compel', 'Gain 1 Fate point; the complication happens', function () {
+      resolveCompel(compel, sceneId, 'accept');
+    });
+    makeKeycap('2', 'Refuse the compel', refuseDisabled ? 'No Fate points to spend' : 'Spend 1 Fate point to avoid it', function () {
+      resolveCompel(compel, sceneId, 'refuse');
+    }, refuseDisabled);
+  }
+
+  function resolveCompel(compel, sceneId, decision) {
+    var branch = decision === 'accept' ? compel.accept : compel.refuse;
+    var fateDelta = decision === 'accept' ? 1 : -1;
+    state.fate = clamp(state.fate + fateDelta, 0, 99);
+    state.log.push({
+      type: 'compel', sceneId: sceneId, trouble: compel.trouble, offer: compel.offer,
+      decision: decision, fateDelta: fateDelta
+    });
+    clearKeypad();
+    renderStatus();
+    applyEffects(branch && branch.effects);
+  }
+
+  // ---------- end of run ----------
+  function endRun() {
+    state.ended = true;
+    printMessages([{ speaker: 'system', text: '[END OF RUN] Export your decision record below.' }]);
+    els.recordPanel.hidden = false;
+    var md = Runner.exportRecord();
+    els.recordText.value = md;
+    // A data: URL, not blob: — the test contract (A-12) requires the link be
+    // usable without a live object URL (e.g. read back out of the DOM).
+    els.downloadLink.href = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
+    var fileTitle = ((cartridge.record && cartridge.record.title) || 'decision-record')
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    els.downloadLink.setAttribute('download', (fileTitle || 'decision-record') + '.md');
+  }
+
+  // ---------- record export ----------
+  var RESERVED_HEADINGS = { complication: true, revision: true, shifts: true, transfer: true };
+
+  function computeRevisions() {
+    var families = {}; // flag -> {text, sceneId}
+    var revisions = [];
+    state.log.forEach(function (entry) {
+      if (entry.type !== 'choice') return;
+      var eff = entry.effects || {};
+      var setFlags = eff.flags_set || [];
+      var unsetFlags = eff.flags_unset || [];
+      if (unsetFlags.length && setFlags.length) {
+        unsetFlags.forEach(function (uf) {
+          if (families[uf]) {
+            revisions.push({
+              original: families[uf].text,
+              revised: entry.text,
+              changed: state.complication ? summarize(state.complication.text) : 'new information'
+            });
+            // The family is closed by this pairing — remove it so a later close of the
+            // same flag (without an intervening flags_set reopening it) doesn't pair
+            // with this now-stale original again.
+            delete families[uf];
+          }
+        });
+      }
+      setFlags.forEach(function (sf) { families[sf] = { text: entry.text, sceneId: entry.sceneId }; });
+    });
+    return revisions;
+  }
+
+  function summarize(text) {
+    text = (text || '').trim();
+    return text.length > 140 ? text.slice(0, 137) + '...' : text;
+  }
+
+  function sectionBody(heading, globs) {
+    var seen = {};
+    var out = [];
+    state.visited.forEach(function (sceneId) {
+      if (seen[sceneId]) return;
+      if (!matchesAnyGlob(sceneId, globs)) return;
+      seen[sceneId] = true;
+      var choiceEntry = state.log.filter(function (e) { return e.type === 'choice' && e.sceneId === sceneId; }).pop();
+      var evidence = state.evidenceByScene[sceneId] || [];
+      var block = [];
+      if (choiceEntry) block.push('- **Choice:** ' + choiceEntry.text);
+      evidence.forEach(function (m) {
+        block.push('  - *' + m.speaker + ':* ' + m.text);
+      });
+      var checkEntry = state.log.filter(function (e) { return e.type === 'check' && e.sceneId === sceneId; }).pop();
+      if (checkEntry) {
+        block.push('  - *roll:* ' + checkEntry.tier + ' (shifts ' + fmtSigned(checkEntry.shifts) + ')');
+      }
+      if (block.length) out.push(block.join('\n'));
+    });
+    return out;
+  }
+
+  function exportRecord() {
+    var rec = (cartridge && cartridge.record) || { title: 'Decision Record', sections: {} };
+    var lines = ['# ' + rec.title, ''];
+
+    Object.keys(rec.sections || {}).forEach(function (heading) {
+      if (RESERVED_HEADINGS[heading.trim().toLowerCase()]) return;
+      var blocks = sectionBody(heading, rec.sections[heading]);
+      if (!blocks.length) return;
+      lines.push('## ' + heading, '');
+      lines.push(blocks.join('\n\n'));
+      lines.push('');
+    });
+
+    if (state.complication) {
+      lines.push('## Complication', '');
+      lines.push(state.complication.text || '(no complication text recorded)');
+      lines.push('');
+      var priorChoices = state.log.filter(function (e) { return e.type === 'choice'; })
+        .slice(0, state.complication.decisionsBeforeCount)
+        .map(function (e) { return e.text; });
+      if (priorChoices.length) {
+        lines.push('Before this point you had decided:');
+        priorChoices.forEach(function (t) { lines.push('- ' + t); });
+        lines.push('');
+      }
+
+      lines.push('## Revision', '');
+      var revisions = computeRevisions();
+      if (revisions.length) {
+        lines.push('| Original | Revised | What changed |');
+        lines.push('|---|---|---|');
+        revisions.forEach(function (r) {
+          lines.push('| ' + r.original.replace(/\|/g, '\\|') + ' | ' + r.revised.replace(/\|/g, '\\|') + ' | ' + r.changed.replace(/\|/g, '\\|') + ' |');
+        });
+      } else {
+        lines.push('No item decisions were revised after the complication.');
+      }
+      lines.push('');
+    }
+
+    var checksAndCompels = state.log.filter(function (e) { return e.type === 'check' || e.type === 'compel'; });
+    if (checksAndCompels.length) {
+      lines.push('## Shifts', '');
+      checksAndCompels.forEach(function (e) {
+        if (e.type === 'check') {
+          var dice = e.dice.map(dieGlyph).join(' ');
+          lines.push('- Roll at `' + e.sceneId + '`: ' + dice + ' (' + fmtSigned(e.diceSum) + ') + ' +
+            e.stat.toUpperCase() + ' ' + fmtSigned(e.statVal) + ' = ' + e.total + ' vs difficulty ' + e.difficulty +
+            ' → **' + e.tier + '** (shifts ' + fmtSigned(e.shifts) + ')' +
+            (e.fateDelta ? ', +1 Fate point' : '') + (e.stressDelta ? ', +1 Nerves stress' : '') + '.');
+        } else {
+          lines.push('- Compel at `' + e.sceneId + '` (' + e.trouble + '): ' +
+            (e.decision === 'accept' ? 'accepted — +1 Fate point, took the complication.' : 'refused — -1 Fate point, avoided it.'));
+        }
+      });
+      lines.push('');
+    }
+
+    if (cartridge.metadata && cartridge.metadata.transfer) {
+      lines.push('## Transfer', '');
+      lines.push(cartridge.metadata.transfer);
+      lines.push('');
+    }
+
+    return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+  }
+
+  // ---------- keyboard ----------
+  function onKeydown(e) {
+    if (e.key === 'F1' || e.key === 'F2') {
+      e.preventDefault();
+      var panel = document.getElementById(e.key === 'F1' ? 'f1' : 'f2');
+      if (panel) panel.open = !panel.open;
+      return;
+    }
+    if (e.key >= '1' && e.key <= '4') {
+      var btn = els.keypad.querySelector('[data-hotkey="' + e.key + '"]');
+      if (btn && !btn.disabled) btn.click();
+    } else if (e.key === 'Enter') {
+      var active = document.activeElement;
+      if (active && (active.tagName === 'SUMMARY' || active.tagName === 'A' ||
+          (els.keypad && els.keypad.contains(active) && active.tagName === 'BUTTON'))) {
+        // A keypad button, a details summary, or a link already has native focus —
+        // Enter's default action activates it on its own. Don't also fire the
+        // synthetic click below, or two choices apply.
+        return;
+      }
+      var primary = els.keypad.querySelector('[data-primary]') || els.keypad.querySelector('button');
+      if (primary && !primary.disabled) { e.preventDefault(); primary.click(); }
+    }
+  }
+
+  // ---------- public surface ----------
+  var Runner = {
+    load: function (cartridgeObject) {
+      cartridge = cartridgeObject;
+      state = freshState(cartridge);
+      if (els.crt) els.crt.innerHTML = '';
+      if (els.recordPanel) els.recordPanel.hidden = true;
+      if (els.keypad) clearKeypad();
+      if (els.statusStrip) renderStatus();
+    },
+    start: function () {
+      if (!cartridge) throw new Error('Runner.start() called before Runner.load()');
+      goToScene(cartridge.start_scene);
+    },
+    exportRecord: exportRecord,
+    // exposed for the test harness / debugging only — not part of the documented surface
+    _debugState: function () { return state; }
+  };
+
+  global.Runner = Runner;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    els.crt = document.getElementById('crt');
+    els.keypad = document.getElementById('keypad');
+    els.ledReadout = document.getElementById('ledReadout');
+    els.statusStrip = document.getElementById('statusStrip');
+    els.sidePanel = document.getElementById('sidePanel');
+    els.boardsBody = document.getElementById('boardsBody');
+    els.recordPanel = document.getElementById('recordPanel');
+    els.recordText = document.getElementById('recordText');
+    els.downloadLink = document.getElementById('downloadLink');
+    els.copyBtn = document.getElementById('copyBtn');
+    els.copyFeedback = document.getElementById('copyFeedback');
+
+    document.addEventListener('keydown', onKeydown);
+
+    els.copyBtn.addEventListener('click', function () {
+      var text = els.recordText.value;
+      function done() {
+        els.copyFeedback.textContent = 'Copied.';
+        setTimeout(function () { els.copyFeedback.textContent = ''; }, 2000);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () {
+          els.recordText.select();
+          try { document.execCommand('copy'); done(); } catch (err) { /* clipboard unavailable */ }
+        });
+      } else {
+        els.recordText.select();
+        try { document.execCommand('copy'); done(); } catch (err) { /* clipboard unavailable */ }
+      }
+    });
+
+    // Auto-boot the embedded demo cartridge so the file plays end to end from file://.
+    Runner.load(DEMO);
+    Runner.start();
+  });
+
+})(window);
+/* ===================== end RUNNER ENGINE ===================== */
+
+
+/* =====================================================================
+   DEMO CARTRIDGE — a port of build/shodann-solo/scene2-contact.tw
+   into the cartridge format above. See SCENE-FORMAT.md for the format
+   this exercises: messages (all six speakers), choices with conditions,
+   a check node (twice, at two difficulties), a compel, an evidence and
+   an assumptions board, and a record block.
+   ===================================================================== */
+var DEMO = {
+  metadata: {
+    title: 'Dead Drop, Coastal',
+    module: 'DEMO',
+    version: '0.1',
+    transfer: 'Carry this forward: an investigation decision is only as strong as the evidence ' +
+      'you can point to. Write your DataMan requirement so a stranger could tell your evidence ' +
+      'from your assumption on sight.'
+  },
+  profile_default: 'classroom',
+  personas: { lead: 'Infiltrator', handler: 'Fixer' },
+  budget: { label: 'Cover window', start: 1 },
+  start_scene: 'brief',
+  character: {
+    stats: { body: 0, reflexes: 0, cool: 1, code: 2, tech: 0 },
+    stress: {
+      meat: { max: 3, current: 0 },
+      nerves: { max: 3, current: 0 },
+      systems: { max: 3, current: 0 }
+    },
+    fate_points: 3
+  },
+  scenes: {
+    brief: {
+      board: [
+        { name: 'evidence', label: 'Evidence' },
+        { name: 'assumptions', label: 'Assumptions' }
+      ],
+      messages: [
+        { speaker: 'system', text: 'CONNECTION ESTABLISHED. Harborview Cafe, 6:47 AM.' },
+        { speaker: 'lead', text: 'Three weeks of learning g0\'s protocols. Today: a double espresso, ' +
+          'left at the corner table, handle toward the window. Check the cup three seats down. ' +
+          'A stirrer across the rim means the message is live.' },
+        { speaker: 'stakeholder', text: 'Manager Chen is here. Four tables away, tablet and cappuccino, ' +
+          'frowning at something technical. She is never here before 8:55.' },
+        { speaker: 'data', text: 'Dead drop cup: three seats from Chen. Handle at 4 o\'clock. Stirrer across the rim. Live.' }
+      ],
+      choices: [
+        {
+          id: 'proceed', text: 'Proceed with the dead drop — make it look natural.',
+          effects: { budget: -1, flags_set: ['approach-direct'], next: 'dead-drop-roll' }
+        },
+        {
+          id: 'split', text: 'Try to split your attention — watch Chen, grab the check anyway.',
+          effects: { budget: -1, flags_set: ['approach-split'], next: 'split-roll' }
+        },
+        {
+          id: 'abort', text: 'Abort and engage Chen directly.',
+          effects: { budget: -1, flags_set: ['approach-abort'], next: 'abort-end' }
+        },
+        {
+          id: 'change', text: 'Change the order pattern to protect cover.',
+          effects: { budget: -1, flags_set: ['approach-change'], next: 'change-end' }
+        }
+      ]
+    },
+
+    'dead-drop-roll': {
+      messages: [
+        { speaker: 'lead', text: 'This is what CODE is for: making the move look invisible.' }
+      ],
+      check: { stat: 'code', difficulty: 2, on_style: 'style-end', on_success: 'success-end', on_tie: 'tie-end', on_fail: 'fail-end' }
+    },
+
+    'split-roll': {
+      messages: [
+        { speaker: 'lead', text: 'Watch Chen, grab the check. Harder — call it difficulty 3 instead of a stat penalty; ' +
+          'same odds, same math.' }
+      ],
+      check: { stat: 'code', difficulty: 3, on_style: 'split-style-end', on_success: 'split-success-end', on_tie: 'split-tie-end', on_fail: 'split-fail-end' }
+    },
+
+    'style-end': {
+      messages: [
+        { speaker: 'lead', text: 'Perfect framing. Natural motion. Chen never looks up.' },
+        { speaker: 'algorithm', text: 'Clean work. You\'re in. Welcome to the signal.' }
+      ],
+      choices: [
+        { id: 'log-evidence', text: 'Log the drop and stand down.',
+          effects: { board_add: { board: 'evidence', id: 'cup-position', text: 'Dead drop cup position and timestamp photographed cleanly.', kind: 'evidence' }, next: 'end' } }
+      ]
+    },
+
+    'success-end': {
+      messages: [
+        { speaker: 'lead', text: 'Not perfect framing, but complete. Chen never looked up.' },
+        { speaker: 'algorithm', text: 'Adequate. You completed the protocol under pressure.' }
+      ],
+      choices: [
+        { id: 'log-evidence', text: 'Log the drop and stand down.',
+          effects: { board_add: { board: 'evidence', id: 'cup-position', text: 'Dead drop cup position and timestamp photographed, framing imperfect but complete.', kind: 'evidence' }, next: 'end' } }
+      ]
+    },
+
+    'tie-end': {
+      messages: [
+        { speaker: 'lead', text: 'The photo is rushed, framing wrong, but you got the stirrer position. Probably.' },
+        { speaker: 'stakeholder', text: '"You look tense," Chen says. "Burnout doesn\'t look like tiredness. It looks like sloppy operational security."' }
+      ],
+      complication: true,
+      compel: {
+        trouble: 'My Former Employer Wants Me Back or Dead',
+        offer: 'Chen keeps looking at you like she half-recognizes you from somewhere. Let her place it?',
+        accept: { effects: { flags_set: ['chen-recognizes'], board_add: { board: 'assumptions', id: 'chen-recognition', text: 'Chen may recognize the Lead from a prior job (unconfirmed).', kind: 'assumption' }, next: 'tie-accept-end' } },
+        refuse: { effects: { flags_set: ['chen-unresolved'], next: 'tie-refuse-end' } }
+      }
+    },
+
+    'tie-accept-end': {
+      messages: [
+        { speaker: 'algorithm', text: 'Sloppy but complete. Chen\'s observant — and now maybe she\'s more than observant. Flag that for later.' }
+      ],
+      choices: [
+        { id: 'log-evidence', text: 'Log the drop and stand down.',
+          effects: { board_add: { board: 'evidence', id: 'cup-position', text: 'Dead drop cup position photographed under observation; Chen suspicious.', kind: 'evidence' }, next: 'end' } }
+      ]
+    },
+
+    'tie-refuse-end': {
+      messages: [
+        { speaker: 'algorithm', text: 'You keep the recognition ambiguous, at a cost. Sloppy but complete.' }
+      ],
+      choices: [
+        { id: 'log-evidence', text: 'Log the drop and stand down.',
+          effects: { board_add: { board: 'evidence', id: 'cup-position', text: 'Dead drop cup position photographed under observation; Chen suspicious.', kind: 'evidence' }, next: 'end' } }
+      ]
+    },
+
+    'fail-end': {
+      messages: [
+        { speaker: 'lead', text: 'The prosthetic hand catches on a chair back. Chen looks up. Right at you.' },
+        { speaker: 'stakeholder', text: '"Ann?" Chen says. "The corner table\'s open. Better light."' },
+        { speaker: 'algorithm', text: 'Mission failure. Chen\'s too observant and you weren\'t ready. Debrief tomorrow.' }
+      ],
+      choices: [
+        { id: 'log-assumption', text: 'Log what went wrong and stand down.',
+          effects: { board_add: { board: 'assumptions', id: 'chen-watching', text: 'Chen is now watching the Lead directly (confirmed by her own words, not yet by consequence).', kind: 'assumption' }, next: 'end' } }
+      ]
+    },
+
+    'split-style-end': {
+      messages: [
+        { speaker: 'lead', text: 'You time Chen\'s reading rhythm and thread the walk to the restroom past the cup. Perfect framing. She never looks up.' },
+        { speaker: 'algorithm', text: 'Impressive. Split attention and clean execution.' }
+      ],
+      choices: [
+        { id: 'log-evidence', text: 'Log the drop and stand down.',
+          effects: { board_add: { board: 'evidence', id: 'cup-position', text: 'Dead drop completed via a timed walking pass; framing clean.', kind: 'evidence' }, next: 'end' } }
+      ]
+    },
+
+    'split-success-end': {
+      messages: [
+        { speaker: 'lead', text: 'Quick, not perfect, but complete. Chen glances up as you pass; you\'re already moving.' },
+        { speaker: 'algorithm', text: 'Good enough. You got the intel and didn\'t blow your cover.' }
+      ],
+      choices: [
+        { id: 'log-evidence', text: 'Log the drop and stand down.',
+          effects: { board_add: { board: 'evidence', id: 'cup-position', text: 'Dead drop completed via a timed walking pass; Chen\'s attention now heightened.', kind: 'evidence' }, next: 'end' } }
+      ]
+    },
+
+    'split-tie-end': {
+      messages: [
+        { speaker: 'lead', text: 'You commit anyway. The photo is rushed. Chen asks if you\'re looking for something.' },
+        { speaker: 'stakeholder', text: '"You seem disoriented," Chen says. "Get more sleep."' }
+      ],
+      choices: [
+        { id: 'log-evidence', text: 'Log the drop and stand down.',
+          effects: { board_add: { board: 'evidence', id: 'cup-position', text: 'Dead drop completed under direct question from Chen; framing poor.', kind: 'evidence' }, next: 'end' } }
+      ]
+    },
+
+    'split-fail-end': {
+      messages: [
+        { speaker: 'lead', text: 'The timing is catastrophic. Chen tells you to sit down and asks what you were doing.' },
+        { speaker: 'algorithm', text: 'Total failure. Chen\'s on to you and the mission is burned.' }
+      ],
+      choices: [
+        { id: 'log-assumption', text: 'Log what went wrong and stand down.',
+          effects: { board_add: { board: 'assumptions', id: 'chen-watching', text: 'Chen directly confronted the Lead; the approach is burned (confirmed).', kind: 'assumption' }, next: 'end' } }
+      ]
+    },
+
+    'abort-end': {
+      messages: [
+        { speaker: 'lead', text: 'You sit with Chen instead. Mission sacrificed; cover fully protected. No roll required.' },
+        { speaker: 'algorithm', text: 'Smart or cowardly? Hard to say. No second chances on this one.' }
+      ],
+      choices: []
+    },
+
+    'change-end': {
+      messages: [
+        { speaker: 'lead', text: 'You order something else, sit elsewhere, and let the window close. No roll required.' },
+        { speaker: 'algorithm', text: 'You chose safety over signal. That tells me something about your priorities.' }
+      ],
+      choices: []
+    },
+
+    end: {
+      messages: [
+        { speaker: 'system', text: 'Window closed. Chen leaves. Your phone vibrates once, then goes quiet.' },
+        { speaker: 'lead', text: 'Whatever happens next starts from what you logged, not from what you meant to log.' }
+      ],
+      choices: []
+    }
+  },
+  record: {
+    title: 'Dead Drop Decision Record',
+    sections: {
+      Approach: ['brief'],
+      'Roll Outcome': ['dead-drop-roll', 'split-roll']
+    }
+  }
+};
+/* ===================== end DEMO CARTRIDGE ===================== */
+</script>
+</body>
+</html>

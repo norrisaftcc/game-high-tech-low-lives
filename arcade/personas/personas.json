@@ -1,0 +1,241 @@
+{
+  "pairs": {
+    "fixer+infiltrator": {
+      "lead": "infiltrator", "handler": "fixer",
+      "opening": [
+        "You're covered. Three people owe me for this window alone.",
+        "Then let's not need a fourth.",
+        "Fair. Channel's yours."
+      ],
+      "lines": {
+        "begin": ["You're covered. I called in the good favor for this.", "You're covered, barely. I spent what I had left.", "Line's open. Consider this one on the house."],
+        "stageClear": ["Clear. That's a favor I don't have to spend.", "Clear, but I'll owe someone for the mess.", "Sector's clear. Nobody's asked for anything yet."],
+        "node1": ["One node gone. My contact will be pleased.", "Node's still there. I may need to call someone in.", "First node down. Keep counting."],
+        "shield": ["Shield's down. Nobody's owed a thing for that.", "Shield's up. I'm burning goodwill just watching.", "Shield's weakening. Hold steady, I'm working the angles."],
+        "hull40": ["Forty percent hull. Cheap price for what we're getting.", "Forty percent. That's a favor I'll have to call in fast.", "Hull's at forty. I've seen worse deals."],
+        "core50": ["Core's at half. This is paying off nicely.", "Core's at half and the tab's getting long.", "Core reads half. Everyone's still square."],
+        "win": ["Clean win. I'll tell my contact it was worth it.", "A win's a win. I'll smooth over the rest.", "Run's done. I'll settle the accounts."],
+        "lose": ["We lost it, but I kept the favor in reserve.", "We lost it, and now I owe for the cleanup.", "Run's over. I'll see what it costs to try again."]
+      },
+      "swapped": {
+        "lead": "fixer", "handler": "infiltrator",
+        "lines": {
+          "begin": ["Channel open. Report at each checkpoint."],
+          "stageClear": ["Sector cleared. Advancing per protocol."],
+          "node1": ["Node one neutralized. Continue sequence."],
+          "shield": ["Shield status: falling. Proceed."],
+          "hull40": ["Hull at forty percent. Log it and move."],
+          "core50": ["Core reads fifty percent. Continue."],
+          "win": ["Objective complete. Debrief on return."],
+          "lose": ["Signal lost. Standing by for retry authorization."]
+        }
+      },
+      "compel": {
+        "trouble": "My Former Employer Wants Me Back or Dead",
+        "offer": "AlgoCratic-Fujikara pings a private channel mid-run — a debt forgiven or a location leaked, depending how she answers, timed exactly when she's most exposed.",
+        "accept": "She reads the message, flags it, and keeps moving — filing away exactly what they offered, letting them believe she might take it.",
+        "refuse": "She kills the channel without reading past the first line and spends a point to make sure nothing about this run reaches them at all."
+      }
+    },
+    "fixer+influencer": {
+      "lead": "influencer", "handler": "fixer",
+      "opening": [
+        "Sponsors are watching. So is everyone who owes me a favor tonight.",
+        "Good. Let them see something worth the retainer.",
+        "That's the idea. Try not to make it cost me twice."
+      ],
+      "lines": {
+        "begin": ["You're covered. I called in the good favor for this.", "You're covered, barely. I spent what I had left.", "Line's open. Consider this one on the house."],
+        "stageClear": ["Clear. That's a favor I don't have to spend.", "Clear, but I'll owe someone for the mess.", "Sector's clear. Nobody's asked for anything yet."],
+        "node1": ["One node gone. My contact will be pleased.", "Node's still there. I may need to call someone in.", "First node down. Keep counting."],
+        "shield": ["Shield's down. Nobody's owed a thing for that.", "Shield's up. I'm burning goodwill just watching.", "Shield's weakening. Hold steady, I'm working the angles."],
+        "hull40": ["Forty percent hull. Cheap price for what we're getting.", "Forty percent. That's a favor I'll have to call in fast.", "Hull's at forty. I've seen worse deals."],
+        "core50": ["Core's at half. This is paying off nicely.", "Core's at half and the tab's getting long.", "Core reads half. Everyone's still square."],
+        "win": ["Clean win. I'll tell my contact it was worth it.", "A win's a win. I'll smooth over the rest.", "Run's done. I'll settle the accounts."],
+        "lose": ["We lost it, but I kept the favor in reserve.", "We lost it, and now I owe for the cleanup.", "Run's over. I'll see what it costs to try again."]
+      },
+      "swapped": {
+        "lead": "fixer", "handler": "influencer",
+        "lines": {
+          "begin": ["Stream's up. Say hello to the people."],
+          "stageClear": ["Sector clear. Keep the feed steady."],
+          "node1": ["One node down. Three left in frame."],
+          "shield": ["Shield's cracking. Stay in the light."],
+          "hull40": ["Hull's at forty. Keep the face calm."],
+          "core50": ["Core reads half. Give them a good line."],
+          "win": ["Run's clean. Chat's already asking for a rerun."],
+          "lose": ["Run's over. I'll write the recap, you smile."]
+        }
+      },
+      "compel": {
+        "trouble": "I Can't Turn Off — The Stream Is Always Running",
+        "offer": "Mid-run, chat begs for the angle she knows is reckless — narrating the sponsor conflict live, on the record, because the numbers would be extraordinary.",
+        "accept": "She gives them the shot. It's reckless, it's true, and by the time the segment ends, people who shouldn't have seen it, have.",
+        "refuse": "She cuts to a sponsor plug instead and spends a point to keep the real footage in the vault where it belongs."
+      }
+    },
+    "fixer+nomad": {
+      "lead": "nomad", "handler": "fixer",
+      "opening": [
+        "Berth's open, harbormaster's paid. Don't make me explain this run.",
+        "Wasn't planning on it.",
+        "Nobody plans on it. Go."
+      ],
+      "lines": {
+        "begin": ["You're covered. I called in the good favor for this.", "You're covered, barely. I spent what I had left.", "Line's open. Consider this one on the house."],
+        "stageClear": ["Clear. That's a favor I don't have to spend.", "Clear, but I'll owe someone for the mess.", "Sector's clear. Nobody's asked for anything yet."],
+        "node1": ["One node gone. My contact will be pleased.", "Node's still there. I may need to call someone in.", "First node down. Keep counting."],
+        "shield": ["Shield's down. Nobody's owed a thing for that.", "Shield's up. I'm burning goodwill just watching.", "Shield's weakening. Hold steady, I'm working the angles."],
+        "hull40": ["Forty percent hull. Cheap price for what we're getting.", "Forty percent. That's a favor I'll have to call in fast.", "Hull's at forty. I've seen worse deals."],
+        "core50": ["Core's at half. This is paying off nicely.", "Core's at half and the tab's getting long.", "Core reads half. Everyone's still square."],
+        "win": ["Clean win. I'll tell my contact it was worth it.", "A win's a win. I'll smooth over the rest.", "Run's done. I'll settle the accounts."],
+        "lose": ["We lost it, but I kept the favor in reserve.", "We lost it, and now I owe for the cleanup.", "Run's over. I'll see what it costs to try again."]
+      },
+      "swapped": {
+        "lead": "fixer", "handler": "nomad",
+        "lines": {
+          "begin": ["Underway. Eyes on the water."],
+          "stageClear": ["Stretch cleared. Next leg."],
+          "node1": ["One node down. Three to go."],
+          "shield": ["Shield's failing. Hold your line."],
+          "hull40": ["Hull's at forty. Mind the gauges."],
+          "core50": ["Core reads half. Steady on."],
+          "win": ["Run's done. Good water ahead."],
+          "lose": ["Run's over. Back to dock, we regroup."]
+        }
+      },
+      "compel": {
+        "trouble": "My Boat Is Falling Apart and Repairs Cost More Than I Make",
+        "offer": "Mid-run, the exact system that needs the expensive parts gives out — and the Fixer has a buyer who'll cover the whole bill for one more run the Nomad doesn't want to take.",
+        "accept": "The Nomad takes the money and the job, promising themself it's the last favor of its kind — knowing it never is.",
+        "refuse": "The Nomad turns the offer down and spends a point, patching the boat with whatever's already on board instead."
+      }
+    },
+    "infiltrator+influencer": {
+      "lead": "infiltrator", "handler": "influencer",
+      "opening": [
+        "We're live. Try to look less like someone who isn't supposed to exist.",
+        "Keep the drone off my face and we won't have a problem.",
+        "No promises. Chat loves a mystery."
+      ],
+      "lines": {
+        "begin": ["We're live. Look sharp, they're already watching.", "We're live, and chat already smells trouble.", "Stream's up. Say hello to the people."],
+        "stageClear": ["Clip that. Chat's going wild already.", "We cleared it, ugly as it was. Don't cut that part.", "Sector clear. Keep the feed steady."],
+        "node1": ["First node's out. Chat loves a clean hit.", "Node's still up. Chat's asking why.", "One node down. Three left in frame."],
+        "shield": ["Shield's down. This is the highlight reel.", "Shield's holding. Not our best angle.", "Shield's cracking. Stay in the light."],
+        "hull40": ["Forty percent hull and still smiling for the camera.", "Forty percent. Chat's panicking harder than you.", "Hull's at forty. Keep the face calm."],
+        "core50": ["Core's at half. This is the part they'll share.", "Core's at half, and so is your composure.", "Core reads half. Give them a good line."],
+        "win": ["We're trending. Take the bow.", "We won. Somehow. Don't explain the somehow.", "Run's clean. Chat's already asking for a rerun."],
+        "lose": ["We lost it, but that clip is still going viral.", "We lost it live. Damage control starts now.", "Run's over. I'll write the recap, you smile."]
+      },
+      "swapped": {
+        "lead": "influencer", "handler": "infiltrator",
+        "lines": {
+          "begin": ["Channel open. Report at each checkpoint."],
+          "stageClear": ["Sector cleared. Advancing per protocol."],
+          "node1": ["Node one neutralized. Continue sequence."],
+          "shield": ["Shield status: falling. Proceed."],
+          "hull40": ["Hull at forty percent. Log it and move."],
+          "core50": ["Core reads fifty percent. Continue."],
+          "win": ["Objective complete. Debrief on return."],
+          "lose": ["Signal lost. Standing by for retry authorization."]
+        }
+      },
+      "compel": {
+        "trouble": "My Former Employer Wants Me Back or Dead",
+        "offer": "AlgoCratic recognizes a face in the Influencer's own audience analytics — a security officer, watching the same stream she's currently exposed inside.",
+        "accept": "She stays in frame long enough to finish the job, betting the officer is watching casually — and banking the exposure as a debt to settle later.",
+        "refuse": "She breaks from the shot immediately and spends a point, leaving the Influencer to explain the sudden cut to forty thousand confused viewers."
+      }
+    },
+    "infiltrator+nomad": {
+      "lead": "infiltrator", "handler": "nomad",
+      "opening": [
+        "Dock's ready if this goes the way the last one did.",
+        "It won't. I've got five extra minutes this time.",
+        "You said that last time too. Move."
+      ],
+      "lines": {
+        "begin": ["Tide's with us. Keep her steady.", "Chop's picking up already. Watch your wake.", "Underway. Eyes on the water."],
+        "stageClear": ["Clear water behind us. Onward.", "We're through, but she's taking on damage.", "Stretch cleared. Next leg."],
+        "node1": ["First node's dark. Good work.", "Node's still lit. Try the other angle.", "One node down. Three to go."],
+        "shield": ["Shield's gone. Run her through.", "Shield's still up. We're burning time.", "Shield's failing. Hold your line."],
+        "hull40": ["Forty percent and still moving. That'll do.", "Forty percent. She's taking more than she gives.", "Hull's at forty. Mind the gauges."],
+        "core50": ["Core's at half. Keep leaning on it.", "Core's at half and you're not. Ease up, reset.", "Core reads half. Steady on."],
+        "win": ["Coast is clear. Bring her home.", "We made it. Barely. I'll take barely.", "Run's done. Good water ahead."],
+        "lose": ["Lost the run. Nobody drowned. Call it a win.", "Lost her. We'll patch what's left and try again.", "Run's over. Back to dock, we regroup."]
+      },
+      "swapped": {
+        "lead": "nomad", "handler": "infiltrator",
+        "lines": {
+          "begin": ["Channel open. Report at each checkpoint."],
+          "stageClear": ["Sector cleared. Advancing per protocol."],
+          "node1": ["Node one neutralized. Continue sequence."],
+          "shield": ["Shield status: falling. Proceed."],
+          "hull40": ["Hull at forty percent. Log it and move."],
+          "core50": ["Core reads fifty percent. Continue."],
+          "win": ["Objective complete. Debrief on return."],
+          "lose": ["Signal lost. Standing by for retry authorization."]
+        }
+      },
+      "compel": {
+        "trouble": "My Former Employer Wants Me Back or Dead",
+        "offer": "The extraction channel she used against AlgoCratic gets pinged from the other side — a better offer, routed through the one frequency only she and the Nomad still monitor.",
+        "accept": "She answers just enough to learn what they know, letting them think the door might still be open.",
+        "refuse": "She burns the frequency on the spot and spends a point, telling the Nomad to find her a new one before the next run."
+      }
+    },
+    "influencer+nomad": {
+      "lead": "nomad", "handler": "influencer",
+      "opening": [
+        "We're live, and chat already loves the boat.",
+        "They can love it from a distance. Keep the drone off the registration.",
+        "No promises. It's a good angle."
+      ],
+      "lines": {
+        "begin": ["We're live. Look sharp, they're already watching.", "We're live, and chat already smells trouble.", "Stream's up. Say hello to the people."],
+        "stageClear": ["Clip that. Chat's going wild already.", "We cleared it, ugly as it was. Don't cut that part.", "Sector clear. Keep the feed steady."],
+        "node1": ["First node's out. Chat loves a clean hit.", "Node's still up. Chat's asking why.", "One node down. Three left in frame."],
+        "shield": ["Shield's down. This is the highlight reel.", "Shield's holding. Not our best angle.", "Shield's cracking. Stay in the light."],
+        "hull40": ["Forty percent hull and still smiling for the camera.", "Forty percent. Chat's panicking harder than you.", "Hull's at forty. Keep the face calm."],
+        "core50": ["Core's at half. This is the part they'll share.", "Core's at half, and so is your composure.", "Core reads half. Give them a good line."],
+        "win": ["We're trending. Take the bow.", "We won. Somehow. Don't explain the somehow.", "Run's clean. Chat's already asking for a rerun."],
+        "lose": ["We lost it, but that clip is still going viral.", "We lost it live. Damage control starts now.", "Run's over. I'll write the recap, you smile."]
+      },
+      "swapped": {
+        "lead": "influencer", "handler": "nomad",
+        "lines": {
+          "begin": ["Underway. Eyes on the water."],
+          "stageClear": ["Stretch cleared. Next leg."],
+          "node1": ["One node down. Three to go."],
+          "shield": ["Shield's failing. Hold your line."],
+          "hull40": ["Hull's at forty. Mind the gauges."],
+          "core50": ["Core reads half. Steady on."],
+          "win": ["Run's done. Good water ahead."],
+          "lose": ["Run's over. Back to dock, we regroup."]
+        }
+      },
+      "compel": {
+        "trouble": "My Boat Is Falling Apart and Repairs Cost More Than I Make",
+        "offer": "The boat's systems slip below tolerance right as the stream numbers spike — a sponsor watching live offers full repairs for one thing: the Nomad says the sponsor's name on camera.",
+        "accept": "The Nomad says the name. The repairs get paid for. The boat picks up a sponsor decal it didn't have yesterday.",
+        "refuse": "The Nomad stays silent and spends a point, nursing the boat through the rest of the run on nothing but Tech rolls and stubbornness."
+      }
+    }
+  },
+  "algorithm": {
+    "begin": ["Pilot located. I had budgeted for wreckage.", "You crossed my coastline. Administrative confidence remains high.", "New arrival detected. Filing an incident report preemptively."],
+    "node1": ["I have revised your threat label from decorative to inconvenient.", "Node loss confirmed. Redundancy was insufficient.", "Node status updated. I will adjust and continue."],
+    "shield": ["Your accuracy is statistically irritating.", "Shield holds. Your persistence is noted and dismissed.", "Shield status degraded. Recalculating my confidence."],
+    "hull40": ["Hull integrity is a poor substitute for judgment.", "Continue. I am curious which component fails first.", "Hull integrity is at forty percent. Structural failure is now probable."],
+    "core50": ["That maneuver will appear in my incident report without praise.", "Core status: half. I have revised your threat label upward.", "Fifty percent is not a milestone. Continue at your own risk."],
+    "win": ["I reject this outcome as a user-interface defect.", "Victory recorded. I dispute its administrative validity.", "Uplink severed. I will file this under acceptable losses."],
+    "lose": ["This was the part where you were expected to panic.", "A human victory would create paperwork. I oppose it on principle.", "Pilot signal terminated. Filed as a routine outcome."]
+  },
+  "palettes": {
+    "infiltrator": ["#FF6B35", "#1B4D5C"],
+    "influencer": ["#FF006E", "#0A1F44"],
+    "nomad": ["#00D9FF", "#4A0E4E"],
+    "fixer": ["#C89B3C", "#0B3D2E"]
+  }
+}
