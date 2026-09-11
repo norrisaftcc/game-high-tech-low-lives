@@ -1,0 +1,1248 @@
+{
+  "metadata": {
+    "title": "Hard Land, Rising",
+    "module": "M3",
+    "version": "0.1",
+    "transfer": "Before finalizing your DataMan backlog, review whether any item is high value but not ready, depends on unresolved work, consumes disproportionate effort, or should move because it reduces risk or unlocks other work."
+  },
+  "profile_default": "classroom",
+  "personas": {
+    "lead": null,
+    "handler": null
+  },
+  "start_scene": "welcome",
+  "character": {
+    "stats": {
+      "body": 0,
+      "reflexes": 0,
+      "cool": 0,
+      "code": 0,
+      "tech": 0
+    },
+    "stress": {
+      "meat": {
+        "max": 3,
+        "current": 0
+      },
+      "nerves": {
+        "max": 3,
+        "current": 0
+      },
+      "systems": {
+        "max": 3,
+        "current": 0
+      }
+    },
+    "fate_points": 1
+  },
+  "pack_items": [
+    {
+      "id": "pump-bypass",
+      "k": 1,
+      "title": "Pump bypass",
+      "weight": 3,
+      "value": "High",
+      "dep": [],
+      "risk": "Low",
+      "ready": "Ready",
+      "note": "Reroutes intake before the lower deck goes under. Nothing else here holds if this doesn’t.",
+      "notes": {
+        "infiltrator": "Logs read weight three, value high, no anchor, risk low. Nothing on file needs it first.",
+        "influencer": "Weight three on camera, high value, no anchor, low risk. Clean open, easy to frame.",
+        "nomad": "Three kilos, high value, no anchor, low risk. Bolt this first or the deck doesn't hold.",
+        "fixer": "Runs three, pays high, owed to nobody first, risk's low. Buy this one first, no debts."
+      }
+    },
+    {
+      "id": "bulkhead-seal",
+      "k": 2,
+      "title": "Bulkhead seal",
+      "weight": 2,
+      "value": "High",
+      "dep": [
+        "pump-bypass"
+      ],
+      "risk": "Low",
+      "ready": "Ready",
+      "note": "Confirms the reroute holds. Cheap once the bypass is in.",
+      "notes": {
+        "infiltrator": "Weight two, value high, anchored to the bypass on file, risk low. Cheap once that's logged.",
+        "influencer": "Weight two on camera, high value, needs the bypass first, low risk. Cheap follow-up shot.",
+        "nomad": "Two kilos, high value, needs the bypass bolted first, low risk. Cheap once that's in.",
+        "fixer": "Costs two, pays high, owed after the bypass clears, risk's low. Cheap add once that's paid."
+      }
+    },
+    {
+      "id": "crew-beacon-relay",
+      "k": 3,
+      "title": "Crew beacon relay",
+      "weight": 3,
+      "value": "High",
+      "dep": [
+        "pump-bypass"
+      ],
+      "risk": "Medium",
+      "ready": "Ready",
+      "note": "Recalls crew who missed the first call to climb.",
+      "notes": {
+        "infiltrator": "Weight three, value high, anchored to the bypass, risk medium. Recalls names off the roster.",
+        "influencer": "Weight three on camera, high value, needs the bypass, medium risk. Calls the missing into frame.",
+        "nomad": "Three kilos, high value, needs the bypass first, medium risk. Calls back who missed the horn.",
+        "fixer": "Costs three, pays high, owed after the bypass, risk's medium. Buys back who's still owed a call."
+      }
+    },
+    {
+      "id": "ladder-release",
+      "k": 4,
+      "title": "Manual ladder release",
+      "weight": 2,
+      "value": "High",
+      "dep": [
+        "pump-bypass"
+      ],
+      "risk": "Low",
+      "ready": "Ready",
+      "note": "Works with no chrome. Nobody has needed it yet.",
+      "notes": {
+        "infiltrator": "Weight two, value high, anchored to the bypass, risk low. No chrome on file needed to use it.",
+        "influencer": "Weight two on camera, high value, needs the bypass, low risk. Works off-camera too, no chrome.",
+        "nomad": "Two kilos, high value, needs the bypass first, low risk. Hand crank, no chrome, works for anyone.",
+        "fixer": "Costs two, pays high, owed after the bypass, risk's low. Owes no chrome either — cheap insurance."
+      }
+    },
+    {
+      "id": "cargo-manifest-sync",
+      "k": 5,
+      "title": "Cargo manifest sync",
+      "weight": 4,
+      "value": "Medium",
+      "dep": [
+        "pump-bypass",
+        "bulkhead-seal"
+      ],
+      "risk": "Medium",
+      "ready": "Ready",
+      "note": "Tracks what’s still down there once the deck goes under.",
+      "notes": {
+        "infiltrator": "Weight four, value medium, anchored to bypass and seal both, risk medium. Tracks what's still below.",
+        "influencer": "Weight four on camera, medium value, needs bypass and seal, medium risk. Tracks who's still off-frame.",
+        "nomad": "Four kilos, medium value, needs bypass and seal both first, medium risk. Tracks what's still under.",
+        "fixer": "Costs four, pays medium, owed after bypass and seal both, risk's medium. Keeps count what's still down."
+      }
+    },
+    {
+      "id": "sponsor-stream-feed",
+      "k": 6,
+      "title": "Sponsor stream feed",
+      "weight": 2,
+      "value": "Low",
+      "dep": [],
+      "risk": "Low",
+      "ready": "Ready",
+      "note": "Meridian’s cameras. Good optics, no bearing on anyone’s survival.",
+      "notes": {
+        "infiltrator": "Weight two, value low, no anchor, risk low. Nothing on file depends on it, nothing gained either.",
+        "influencer": "Weight two on camera, low value, no anchor, low risk. Good optics, doesn't move the count.",
+        "nomad": "Two kilos, low value, no anchor, low risk. Doesn't hold anything up, doesn't save anyone either.",
+        "fixer": "Costs two, pays low, owed to nobody, risk's low. Buys goodwill, not survival — spend knowing that."
+      }
+    },
+    {
+      "id": "auto-route-advisory",
+      "k": 7,
+      "title": "Auto-route advisory",
+      "weight": 5,
+      "value": "Medium",
+      "dep": [],
+      "depNote": "a crew telemetry feed that doesn’t exist yet",
+      "risk": "High",
+      "ready": "Needs refinement",
+      "note": "Routes crew by predicted risk. The predicting part still isn’t settled.",
+      "notes": {
+        "infiltrator": "Weight five, value medium, anchored to a feed not on file yet, risk high. Not ready to carry.",
+        "influencer": "Weight five on camera, medium value, needs a feed that doesn't exist yet, high risk. Not air-ready.",
+        "nomad": "Five kilos, medium value, needs a feed that isn't built yet, high risk. Not ready to bolt down.",
+        "fixer": "Costs five, pays medium, owed to a feed nobody's built, risk's high. Don't buy the unfinished."
+      }
+    },
+    {
+      "id": "medbay-uplink",
+      "k": 8,
+      "title": "Medbay uplink",
+      "weight": 5,
+      "value": "Medium",
+      "dep": [
+        "cargo-manifest-sync"
+      ],
+      "risk": "Medium",
+      "ready": "Needs refinement",
+      "note": "Pipes vitals topside. Nobody’s agreed what Meridian gets to see.",
+      "notes": {
+        "infiltrator": "Weight five, value medium, anchored to the manifest sync, risk medium. Who reads it's unsettled.",
+        "influencer": "Weight five on camera, medium value, needs the manifest sync, medium risk. Who's watching's unsettled.",
+        "nomad": "Five kilos, medium value, needs the manifest sync first, medium risk. Who sees it below is unsettled.",
+        "fixer": "Costs five, pays medium, owed after the manifest sync, risk's medium. Who sees it's still unsettled."
+      }
+    }
+  ],
+  "pairs": {
+    "fixer+infiltrator": {
+      "lead": "infiltrator",
+      "handler": "fixer",
+      "lines": {
+        "begin": [
+          "You're covered. I called in the good favor for this.",
+          "You're covered, barely. I spent what I had left.",
+          "Line's open. Consider this one on the house."
+        ],
+        "stageClear": [
+          "Clear. That's a favor I don't have to spend.",
+          "Clear, but I'll owe someone for the mess.",
+          "Sector's clear. Nobody's asked for anything yet."
+        ],
+        "node1": [
+          "One node gone. My contact will be pleased.",
+          "Node's still there. I may need to call someone in.",
+          "First node down. Keep counting."
+        ],
+        "shield": [
+          "Shield's down. Nobody's owed a thing for that.",
+          "Shield's up. I'm burning goodwill just watching.",
+          "Shield's weakening. Hold steady, I'm working the angles."
+        ],
+        "hull40": [
+          "Forty percent hull. Cheap price for what we're getting.",
+          "Forty percent. That's a favor I'll have to call in fast.",
+          "Hull's at forty. I've seen worse deals."
+        ],
+        "core50": [
+          "Core's at half. This is paying off nicely.",
+          "Core's at half and the tab's getting long.",
+          "Core reads half. Everyone's still square."
+        ],
+        "win": [
+          "Clean win. I'll tell my contact it was worth it.",
+          "A win's a win. I'll smooth over the rest.",
+          "Run's done. I'll settle the accounts."
+        ],
+        "lose": [
+          "We lost it, but I kept the favor in reserve.",
+          "We lost it, and now I owe for the cleanup.",
+          "Run's over. I'll see what it costs to try again."
+        ]
+      },
+      "swapped": {
+        "lead": "fixer",
+        "handler": "infiltrator",
+        "lines": {
+          "begin": [
+            "Channel open. Report at each checkpoint."
+          ],
+          "stageClear": [
+            "Sector cleared. Advancing per protocol."
+          ],
+          "node1": [
+            "Node one neutralized. Continue sequence."
+          ],
+          "shield": [
+            "Shield status: falling. Proceed."
+          ],
+          "hull40": [
+            "Hull at forty percent. Log it and move."
+          ],
+          "core50": [
+            "Core reads fifty percent. Continue."
+          ],
+          "win": [
+            "Objective complete. Debrief on return."
+          ],
+          "lose": [
+            "Signal lost. Standing by for retry authorization."
+          ]
+        }
+      }
+    },
+    "fixer+influencer": {
+      "lead": "influencer",
+      "handler": "fixer",
+      "lines": {
+        "begin": [
+          "You're covered. I called in the good favor for this.",
+          "You're covered, barely. I spent what I had left.",
+          "Line's open. Consider this one on the house."
+        ],
+        "stageClear": [
+          "Clear. That's a favor I don't have to spend.",
+          "Clear, but I'll owe someone for the mess.",
+          "Sector's clear. Nobody's asked for anything yet."
+        ],
+        "node1": [
+          "One node gone. My contact will be pleased.",
+          "Node's still there. I may need to call someone in.",
+          "First node down. Keep counting."
+        ],
+        "shield": [
+          "Shield's down. Nobody's owed a thing for that.",
+          "Shield's up. I'm burning goodwill just watching.",
+          "Shield's weakening. Hold steady, I'm working the angles."
+        ],
+        "hull40": [
+          "Forty percent hull. Cheap price for what we're getting.",
+          "Forty percent. That's a favor I'll have to call in fast.",
+          "Hull's at forty. I've seen worse deals."
+        ],
+        "core50": [
+          "Core's at half. This is paying off nicely.",
+          "Core's at half and the tab's getting long.",
+          "Core reads half. Everyone's still square."
+        ],
+        "win": [
+          "Clean win. I'll tell my contact it was worth it.",
+          "A win's a win. I'll smooth over the rest.",
+          "Run's done. I'll settle the accounts."
+        ],
+        "lose": [
+          "We lost it, but I kept the favor in reserve.",
+          "We lost it, and now I owe for the cleanup.",
+          "Run's over. I'll see what it costs to try again."
+        ]
+      },
+      "swapped": {
+        "lead": "fixer",
+        "handler": "influencer",
+        "lines": {
+          "begin": [
+            "Stream's up. Say hello to the people."
+          ],
+          "stageClear": [
+            "Sector clear. Keep the feed steady."
+          ],
+          "node1": [
+            "One node down. Three left in frame."
+          ],
+          "shield": [
+            "Shield's cracking. Stay in the light."
+          ],
+          "hull40": [
+            "Hull's at forty. Keep the face calm."
+          ],
+          "core50": [
+            "Core reads half. Give them a good line."
+          ],
+          "win": [
+            "Run's clean. Chat's already asking for a rerun."
+          ],
+          "lose": [
+            "Run's over. I'll write the recap, you smile."
+          ]
+        }
+      }
+    },
+    "fixer+nomad": {
+      "lead": "nomad",
+      "handler": "fixer",
+      "lines": {
+        "begin": [
+          "You're covered. I called in the good favor for this.",
+          "You're covered, barely. I spent what I had left.",
+          "Line's open. Consider this one on the house."
+        ],
+        "stageClear": [
+          "Clear. That's a favor I don't have to spend.",
+          "Clear, but I'll owe someone for the mess.",
+          "Sector's clear. Nobody's asked for anything yet."
+        ],
+        "node1": [
+          "One node gone. My contact will be pleased.",
+          "Node's still there. I may need to call someone in.",
+          "First node down. Keep counting."
+        ],
+        "shield": [
+          "Shield's down. Nobody's owed a thing for that.",
+          "Shield's up. I'm burning goodwill just watching.",
+          "Shield's weakening. Hold steady, I'm working the angles."
+        ],
+        "hull40": [
+          "Forty percent hull. Cheap price for what we're getting.",
+          "Forty percent. That's a favor I'll have to call in fast.",
+          "Hull's at forty. I've seen worse deals."
+        ],
+        "core50": [
+          "Core's at half. This is paying off nicely.",
+          "Core's at half and the tab's getting long.",
+          "Core reads half. Everyone's still square."
+        ],
+        "win": [
+          "Clean win. I'll tell my contact it was worth it.",
+          "A win's a win. I'll smooth over the rest.",
+          "Run's done. I'll settle the accounts."
+        ],
+        "lose": [
+          "We lost it, but I kept the favor in reserve.",
+          "We lost it, and now I owe for the cleanup.",
+          "Run's over. I'll see what it costs to try again."
+        ]
+      },
+      "swapped": {
+        "lead": "fixer",
+        "handler": "nomad",
+        "lines": {
+          "begin": [
+            "Underway. Eyes on the water."
+          ],
+          "stageClear": [
+            "Stretch cleared. Next leg."
+          ],
+          "node1": [
+            "One node down. Three to go."
+          ],
+          "shield": [
+            "Shield's failing. Hold your line."
+          ],
+          "hull40": [
+            "Hull's at forty. Mind the gauges."
+          ],
+          "core50": [
+            "Core reads half. Steady on."
+          ],
+          "win": [
+            "Run's done. Good water ahead."
+          ],
+          "lose": [
+            "Run's over. Back to dock, we regroup."
+          ]
+        }
+      }
+    },
+    "infiltrator+influencer": {
+      "lead": "infiltrator",
+      "handler": "influencer",
+      "lines": {
+        "begin": [
+          "We're live. Look sharp, they're already watching.",
+          "We're live, and chat already smells trouble.",
+          "Stream's up. Say hello to the people."
+        ],
+        "stageClear": [
+          "Clip that. Chat's going wild already.",
+          "We cleared it, ugly as it was. Don't cut that part.",
+          "Sector clear. Keep the feed steady."
+        ],
+        "node1": [
+          "First node's out. Chat loves a clean hit.",
+          "Node's still up. Chat's asking why.",
+          "One node down. Three left in frame."
+        ],
+        "shield": [
+          "Shield's down. This is the highlight reel.",
+          "Shield's holding. Not our best angle.",
+          "Shield's cracking. Stay in the light."
+        ],
+        "hull40": [
+          "Forty percent hull and still smiling for the camera.",
+          "Forty percent. Chat's panicking harder than you.",
+          "Hull's at forty. Keep the face calm."
+        ],
+        "core50": [
+          "Core's at half. This is the part they'll share.",
+          "Core's at half, and so is your composure.",
+          "Core reads half. Give them a good line."
+        ],
+        "win": [
+          "We're trending. Take the bow.",
+          "We won. Somehow. Don't explain the somehow.",
+          "Run's clean. Chat's already asking for a rerun."
+        ],
+        "lose": [
+          "We lost it, but that clip is still going viral.",
+          "We lost it live. Damage control starts now.",
+          "Run's over. I'll write the recap, you smile."
+        ]
+      },
+      "swapped": {
+        "lead": "influencer",
+        "handler": "infiltrator",
+        "lines": {
+          "begin": [
+            "Channel open. Report at each checkpoint."
+          ],
+          "stageClear": [
+            "Sector cleared. Advancing per protocol."
+          ],
+          "node1": [
+            "Node one neutralized. Continue sequence."
+          ],
+          "shield": [
+            "Shield status: falling. Proceed."
+          ],
+          "hull40": [
+            "Hull at forty percent. Log it and move."
+          ],
+          "core50": [
+            "Core reads fifty percent. Continue."
+          ],
+          "win": [
+            "Objective complete. Debrief on return."
+          ],
+          "lose": [
+            "Signal lost. Standing by for retry authorization."
+          ]
+        }
+      }
+    },
+    "infiltrator+nomad": {
+      "lead": "infiltrator",
+      "handler": "nomad",
+      "lines": {
+        "begin": [
+          "Tide's with us. Keep her steady.",
+          "Chop's picking up already. Watch your wake.",
+          "Underway. Eyes on the water."
+        ],
+        "stageClear": [
+          "Clear water behind us. Onward.",
+          "We're through, but she's taking on damage.",
+          "Stretch cleared. Next leg."
+        ],
+        "node1": [
+          "First node's dark. Good work.",
+          "Node's still lit. Try the other angle.",
+          "One node down. Three to go."
+        ],
+        "shield": [
+          "Shield's gone. Run her through.",
+          "Shield's still up. We're burning time.",
+          "Shield's failing. Hold your line."
+        ],
+        "hull40": [
+          "Forty percent and still moving. That'll do.",
+          "Forty percent. She's taking more than she gives.",
+          "Hull's at forty. Mind the gauges."
+        ],
+        "core50": [
+          "Core's at half. Keep leaning on it.",
+          "Core's at half and you're not. Ease up, reset.",
+          "Core reads half. Steady on."
+        ],
+        "win": [
+          "Coast is clear. Bring her home.",
+          "We made it. Barely. I'll take barely.",
+          "Run's done. Good water ahead."
+        ],
+        "lose": [
+          "Lost the run. Nobody drowned. Call it a win.",
+          "Lost her. We'll patch what's left and try again.",
+          "Run's over. Back to dock, we regroup."
+        ]
+      },
+      "swapped": {
+        "lead": "nomad",
+        "handler": "infiltrator",
+        "lines": {
+          "begin": [
+            "Channel open. Report at each checkpoint."
+          ],
+          "stageClear": [
+            "Sector cleared. Advancing per protocol."
+          ],
+          "node1": [
+            "Node one neutralized. Continue sequence."
+          ],
+          "shield": [
+            "Shield status: falling. Proceed."
+          ],
+          "hull40": [
+            "Hull at forty percent. Log it and move."
+          ],
+          "core50": [
+            "Core reads fifty percent. Continue."
+          ],
+          "win": [
+            "Objective complete. Debrief on return."
+          ],
+          "lose": [
+            "Signal lost. Standing by for retry authorization."
+          ]
+        }
+      }
+    },
+    "influencer+nomad": {
+      "lead": "nomad",
+      "handler": "influencer",
+      "lines": {
+        "begin": [
+          "We're live. Look sharp, they're already watching.",
+          "We're live, and chat already smells trouble.",
+          "Stream's up. Say hello to the people."
+        ],
+        "stageClear": [
+          "Clip that. Chat's going wild already.",
+          "We cleared it, ugly as it was. Don't cut that part.",
+          "Sector clear. Keep the feed steady."
+        ],
+        "node1": [
+          "First node's out. Chat loves a clean hit.",
+          "Node's still up. Chat's asking why.",
+          "One node down. Three left in frame."
+        ],
+        "shield": [
+          "Shield's down. This is the highlight reel.",
+          "Shield's holding. Not our best angle.",
+          "Shield's cracking. Stay in the light."
+        ],
+        "hull40": [
+          "Forty percent hull and still smiling for the camera.",
+          "Forty percent. Chat's panicking harder than you.",
+          "Hull's at forty. Keep the face calm."
+        ],
+        "core50": [
+          "Core's at half. This is the part they'll share.",
+          "Core's at half, and so is your composure.",
+          "Core reads half. Give them a good line."
+        ],
+        "win": [
+          "We're trending. Take the bow.",
+          "We won. Somehow. Don't explain the somehow.",
+          "Run's clean. Chat's already asking for a rerun."
+        ],
+        "lose": [
+          "We lost it, but that clip is still going viral.",
+          "We lost it live. Damage control starts now.",
+          "Run's over. I'll write the recap, you smile."
+        ]
+      },
+      "swapped": {
+        "lead": "influencer",
+        "handler": "nomad",
+        "lines": {
+          "begin": [
+            "Underway. Eyes on the water."
+          ],
+          "stageClear": [
+            "Stretch cleared. Next leg."
+          ],
+          "node1": [
+            "One node down. Three to go."
+          ],
+          "shield": [
+            "Shield's failing. Hold your line."
+          ],
+          "hull40": [
+            "Hull's at forty. Mind the gauges."
+          ],
+          "core50": [
+            "Core reads half. Steady on."
+          ],
+          "win": [
+            "Run's done. Good water ahead."
+          ],
+          "lose": [
+            "Run's over. Back to dock, we regroup."
+          ]
+        }
+      }
+    }
+  },
+  "scenes": {
+    "welcome": {
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "HARDLAND.EXE — Meridian Holdings has a hull breach in a platform shaft, and the lower deck is going under. Algorithmic Data Solutions Ltd holds the evacuation-systems contract; you're the ones climbing out with what you can carry.\n\nOne of you climbs with the pack. One of you stays on comms, reading the ledge below and the water rising behind it. Nothing here is graded by speed."
+        }
+      ],
+      "choices": [
+        {
+          "id": "begin",
+          "text": "Begin",
+          "effects": {
+            "next": "lead-pick"
+          }
+        }
+      ]
+    },
+    "lead-pick": {
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Choose who climbs. This unit carries the pack and makes the call on every ledge."
+        }
+      ],
+      "choices": [
+        {
+          "id": "lead-infiltrator",
+          "text": "Infiltrator",
+          "effects": {
+            "flags_set": [
+              "lead-infiltrator"
+            ],
+            "next": "handler-pick-infiltrator"
+          }
+        },
+        {
+          "id": "lead-influencer",
+          "text": "Influencer",
+          "effects": {
+            "flags_set": [
+              "lead-influencer"
+            ],
+            "next": "handler-pick-influencer"
+          }
+        },
+        {
+          "id": "lead-nomad",
+          "text": "Nomad",
+          "effects": {
+            "flags_set": [
+              "lead-nomad"
+            ],
+            "next": "handler-pick-nomad"
+          }
+        },
+        {
+          "id": "lead-fixer",
+          "text": "Fixer",
+          "effects": {
+            "flags_set": [
+              "lead-fixer"
+            ],
+            "next": "handler-pick-fixer"
+          }
+        }
+      ]
+    },
+    "handler-pick-infiltrator": {
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Choose who stays on comms. This unit reads the shaft and calls the weight limit."
+        }
+      ],
+      "choices": [
+        {
+          "id": "handler-influencer",
+          "text": "Influencer",
+          "effects": {
+            "flags_set": [
+              "handler-influencer"
+            ],
+            "next": "brief-infiltrator"
+          }
+        },
+        {
+          "id": "handler-nomad",
+          "text": "Nomad",
+          "effects": {
+            "flags_set": [
+              "handler-nomad"
+            ],
+            "next": "brief-infiltrator"
+          }
+        },
+        {
+          "id": "handler-fixer",
+          "text": "Fixer",
+          "effects": {
+            "flags_set": [
+              "handler-fixer"
+            ],
+            "next": "brief-infiltrator"
+          }
+        }
+      ]
+    },
+    "brief-infiltrator": {
+      "event": "begin",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Readme — THE SHAFT.TXT\n\nEight items are staged at the base of the shaft. Weight limit for the first ledge: 13. Go over, and the pack does not close.\n\nSome items anchor others — pack a dependent before its anchor and the ladder will not take it; drop an anchor and whatever depends on it comes back out with it.\n\nTwo fields are required before you climb: why this pack holds, and what you left behind on purpose. Fill both, then climb."
+        },
+        {
+          "speaker": "handler",
+          "text": "Line's open. Report at each ledge; nothing else."
+        },
+        {
+          "speaker": "lead",
+          "text": "Pack's light, hatch is clear. Let's see what the logs don't already know."
+        },
+        {
+          "speaker": "data",
+          "text": "You are the Infiltrator, climbing a flooding Meridian Holdings platform shaft with everything you can carry before the water decides for you; your Handler is on comms, keeping count of what it costs."
+        }
+      ],
+      "choices": [
+        {
+          "id": "to-pack",
+          "text": "Start the climb",
+          "effects": {
+            "next": "pack-1"
+          }
+        }
+      ]
+    },
+    "compel-infiltrator": {
+      "event": "core50",
+      "compel": {
+        "trouble": "My Former Employer Wants Me Back or Dead",
+        "offer": "Mid-climb, a line opens on the old contract. Your former employer's people can force the upper hatch, but only if their cameras ride the line up with you. Take it, or the hatch stays sealed and logged against you.",
+        "acceptText": "You take the key. Sponsor feed goes in the pack, locked, weight 2. +1 Fate point, logged.",
+        "refuseText": "You cut the line. Hatch stays sealed; you spend your starting Fate point instead.",
+        "accept": {
+          "effects": {
+            "flags_set": [
+              "forced-sponsor"
+            ],
+            "next": "pack-2"
+          }
+        },
+        "refuse": {
+          "effects": {
+            "next": "pack-2"
+          }
+        }
+      }
+    },
+    "handler-pick-influencer": {
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Choose who stays on comms. This unit reads the shaft and calls the weight limit."
+        }
+      ],
+      "choices": [
+        {
+          "id": "handler-infiltrator",
+          "text": "Infiltrator",
+          "effects": {
+            "flags_set": [
+              "handler-infiltrator"
+            ],
+            "next": "brief-influencer"
+          }
+        },
+        {
+          "id": "handler-nomad",
+          "text": "Nomad",
+          "effects": {
+            "flags_set": [
+              "handler-nomad"
+            ],
+            "next": "brief-influencer"
+          }
+        },
+        {
+          "id": "handler-fixer",
+          "text": "Fixer",
+          "effects": {
+            "flags_set": [
+              "handler-fixer"
+            ],
+            "next": "brief-influencer"
+          }
+        }
+      ]
+    },
+    "brief-influencer": {
+      "event": "begin",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Readme — THE SHAFT.TXT\n\nEight items are staged at the base of the shaft. Weight limit for the first ledge: 13. Go over, and the pack does not close.\n\nSome items anchor others — pack a dependent before its anchor and the ladder will not take it; drop an anchor and whatever depends on it comes back out with it.\n\nTwo fields are required before you climb: why this pack holds, and what you left behind on purpose. Fill both, then climb."
+        },
+        {
+          "speaker": "handler",
+          "text": "You're live. Climb like everyone's watching, because they are."
+        },
+        {
+          "speaker": "lead",
+          "text": "Camera's rolling. Let's give them a climb worth watching."
+        },
+        {
+          "speaker": "data",
+          "text": "You are the Influencer, climbing a flooding Meridian Holdings platform shaft with everything you can carry before the water decides for you; your Handler is on comms, keeping count of what it costs."
+        }
+      ],
+      "choices": [
+        {
+          "id": "to-pack",
+          "text": "Start the climb",
+          "effects": {
+            "next": "pack-1"
+          }
+        }
+      ]
+    },
+    "compel-influencer": {
+      "event": "core50",
+      "compel": {
+        "trouble": "I Can't Turn Off — The Stream Is Always Running",
+        "offer": "Mid-climb, Meridian pings the sponsor line. The stream is always running, and they want this climb live. Give them the feed, or the audience watches you cut to black at the worst possible ledge.",
+        "acceptText": "You give them the feed. It goes in the pack, locked, weight 2. +1 Fate point, on record.",
+        "refuseText": "You cut to a sponsor plug instead. Spend your starting Fate point; the real feed stays out.",
+        "accept": {
+          "effects": {
+            "flags_set": [
+              "forced-sponsor"
+            ],
+            "next": "pack-2"
+          }
+        },
+        "refuse": {
+          "effects": {
+            "next": "pack-2"
+          }
+        }
+      }
+    },
+    "handler-pick-nomad": {
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Choose who stays on comms. This unit reads the shaft and calls the weight limit."
+        }
+      ],
+      "choices": [
+        {
+          "id": "handler-infiltrator",
+          "text": "Infiltrator",
+          "effects": {
+            "flags_set": [
+              "handler-infiltrator"
+            ],
+            "next": "brief-nomad"
+          }
+        },
+        {
+          "id": "handler-influencer",
+          "text": "Influencer",
+          "effects": {
+            "flags_set": [
+              "handler-influencer"
+            ],
+            "next": "brief-nomad"
+          }
+        },
+        {
+          "id": "handler-fixer",
+          "text": "Fixer",
+          "effects": {
+            "flags_set": [
+              "handler-fixer"
+            ],
+            "next": "brief-nomad"
+          }
+        }
+      ]
+    },
+    "brief-nomad": {
+      "event": "begin",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Readme — THE SHAFT.TXT\n\nEight items are staged at the base of the shaft. Weight limit for the first ledge: 13. Go over, and the pack does not close.\n\nSome items anchor others — pack a dependent before its anchor and the ladder will not take it; drop an anchor and whatever depends on it comes back out with it.\n\nTwo fields are required before you climb: why this pack holds, and what you left behind on purpose. Fill both, then climb."
+        },
+        {
+          "speaker": "handler",
+          "text": "Rope's set. Climb steady, mind the water."
+        },
+        {
+          "speaker": "lead",
+          "text": "Line's tied off. Let's see what's still bolted down there."
+        },
+        {
+          "speaker": "data",
+          "text": "You are the Nomad, climbing a flooding Meridian Holdings platform shaft with everything you can carry before the water decides for you; your Handler is on comms, keeping count of what it costs."
+        }
+      ],
+      "choices": [
+        {
+          "id": "to-pack",
+          "text": "Start the climb",
+          "effects": {
+            "next": "pack-1"
+          }
+        }
+      ]
+    },
+    "compel-nomad": {
+      "event": "core50",
+      "compel": {
+        "trouble": "My Boat Is Falling Apart and Repairs Cost More Than I Make",
+        "offer": "Mid-climb, Meridian radios up: full repairs, no argument, if their camera rides the ladder with you. Take it and the feed's bolted into the pack. Turn it down and the boat stays as broke as it was.",
+        "acceptText": "Deal's done. Feed goes in the pack, locked, weight 2, repairs covered. +1 Fate point.",
+        "refuseText": "Deal's off. Spend your starting Fate point; boat stays broke, feed stays out of the pack.",
+        "accept": {
+          "effects": {
+            "flags_set": [
+              "forced-sponsor"
+            ],
+            "next": "pack-2"
+          }
+        },
+        "refuse": {
+          "effects": {
+            "next": "pack-2"
+          }
+        }
+      }
+    },
+    "handler-pick-fixer": {
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Choose who stays on comms. This unit reads the shaft and calls the weight limit."
+        }
+      ],
+      "choices": [
+        {
+          "id": "handler-infiltrator",
+          "text": "Infiltrator",
+          "effects": {
+            "flags_set": [
+              "handler-infiltrator"
+            ],
+            "next": "brief-fixer"
+          }
+        },
+        {
+          "id": "handler-influencer",
+          "text": "Influencer",
+          "effects": {
+            "flags_set": [
+              "handler-influencer"
+            ],
+            "next": "brief-fixer"
+          }
+        },
+        {
+          "id": "handler-nomad",
+          "text": "Nomad",
+          "effects": {
+            "flags_set": [
+              "handler-nomad"
+            ],
+            "next": "brief-fixer"
+          }
+        }
+      ]
+    },
+    "brief-fixer": {
+      "event": "begin",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Readme — THE SHAFT.TXT\n\nEight items are staged at the base of the shaft. Weight limit for the first ledge: 13. Go over, and the pack does not close.\n\nSome items anchor others — pack a dependent before its anchor and the ladder will not take it; drop an anchor and whatever depends on it comes back out with it.\n\nTwo fields are required before you climb: why this pack holds, and what you left behind on purpose. Fill both, then climb."
+        },
+        {
+          "speaker": "handler",
+          "text": "You're covered, for now. Climb fast — nobody covers slow."
+        },
+        {
+          "speaker": "lead",
+          "text": "Everyone's covered. Let's see what this climb costs us."
+        },
+        {
+          "speaker": "data",
+          "text": "You are the Fixer, climbing a flooding Meridian Holdings platform shaft with everything you can carry before the water decides for you; your Handler is on comms, keeping count of what it costs."
+        }
+      ],
+      "choices": [
+        {
+          "id": "to-pack",
+          "text": "Start the climb",
+          "effects": {
+            "next": "pack-1"
+          }
+        }
+      ]
+    },
+    "compel-fixer": {
+      "event": "core50",
+      "compel": {
+        "trouble": "I Owe Favors to Rival Corps — They'll Both Call Them In",
+        "offer": "Mid-climb, a rival corp calls in what you owe them: keep Meridian's cameras rolling and the debt's marked paid. Say yes and the feed's locked into the pack. Say no and you're still carrying that favor.",
+        "acceptText": "Debt's marked paid. Feed goes in the pack, locked, weight 2. +1 Fate point banked.",
+        "refuseText": "Debt stays open. Spend your starting Fate point; the feed never goes in the pack.",
+        "accept": {
+          "effects": {
+            "flags_set": [
+              "forced-sponsor"
+            ],
+            "next": "pack-2"
+          }
+        },
+        "refuse": {
+          "effects": {
+            "next": "pack-2"
+          }
+        }
+      }
+    },
+    "pack-1": {
+      "pack": {
+        "round": 1,
+        "limit": 13,
+        "required": [],
+        "badges": false,
+        "fields": [
+          {
+            "id": "r1reason",
+            "label": "Why does this pack hold, under the limit of 13?"
+          },
+          {
+            "id": "r1defer",
+            "label": "What did you leave behind on purpose, and why?"
+          }
+        ],
+        "submitLabel": "Climb",
+        "confirm": "Climb with this pack? Weight {weight} of {limit}. Once you climb, the ledge below is gone.",
+        "flags_set": [
+          "slice-r1"
+        ],
+        "next": "climbing-1"
+      }
+    },
+    "climbing-1": {
+      "event": "stageClear",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Sealing lower deck..."
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Continue",
+          "effects": {
+            "next": "complication"
+          }
+        }
+      ]
+    },
+    "complication": {
+      "complication": true,
+      "event": "hull40",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "[SYSTEM ALERT] The water has taken the lower deck. Weight limit for this ledge: 10. Half the crew waiting below has no neural chrome, and the manual ladder release is the only way up that doesn't need it. The climb refuses without it in the pack."
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue-infiltrator",
+          "text": "Continue",
+          "conditions": {
+            "flags_set": [
+              "lead-infiltrator"
+            ]
+          },
+          "effects": {
+            "next": "compel-infiltrator"
+          }
+        },
+        {
+          "id": "continue-influencer",
+          "text": "Continue",
+          "conditions": {
+            "flags_set": [
+              "lead-influencer"
+            ]
+          },
+          "effects": {
+            "next": "compel-influencer"
+          }
+        },
+        {
+          "id": "continue-nomad",
+          "text": "Continue",
+          "conditions": {
+            "flags_set": [
+              "lead-nomad"
+            ]
+          },
+          "effects": {
+            "next": "compel-nomad"
+          }
+        },
+        {
+          "id": "continue-fixer",
+          "text": "Continue",
+          "conditions": {
+            "flags_set": [
+              "lead-fixer"
+            ]
+          },
+          "effects": {
+            "next": "compel-fixer"
+          }
+        }
+      ]
+    },
+    "pack-2": {
+      "pack": {
+        "round": 2,
+        "limit": 10,
+        "required": [
+          "ladder-release"
+        ],
+        "badges": true,
+        "locked_if": {
+          "forced-sponsor": "sponsor-stream-feed"
+        },
+        "fields": [
+          {
+            "id": "r2change",
+            "label": "What changed under the limit of 10, and why?"
+          },
+          {
+            "id": "r2tradeoff",
+            "label": "What trade-off did you accept to make the new limit?"
+          }
+        ],
+        "submitLabel": "Climb",
+        "confirm": "Climb with this pack? Weight {weight} of {limit}. Once you climb, the ledge below is gone.",
+        "flags_unset": [
+          "slice-r1"
+        ],
+        "flags_set": [
+          "slice-r2"
+        ],
+        "next": "climbing-2"
+      }
+    },
+    "climbing-2": {
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Reading the new limit..."
+        }
+      ],
+      "choices": [
+        {
+          "id": "continue",
+          "text": "Continue",
+          "effects": {
+            "next": "top"
+          }
+        }
+      ]
+    },
+    "top": {
+      "event": "win",
+      "messages": [
+        {
+          "speaker": "system",
+          "text": "Uplink closing. What came up the shaft is below. The record is what you packed, dropped, and why."
+        }
+      ],
+      "choices": []
+    }
+  },
+  "record": {
+    "title": "M3 Product Owner Decision Record",
+    "layout": "m3-product-owner"
+  }
+}
