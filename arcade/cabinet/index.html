@@ -907,9 +907,10 @@
   /* ---------- haptics ---------- */
   let hapticsEnabled = !reducedMotion;
   try { const stored = localStorage.getItem('htll.cabinet.haptics'); if(stored!==null) hapticsEnabled = stored==='1'; } catch(e){}
+  if(reducedMotion) hapticsEnabled = false;
   let lastFireHaptic = 0;
   function haptic(kind){
-    if(!hapticsEnabled || !navigator.vibrate) return;
+    if(reducedMotion || !hapticsEnabled || !navigator.vibrate) return;
     const now = performance.now();
     if(kind==='fire'){ if(now-lastFireHaptic<110) return; lastFireHaptic=now; navigator.vibrate(4); }
     else if(kind==='damage') navigator.vibrate(28);
@@ -917,6 +918,13 @@
     else if(kind==='shield') navigator.vibrate([40,30,40]);
   }
   function setHaptics(on){
+    if(reducedMotion){
+      hapticsEnabled = false;
+      ui.haptics.setAttribute('aria-pressed', 'false');
+      ui.haptics.style.opacity = '.55';
+      ui.haptics.title = 'Off under reduced motion';
+      return;
+    }
     hapticsEnabled = on; ui.haptics.setAttribute('aria-pressed', on?'true':'false');
     ui.haptics.style.opacity = on? '1':'.55';
     try{ localStorage.setItem('htll.cabinet.haptics', on?'1':'0'); }catch(e){}

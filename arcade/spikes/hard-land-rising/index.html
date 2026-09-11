@@ -52,6 +52,9 @@
   .badge.tide{background:#3a2420; color:#e08f7b;}
   .badge.reopen{background:#213a3c; color:#7bd6e0;}
   .badge.locked{background:#3a3220; color:#e3b23c;}
+  .badge.swapin{background:#1e3a2e; color:#7be0b0;}
+  .badge.swapout{background:#3a281e; color:#e0a37b;}
+  .gate-note{min-height:1.2em; color:var(--danger); font-size:13px; font-weight:700; margin:6px 0 0;}
   label{display:block; font-weight:700; font-size:13px; margin:10px 0 4px;}
   textarea{width:100%; min-height:64px; background:#0c0f11; color:var(--ink); border:1px solid var(--line);
     border-radius:6px; padding:8px; font:inherit; resize:vertical;}
@@ -147,6 +150,7 @@
     <textarea id="r2change" placeholder="What you kept, dropped, or brought back — and why."></textarea>
     <label for="r2tradeoff">What trade-off did you accept?</label>
     <textarea id="r2tradeoff" placeholder="What did the reduced pack cost you?"></textarea>
+    <p id="climb2Reason" class="gate-note" role="status" aria-live="polite"></p>
     <button type="button" class="cta" id="btnClimb2">Climb</button>
   </section>
 
@@ -228,7 +232,9 @@ var state = {
   compelChoice: null,
   fatePoints: 1,
   ledgesClimbed: 0,
-  forcedLocked: new Set()
+  forcedLocked: new Set(),
+  round2ToggleOrder: {},
+  round2ToggleSeq: 0
 };
 
 function weightOf(set){
@@ -274,6 +280,7 @@ function toggleItem(id){
     if(toRemove.length>1){
       flash('Dropping '+item.title+' also drops '+(toRemove.length-1)+' item(s) anchored to it.');
     }
+    recordRound2Toggle(id);
   } else {
     if(!dependenciesSatisfied(item)){
       var missing = item.dep.filter(function(d){ return !state.packed.has(d); }).map(titleOf);
@@ -287,14 +294,46 @@ function toggleItem(id){
       return;
     }
     state.packed.add(id);
+    recordRound2Toggle(id);
   }
   render();
 }
 
-function itemStatusBadge(item){
+function recordRound2Toggle(id){
+  if(state.stage!=='round2') return;
+  state.round2ToggleSeq = (state.round2ToggleSeq||0)+1;
+  state.round2ToggleOrder[id] = state.round2ToggleSeq;
+}
+
+/* Swap = in round 2, an item left behind in round 1 gets packed while an item that
+   was packed in round 1 gets removed, in the same round. The most-recently-toggled
+   pair (by round-2 toggle order) is the swap pair; everything else keeps its plain
+   Reopened / Deferred badge. */
+function computeSwapPair(){
+  if(!state.round1Selection) return {swapIn:null, swapOut:null};
+  var reopenedCandidates = [], deferredCandidates = [];
+  ITEMS.forEach(function(item){
+    var wasIn = state.round1Selection.has(item.id);
+    var isIn = state.packed.has(item.id);
+    var order = (state.round2ToggleOrder && state.round2ToggleOrder[item.id]) || 0;
+    if(order<=0) return;
+    if(!wasIn && isIn) reopenedCandidates.push({id:item.id, order:order});
+    if(wasIn && !isIn) deferredCandidates.push({id:item.id, order:order});
+  });
+  if(!reopenedCandidates.length || !deferredCandidates.length) return {swapIn:null, swapOut:null};
+  reopenedCandidates.sort(function(a,b){ return b.order-a.order; });
+  deferredCandidates.sort(function(a,b){ return b.order-a.order; });
+  return {swapIn:reopenedCandidates[0].id, swapOut:deferredCandidates[0].id};
+}
+
+function itemStatusBadge(item, swapPair){
   if(!state.round1Selection) return null;
   var wasIn = state.round1Selection.has(item.id);
   var isIn = state.packed.has(item.id);
+  if(swapPair){
+    if(item.id===swapPair.swapIn) return {cls:'swapin', text:'Swapped in'};
+    if(item.id===swapPair.swapOut) return {cls:'swapout', text:'Swapped out'};
+  }
   if(wasIn && isIn) return {cls:'keep', text:'Keep'};
   if(wasIn && !isIn) return {cls:'tide', text:'Deferred by the tide'};
   if(!wasIn && isIn) return {cls:'reopen', text:'Reopened'};
@@ -304,6 +343,7 @@ function itemStatusBadge(item){
 function renderItems(containerId, showBadges){
   var el = $(containerId);
   el.innerHTML='';
+  var swapPair = showBadges ? computeSwapPair() : null;
   ITEMS.forEach(function(item){
     var btn=document.createElement('button');
     btn.type='button';
@@ -325,7 +365,7 @@ function renderItems(containerId, showBadges){
       btn.title = 'Locked — forced into the pack by the compel.';
     }
     var depText = item.dep.length ? item.dep.map(titleOf).join(', ') : (item.depNote || 'None');
-    var badge = showBadges ? itemStatusBadge(item) : null;
+    var badge = showBadges ? itemStatusBadge(item, swapPair) : null;
     var badgeHtml = '';
     if(badge) badgeHtml += '<span class="badge '+badge.cls+'">'+badge.text+'</span> ';
     if(lockedForced) badgeHtml += '<span class="badge locked">Locked — forced by the compel</span>';
@@ -378,9 +418,18 @@ function setVisible(id, on){
 var STAGE_IDS = ['stage-intro','stage-round1','stage-climbing1','stage-complication','stage-compel','stage-round2','stage-climbing2','stage-top'];
 
 function showStage(name){
+  var f = $('#flash');
+  if(f){ if(f._t) clearTimeout(f._t); f.textContent=''; }
   state.stage = name;
   STAGE_IDS.forEach(function(id){ setVisible(id, id==='stage-'+name); });
   render();
+}
+
+function round1FieldsValid(){
+  return $('#r1reason').value.trim()!=='' && $('#r1defer').value.trim()!=='';
+}
+function round2FieldsValid(){
+  return $('#r2change').value.trim()!=='' && $('#r2tradeoff').value.trim()!=='';
 }
 
 function render(){
@@ -388,11 +437,24 @@ function render(){
   if(state.stage==='round1'){
     renderItems('#items1', false);
     updateCapLine('#capLine1', 13);
-    $('#btnClimb1').disabled = false;
+    var w1 = weightOf(state.packed);
+    $('#btnClimb1').disabled = !(w1<=13 && round1FieldsValid());
   }
   if(state.stage==='round2'){
     renderItems('#items2', true);
     updateCapLine('#capLine2', 10);
+    var w2 = weightOf(state.packed);
+    var ladderOk = state.packed.has(LADDER_ID);
+    var capOk = w2<=10;
+    var fieldsOk = round2FieldsValid();
+    $('#btnClimb2').disabled = !(ladderOk && capOk && fieldsOk);
+    var reason = $('#climb2Reason');
+    if(reason){
+      if(!ladderOk) reason.textContent = 'Pack the manual ladder release to climb.';
+      else if(!capOk) reason.textContent = 'Pack exceeds 10 ('+w2+'/10). Drop something first.';
+      else if(!fieldsOk) reason.textContent = 'Fill both fields before you climb.';
+      else reason.textContent = '';
+    }
   }
   drawShaft();
 }
@@ -505,11 +567,15 @@ $('#btnCompelAccept').addEventListener('click', function(){
   state.fatePoints += 1;
   state.packed.add(SPONSOR_ID);
   state.forcedLocked.add(SPONSOR_ID);
+  state.round2ToggleOrder = {};
+  state.round2ToggleSeq = 0;
   showStage('round2');
 });
 $('#btnCompelRefuse').addEventListener('click', function(){
   state.compelChoice = 'refuse';
   state.fatePoints -= 1;
+  state.round2ToggleOrder = {};
+  state.round2ToggleSeq = 0;
   showStage('round2');
 });
 
@@ -535,6 +601,13 @@ $('#btnRestart').addEventListener('click', function(){
   location.reload();
 });
 
+['#r1reason','#r1defer'].forEach(function(sel){
+  $(sel).addEventListener('input', function(){ if(state.stage==='round1') render(); });
+});
+['#r2change','#r2tradeoff'].forEach(function(sel){
+  $(sel).addEventListener('input', function(){ if(state.stage==='round2') render(); });
+});
+
 /* ---------- record export ---------- */
 function buildRecord(){
   var r1 = state.round1Selection, r2 = state.round2Selection;
@@ -543,10 +616,20 @@ function buildRecord(){
     return '| '+it.title+' | '+it.weight+' | '+it.value+' | '+dep+' | '+it.risk+' | '+it.ready+' | '+(r1.has(it.id)?'Packed':'Left behind')+' |';
   }).join('\n');
 
+  var swapPair = computeSwapPair();
   var removed = ITEMS.filter(function(it){ return r1.has(it.id) && !r2.has(it.id); })
-    .map(function(it){ return '- '+it.title+' — deferred by the tide'; });
+    .map(function(it){
+      var reason = (swapPair.swapOut===it.id) ? 'swapped out for '+titleOf(swapPair.swapIn) : 'deferred by the tide';
+      return '- '+it.title+' — '+reason;
+    });
   var added = ITEMS.filter(function(it){ return !r1.has(it.id) && r2.has(it.id); })
-    .map(function(it){ return '- '+it.title+' — '+(it.id===SPONSOR_ID && state.compelChoice==='accept' ? 'forced in by the compel' : 'reopened after the tide'); });
+    .map(function(it){
+      var reason;
+      if(it.id===SPONSOR_ID && state.compelChoice==='accept') reason = 'forced in by the compel';
+      else if(swapPair.swapIn===it.id) reason = 'swapped in for '+titleOf(swapPair.swapOut);
+      else reason = 'reopened after the tide';
+      return '- '+it.title+' — '+reason;
+    });
   var revisedList = ITEMS.filter(function(it){ return r2.has(it.id); })
     .map(function(it){ return '- '+it.title+' ('+it.weight+' pts)'; });
 
@@ -632,6 +715,9 @@ document.addEventListener('keydown', function(ev){
     };
     var sel = map[state.stage];
     if(sel && tag!=='BUTTON'){ var b=$(sel); if(b) b.click(); }
+  } else if(ev.key==='Escape' || ev.key==='Esc'){
+    var openPanels = document.querySelectorAll('.frame-bar details[open]');
+    for(var i=0;i<openPanels.length;i++){ openPanels[i].removeAttribute('open'); }
   }
 });
 

@@ -20,7 +20,8 @@ Total 26; round 1 cap 13, round 2 cap 10 — identical to ST-01..ST-08. Ladder r
 ## The rounds
 **R1 (cap 13).** Tap/number-key items in; dependencies are anchors (can't pack a dependent first; unpacking an anchor cascades). Two required fields, then Climb.
 **Complication.** Pack persists; cap drops to 10; ladder release becomes mandatory (Climb refuses without it) — the StudyTrack accessibility beat, restated as "the crew below has no chrome."
-**R2 (cap 10).** Same pack, edited. Every item shows a live badge — Keep / Deferred by the tide / Reopened — so all five verbs are reachable through one toggle. Two required fields, then Climb.
+**R2 (cap 10).** Same pack, edited. Every item shows a live badge — Keep / Deferred by the tide / Reopened / Locked (compel) — so all five verbs (keep/remove/swap/defer/reopen) are reachable through one toggle. Two required fields, then Climb.
+**Swap.** Packing a left-behind item while removing a previously-packed item in the same round badges the most-recently-toggled pair Swapped in / Swapped out instead of Reopened / Deferred by the tide; the record notes the swap under Removed/Added after complication.
 
 ## The compel
 After the complication, the Fixer relays Meridian's offer against the Nomad's Trouble *My Boat Is Falling Apart and Repairs Cost More Than I Make*: accept → +1 Fate point, sponsor feed forced in (locked, counts against 10); refuse → spend the starting Fate point. Recorded either way.
@@ -30,6 +31,7 @@ Hull → the pack limit itself. Score → **Shifts** (+1/ledge, −1/deferred it
 
 ## How to play
 Open `index.html`, no server/network. Start, pack the eight items (tap or 1–8), fill both fields, Climb. Read the complication, choose the compel, revise under 10 plus the ladder gate, fill both fields, Climb. Copy/download the record at the top.
+**Keyboard.** Digits 1–8 toggle the matching item in the current round; Enter activates that round's Climb (or Continue) button when enabled; Esc closes an open F1/F2 panel. All three are ignored while focus is in a textarea.
 
 ## What was verified
 Playwright (headless Chromium `chromium_headless_shell-1194`, explicit `executablePath`) drove `file://` end to end: packed R1 (10/13); confirmed anchor-unpack cascades; climbed, cap dropped to 10; accepted the compel (pack over limit at 12/10 until revised); deferred one item, reopened another within budget, badges matched; over-limit items disable proactively with a stated reason instead of refuse-on-click; climbed to the top; exported record contains `Removed after complication`, `Added after complication`, and `Transfer to DataMan` verbatim, plus the R1 table, both field pairs, and a Shifts line; copy works via an `execCommand` fallback (no clipboard permission headless); zero console/page errors. Re-ran with `javaScriptEnabled:false`: F2 opens natively, its first sentence matches verbatim, `Back to Canvas` links to faytechcc.instructure.com. Screenshots: `smoke-round1.png`, `smoke-complication.png`, `smoke-round2.png`.

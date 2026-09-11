@@ -6,7 +6,9 @@ governance, and the per-module cartridge concepts are recorded on the course sid
 `AMLW05/cts-285-course-simulations/planning/HTLL-SIMULATIONS-AND-ARCADE-CABINET-PLAN-2026-09-10.md`.
 This file holds what is HTLL's to define: the personas, the format, and the reference build.
 
-**Status: proposed.** The reference build is the only runnable thing here.
+**Status: in build.** Five files run today: `cabinet/index.html`, `cabinet/scene-runner.html`,
+`spikes/hard-land-rising/index.html`, `cartridges/m2-suspended-coastal/index.html`, and the
+unchanged reference build at `hardwired-coast/index.html`.
 
 ## Layout
 
@@ -16,10 +18,16 @@ arcade/
   hardwired-coast/
     index.html                    field build 0.8, the reference build, unchanged
     REVIEW-2026-09-10.md          the review that becomes the shell's first sprint
-  cabinet/                        (planned) the shared shell: input profiles, event record,
-                                  frame bar, record exporter, profile switch
-  cartridges/                     (planned) one JSON + one stage module per module
-  personas/                       (planned) six pair sheets
+  cabinet/                        the shared shell
+    index.html                    the cabinet: input profiles, event record, frame bar,
+                                  profile switch, arcade run
+    scene-runner.html             the turn-based runner, with a demo scene
+    build.py                      checks the inlined persona block against personas.json
+  cartridges/
+    m2-suspended-coastal/         M2's cartridge: wizard, pings, position, complication, revision
+  spikes/
+    hard-land-rising/             M3 spike: capacity, complication, compel
+  personas/                       six pair sheets plus personas.json and the palette record
 ```
 
 Phase note: this is technical implementation, which the project deferred to Phase 3. A
@@ -44,7 +52,8 @@ does not make a wrong triage right, and it does not make a right one score highe
 | Reflexes | — | Handling |
 | Body | — | Hull, arcade profile only |
 
-Each playbook brings one move and one Trouble into the cabinet:
+Each playbook brings one move and one Trouble into the cabinet. The moves are specification
+for the next build; the cabinet today implements only the Trouble and its compel.
 
 | Playbook | Move in the cabinet | Trouble that gets compelled |
 |---|---|---|
@@ -54,26 +63,25 @@ Each playbook brings one move and one Trouble into the cabinet:
 | Fixer | **I Know Someone Who Can Help** — once per run, bring in a specialist who answers one question for free; the favour is recorded | *I Owe Favors to Rival Corps — They'll Both Call Them In* |
 
 The six pairs, with the crossing that seeds the opening exchange (from the phase-trio
-crossings where one exists; the others are to be written):
+crossings, now written up in each pair sheet under `arcade/personas/`):
 
 | Pair | Lead / Handler default | Opening seed |
 |---|---|---|
 | Infiltrator + Nomad | Infiltrator / Nomad | *Extraction Protocol Tango* — the Nomad gets the Infiltrator out |
-| Infiltrator + Fixer | Infiltrator / Fixer | to write |
-| Infiltrator + Influencer | Infiltrator / Influencer | to write: secrecy against performance |
-| Nomad + Fixer | Nomad / Fixer | to write: the Fixer books the berths the Nomad runs |
-| Nomad + Influencer | Nomad / Influencer | to write: the smuggling partner on camera |
-| Fixer + Influencer | Influencer / Fixer | to write: the sponsor's broker |
+| Infiltrator + Fixer | Infiltrator / Fixer | *The Introduction That Wasn't Free* |
+| Infiltrator + Influencer | Infiltrator / Influencer | *The Feed That Almost Burned Her* |
+| Nomad + Fixer | Nomad / Fixer | *Berths Booked in Advance* |
+| Nomad + Influencer | Nomad / Influencer | *The Smuggling Partner on Camera* |
+| Fixer + Influencer | Influencer / Fixer | *The Sponsor's Broker* |
 
-Either persona can be Lead; the table gives the default. Each pair sheet holds the six event
-lines (encounter begins; first node breaks; shield fails; hull first below 40 %; core at 50 %;
-victory or defeat), the opening exchange, and the compel text. Lines are under 90 characters.
-No line names a DataMan behaviour.
+Either persona can be Lead; the table gives the default. Each pair sheet holds the eight event
+lines (`begin`, `stageClear`, `node1`, `shield`, `hull40`, `core50`, `win`, `lose`), the opening
+exchange, and the compel text. Lines are under 90 characters. No line names a DataMan behaviour.
 
 **Palettes.** Infiltrator orange `#FF6B35` / teal `#1B4D5C`. Influencer magenta `#FF006E` /
-navy `#0A1F44` with gold accents. Nomad cyan `#00D9FF` / purple `#4A0E4E`. **The Fixer has no
-palette on record and needs one before the Fixer pair sheets are drawn.** Face, Hacker, and
-Enforcer are not canonical and are not in the cabinet.
+navy `#0A1F44` with gold accents. Nomad cyan `#00D9FF` / purple `#4A0E4E`. Fixer brass
+`#C89B3C` on ledger green `#0B3D2E`, recorded in `personas/personas.json` and
+`personas/README.md`. Face, Hacker, and Enforcer are not canonical and are not in the cabinet.
 
 ## Stakes: the two profiles
 
@@ -141,11 +149,13 @@ Conventions fixed on the way in:
 
 ## The event record and the banter writer
 
-Every cartridge emits `{event, stage, band, retries, controlMode, personaPair, decision}` to
+The cabinet shell emits `{event, stage, band, retries, controlMode, personaPair, decision}` to
 one local writer, which picks an authored line from the pair sheet. That is the review's
 `{event, hullBand, accuracyBand, retries, controlMode}` with two fields added. Authored offline
 lines are the default and the fallback; a live connection, if one is ever made, sits behind
-the same record.
+the same record. The scene runner and the M2 cartridge log scene choices and checks instead of
+this record; the runner's log is the seam where an adapter will emit the same record. That
+adapter is not built yet.
 
 ## The frame bar
 

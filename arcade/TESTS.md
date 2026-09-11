@@ -38,9 +38,9 @@ and every `cartridges/*/index.html`.
 
 | ID | Check | Expected | Probe |
 |---|---|---|---|
-| B-01 | Pick two personas | Start disabled until exactly two are selected | click `#nomad`, `#fixer`; `#startBtn` enabled |
+| B-01 | Pick two personas | Start disabled until exactly two are selected | click `[data-id="nomad"]`, `[data-id="fixer"]`; `#startBtn` enabled |
 | B-02 | Lead / Handler swap | `#roleSummary` swaps names; `#openingPreview` changes | click `#swapRoleBtn` |
-| B-03 | Profile default | First load is classroom | `localStorage['htll.cabinet.profile']` unset → `#boardPanel` visible, `#arcadeMeters` hidden |
+| B-03 | Profile default | First load is classroom | `localStorage['htll.cabinet.profile']` unset; pick two personas, click `#startBtn` → `#boardPanel` visible, `#arcadeMeters` hidden |
 | B-04 | Arcade profile | Hull and score visible, board hidden | set profile arcade; `#hullBar`, `#scoreText` visible |
 | B-05 | TRACE steer / aim | Pointer near the air car steers; elsewhere fires, including left of centre | synthetic pointerdown at player x−10; at x=40 → shot spawned |
 | B-06 | Aim reticle and lock | Reticle drawn at aim; lock bracket when aim ray crosses an enemy; one tone per lock | inspect draw calls or expose `game.lock` |
