@@ -1,0 +1,130 @@
+{
+  "wreck-rat": {
+    "name": "Wreck rat",
+    "rating": 1,
+    "stress": 3,
+    "attack": {
+      "rating": 1,
+      "track": "meat"
+    },
+    "breakAt": {
+      "dead": 2
+    }
+  },
+  "gull": {
+    "name": "Scavenger gull",
+    "rating": 1,
+    "stress": 1,
+    "attack": {
+      "rating": 1,
+      "track": "meat"
+    }
+  },
+  "custodian": {
+    "name": "Custodian unit",
+    "rating": 2,
+    "stress": 4,
+    "attack": {
+      "rating": 1,
+      "track": "meat"
+    }
+  },
+  "tick-drone": {
+    "name": "Tick drone",
+    "rating": 3,
+    "stress": 3,
+    "attack": {
+      "rating": 3,
+      "track": "systems"
+    }
+  },
+  "plate-crab": {
+    "name": "Plate crab",
+    "rating": 4,
+    "stress": 6,
+    "attack": {
+      "rating": 2,
+      "track": "meat"
+    },
+    "breakAt": {
+      "marked": 3
+    }
+  },
+  "dead-suit": {
+    "name": "Dead suit",
+    "rating": 3,
+    "stress": 5,
+    "attack": {
+      "rating": 2,
+      "track": "meat"
+    }
+  },
+  "kelp-hand": {
+    "name": "Kelp Line hand",
+    "rating": 3,
+    "stress": 3,
+    "attack": {
+      "rating": 1,
+      "track": "meat"
+    },
+    "breakAt": {
+      "dead": 2
+    }
+  },
+  "kelp-mate": {
+    "name": "Kelp Line mate",
+    "rating": 4,
+    "stress": 5,
+    "attack": {
+      "rating": 3,
+      "track": "meat"
+    }
+  },
+  "rook": {
+    "name": "Oriel Rook",
+    "rating": 4,
+    "stress": 6,
+    "attack": {
+      "rating": 4,
+      "track": "meat"
+    },
+    "breakAt": {
+      "marked": 3
+    }
+  },
+  "hobb": {
+    "name": "Hobb",
+    "rating": 4,
+    "stress": 6,
+    "attack": {
+      "rating": 4,
+      "track": "meat"
+    }
+  },
+  "moray": {
+    "name": "The Moray",
+    "rating": 4,
+    "stress": 14,
+    "attack": {
+      "rating": 4,
+      "track": "meat"
+    },
+    "aura": {
+      "check": {
+        "stat": "body",
+        "difficulty": 1
+      },
+      "condition": "shocked",
+      "avoid": "guard"
+    }
+  },
+  "moray-exposed": {
+    "name": "The Moray, leash exposed",
+    "rating": 3,
+    "stress": 3,
+    "attack": {
+      "rating": 4,
+      "track": "systems"
+    }
+  }
+}

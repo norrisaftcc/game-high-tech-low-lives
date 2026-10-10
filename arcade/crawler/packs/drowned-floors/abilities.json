@@ -1,0 +1,113 @@
+{
+  "nobody-stops-me": {
+    "name": "Nobody Stops Me",
+    "text": "Once a delve. Walks the party past a guard or a gate.",
+    "kind": "fate", "per": "delve", "uses": 1, "when": "scene", "target": "none", "effects": {}
+  },
+  "familiar-ground": {
+    "name": "Familiar Ground",
+    "text": "Once a delve. You know this kind of place. A choice may show a way.",
+    "kind": "fate", "per": "delve", "uses": 1, "when": "scene", "target": "none", "effects": {}
+  },
+  "know-someone": {
+    "name": "I Know Someone Who Can Help",
+    "text": "Once a delve. A contact helps with one fact.",
+    "kind": "fate", "per": "delve", "uses": 1, "when": "scene", "target": "none", "effects": {}
+  },
+  "trouble-boat": {
+    "name": "Trouble: The Mirasol Is Falling Apart",
+    "text": "Once a delve. The Trouble comes up. Take a Fate point, or pay one to refuse.",
+    "kind": "fate", "per": "delve", "uses": 1, "when": "scene", "target": "none", "effects": {}
+  },
+  "trouble-employer": {
+    "name": "Trouble: My Former Employer Wants Me Back or Dead",
+    "text": "Once a delve. The Trouble comes up. Take a Fate point, or pay one to refuse.",
+    "kind": "fate", "per": "delve", "uses": 1, "when": "scene", "target": "none", "effects": {}
+  },
+  "trouble-stream": {
+    "name": "Trouble: The Stream Is Always Running",
+    "text": "Once a delve. The Trouble comes up. Take a Fate point, or pay one to refuse.",
+    "kind": "fate", "per": "delve", "uses": 1, "when": "scene", "target": "none", "effects": {}
+  },
+  "trouble-favours": {
+    "name": "Trouble: I Owe Favors to Rival Corps",
+    "text": "Once a delve. The Trouble comes up. Take a Fate point, or pay one to refuse.",
+    "kind": "fate", "per": "delve", "uses": 1, "when": "scene", "target": "none", "effects": {}
+  },
+  "the-stream": {
+    "name": "The Stream",
+    "text": "Once a delve. +2 to every roll in one fight.",
+    "kind": "power", "per": "delve", "uses": 1, "when": "fight", "target": "self",
+    "effects": {
+      "bonus": { "who": "self", "amount": 2, "scope": "fight" },
+      "flag": { "set": ["on-stream"] },
+      "say": ["The feed goes live. The chat goes wild. Everything now is on the record."]
+    }
+  },
+  "pressure-mods": {
+    "name": "Pressure Adaptation Mods",
+    "text": "Once a rest. The party can walk the flooded stair.",
+    "kind": "chrome", "per": "rest", "uses": 1, "when": "map", "target": "none",
+    "effects": {
+      "flag": { "set": ["pressure-ready"] },
+      "say": ["Reyes shuts down his lungs and loads the mods. Cold water holds no fear for him now."]
+    }
+  },
+  "deck-port": {
+    "name": "Deck Port: Spoof",
+    "text": "Once a rest. Spoofs a drone. On a success it parks itself.",
+    "kind": "chrome", "per": "rest", "uses": 1, "when": "fight", "target": "foe",
+    "check": { "stat": "code", "difficulty": 2 },
+    "on": {
+      "success": {
+        "condition": { "who": "foe", "add": "asleep" },
+        "say": ["The drone reads a friendly badge and parks itself."]
+      },
+      "tie": {
+        "condition": { "who": "foe", "add": "asleep" },
+        "damage": { "who": "self", "amount": 1, "track": "systems" },
+        "say": ["It parks. The feedback burns the port."]
+      },
+      "fail": {
+        "damage": { "who": "self", "amount": 1, "track": "systems" },
+        "say": ["Rejected. The ICE bites back."]
+      }
+    }
+  },
+  "pattern-suite": {
+    "name": "Pattern Recognition Suite",
+    "text": "Once a rest. +2 to your next roll.",
+    "kind": "chrome", "per": "rest", "uses": 1, "when": "map", "target": "none",
+    "effects": {
+      "bonus": { "who": "self", "amount": 2, "scope": "next" },
+      "say": ["Ann lets the suite run. Patterns line up in the dark."]
+    }
+  },
+  "steady-hands": {
+    "name": "Enhanced Dexterity",
+    "text": "Once a rest. +2 to your next roll.",
+    "kind": "chrome", "per": "rest", "uses": 1, "when": "map", "target": "none",
+    "effects": {
+      "bonus": { "who": "self", "amount": 2, "scope": "next" },
+      "say": ["Reiko turns the camera on her own hands. Chat holds its breath."]
+    }
+  },
+  "analysis-overlay": {
+    "name": "Analysis Overlay",
+    "text": "Once a rest. +2 to your next roll.",
+    "kind": "chrome", "per": "rest", "uses": 1, "when": "map", "target": "none",
+    "effects": {
+      "bonus": { "who": "self", "amount": 2, "scope": "next" },
+      "say": ["Marcus lets the overlay paint the room. Tells show up in amber."]
+    }
+  },
+  "apex-optics": {
+    "name": "Apex Optics Suite V7",
+    "text": "Once a rest. +2 to your next roll.",
+    "kind": "chrome", "per": "rest", "uses": 1, "when": "map", "target": "none",
+    "effects": {
+      "bonus": { "who": "self", "amount": 2, "scope": "next" },
+      "say": ["Kaida's eyes shift to thermal. The logo is in frame, of course."]
+    }
+  }
+}

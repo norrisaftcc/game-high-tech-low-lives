@@ -1,0 +1,99 @@
+{
+  "id": "waterline",
+  "title": "The Wreck Pier",
+  "tier": "The Waterline",
+  "grid": [
+    "###>#########",
+    "#eeeee#ddddd#",
+    "#eeeee.ddddd#",
+    "###.####.####",
+    "#bbb+cc#.####",
+    "#bbb#cc#.####",
+    "#bbb.aaaaaaa#",
+    "##S##aaaaaaa<",
+    "##>##########"
+  ],
+  "legend": {
+    "a": {
+      "area": "S1"
+    },
+    "b": {
+      "area": "S2"
+    },
+    "c": {
+      "area": "S3"
+    },
+    "d": {
+      "area": "S4"
+    },
+    "e": {
+      "area": "S5"
+    }
+  },
+  "cells": {
+    "12,7": {
+      "link": {
+        "hub": true
+      }
+    },
+    "2,8": {
+      "link": {
+        "map": "floors",
+        "x": 6,
+        "y": 20,
+        "facing": 0
+      }
+    },
+    "3,0": {
+      "link": {
+        "map": "sump",
+        "x": 26,
+        "y": 2,
+        "facing": 2
+      }
+    }
+  },
+  "areas": {
+    "S1": {
+      "name": "The Wreck Pier",
+      "light": "daylight",
+      "enter": "s1"
+    },
+    "S2": {
+      "name": "The Atrium Shell",
+      "light": "daylight",
+      "enter": "s2",
+      "search": "s2-search"
+    },
+    "S3": {
+      "name": "The Watch Booth",
+      "light": "daylight",
+      "enter": "s3",
+      "search": "s3-search"
+    },
+    "S4": {
+      "name": "The Leash Posts",
+      "light": "daylight",
+      "enter": "s4"
+    },
+    "S5": {
+      "name": "The North Seawall",
+      "light": "daylight",
+      "enter": "s5"
+    }
+  },
+  "wander": [
+    {
+      "weight": 2,
+      "encounter": "w-gulls"
+    },
+    {
+      "weight": 1,
+      "encounter": "w-kelp"
+    },
+    {
+      "weight": 1,
+      "encounter": "w-crab"
+    }
+  ]
+}

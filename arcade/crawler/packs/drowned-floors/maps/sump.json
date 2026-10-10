@@ -1,0 +1,158 @@
+{
+  "id": "sump",
+  "title": "The Sump",
+  "tier": "The Grotto",
+  "grid": [
+    "##################################",
+    "####VVVVVVV#########AAAAaaa#######",
+    "####VVVVVVV#########AAAAaaa<######",
+    "####hhhhhhh#########AAAAaaa#######",
+    "####hhhhhhh###############.#######",
+    "#########.################.#######",
+    "#########.#dddddd###bbbbbbb##cccc#",
+    "#########.#dddddd...bbbbbbb..cccc#",
+    "#########.#dddddd###bbbbbbb##cccc#",
+    "#########.#dddddd###bbbbbbb##cccc#",
+    "#########.############.....#######",
+    "#########...gWWWWWWWWWgggg.#######",
+    "############gWWWWWWWWWgggg..eeeee#",
+    "############gWWWWWWWWWgggg##eeeee#",
+    "############gWWWWWWWWWgggg##eeeee#",
+    "###FFFFFF###gWWWWWWWWWgggg##eeeee#",
+    "###FFFFFF###gWWWWWWWWWgggg####<###",
+    "##<FFFFFF...gWWWWWWWWWgggg########",
+    "###FFFFFF###gWWWWWWWWWgggg########",
+    "###FFFFFF###gggggggggggggg########",
+    "##################################"
+  ],
+  "legend": {
+    "a": {
+      "area": "G1"
+    },
+    "A": {
+      "area": "G1",
+      "water": true
+    },
+    "b": {
+      "area": "G2"
+    },
+    "c": {
+      "area": "G3"
+    },
+    "d": {
+      "area": "G4"
+    },
+    "e": {
+      "area": "G5"
+    },
+    "F": {
+      "area": "G6",
+      "water": true
+    },
+    "g": {
+      "area": "G7"
+    },
+    "W": {
+      "area": "G7",
+      "water": true
+    },
+    "h": {
+      "area": "G8"
+    },
+    "V": {
+      "area": "G8",
+      "water": true
+    }
+  },
+  "cells": {
+    "27,2": {
+      "link": {
+        "map": "waterline",
+        "x": 3,
+        "y": 1,
+        "facing": 2
+      }
+    },
+    "2,17": {
+      "link": {
+        "map": "floors",
+        "x": 2,
+        "y": 16,
+        "facing": 2
+      }
+    },
+    "30,16": {
+      "link": {
+        "map": "floors",
+        "x": 28,
+        "y": 19,
+        "facing": 0
+      }
+    },
+    "28,7": {
+      "event": "g3-string"
+    }
+  },
+  "areas": {
+    "G1": {
+      "name": "The Water Gate",
+      "light": "dim",
+      "enter": "g1"
+    },
+    "G2": {
+      "name": "The Kelp Line Dock",
+      "light": "dim",
+      "enter": "g2",
+      "listen": {
+        "flag": "heard-dock",
+        "say": [
+          "Hammocks creaking. A tally being argued."
+        ]
+      }
+    },
+    "G3": {
+      "name": "The Cache",
+      "light": "dark",
+      "enter": "g3"
+    },
+    "G4": {
+      "name": "Rook's Berth",
+      "light": "dim",
+      "enter": "g4"
+    },
+    "G5": {
+      "name": "The Shaft Foot",
+      "light": "dim",
+      "enter": "g5"
+    },
+    "G6": {
+      "name": "The Drowned Landing",
+      "light": "dark",
+      "enter": "g6"
+    },
+    "G7": {
+      "name": "The Moray's Pool",
+      "light": "dark",
+      "enter": "g7"
+    },
+    "G8": {
+      "name": "The Vault Door",
+      "light": "dark",
+      "enter": "g8"
+    }
+  },
+  "wander": [
+    {
+      "weight": 2,
+      "encounter": "w-kelp3"
+    },
+    {
+      "weight": 1,
+      "encounter": "w-crab"
+    },
+    {
+      "weight": 1,
+      "encounter": "w-kelp"
+    }
+  ]
+}

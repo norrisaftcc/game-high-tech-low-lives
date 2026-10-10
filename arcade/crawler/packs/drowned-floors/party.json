@@ -1,0 +1,75 @@
+{
+  "default": ["reyes", "shodann", "undertow", "marcus"],
+  "roster": {
+    "reyes": {
+      "name": "Reyes Tovan",
+      "title": "Nomad",
+      "npc": true,
+      "class": "Nomad",
+      "text": "The Mirasol has gotten him through worse. Probably.",
+      "stats": { "body": 2, "reflexes": 3, "code": 0, "tech": 3, "cool": 1 },
+      "tracks": { "meat": 2, "nerves": 3, "systems": 5 },
+      "attack": { "name": "military sidearm", "stat": "reflexes", "costTrack": "meat", "ranged": false },
+      "abilities": ["nobody-stops-me", "trouble-boat", "pressure-mods"],
+      "items": { "flare": 2, "line": 1 },
+      "fate": 3,
+      "chromeLine": "Pressure Adaptation Mods (+1 Systems, -1 Meat). Neural Link, boat only (+1 Systems)."
+    },
+    "shodann": {
+      "name": "Ann Sho",
+      "title": "Infiltrator",
+      "npc": true,
+      "class": "Infiltrator",
+      "text": "Every bug is an education. Question is: whose?",
+      "stats": { "body": 1, "reflexes": 2, "code": 3, "tech": 2, "cool": 1 },
+      "tracks": { "meat": 2, "nerves": 2, "systems": 6 },
+      "attack": { "name": "shock baton", "stat": "reflexes", "costTrack": "nerves", "ranged": false },
+      "abilities": ["familiar-ground", "trouble-employer", "deck-port", "pattern-suite"],
+      "items": {},
+      "fate": 3,
+      "chromeLine": "Neural Deck Port (+2 Systems, -1 Meat). Pattern Recognition Suite (+1 Systems, -1 Nerves)."
+    },
+    "undertow": {
+      "name": "Reiko Alvarez",
+      "title": "Influencer",
+      "npc": true,
+      "class": "Influencer",
+      "text": "The dive is real. The excitement is real. The stream is always on.",
+      "stats": { "body": 1, "reflexes": 1, "code": 2, "tech": 3, "cool": 2 },
+      "tracks": { "meat": 2, "nerves": 1, "systems": 8 },
+      "attack": { "name": "speargun", "stat": "tech", "costTrack": "systems", "ranged": true },
+      "abilities": ["the-stream", "trouble-stream", "steady-hands"],
+      "items": { "dive-lamp": 1, "battery": 1 },
+      "fate": 3,
+      "chromeLine": "Streaming Suite (+2 Systems, -1 Nerves). Enhanced Dexterity (+2 Systems, -1 Meat). Social Analysis Suite (+1 Systems, -1 Nerves)."
+    },
+    "marcus": {
+      "name": "Marcus Kain",
+      "title": "Fixer",
+      "npc": true,
+      "class": "Fixer",
+      "text": "He does not do the work. He makes it possible. Fifteen percent.",
+      "stats": { "body": 1, "reflexes": 2, "code": 1, "tech": 2, "cool": 3 },
+      "tracks": { "meat": 3, "nerves": 3, "systems": 5 },
+      "attack": { "name": "briefcase pistol", "stat": "reflexes", "costTrack": "nerves", "ranged": true },
+      "abilities": ["know-someone", "trouble-favours", "analysis-overlay"],
+      "items": { "stim-patch": 1 },
+      "fate": 3,
+      "chromeLine": "Analysis Overlay (+1 Systems). Encrypted Comm Suite (+1 Systems)."
+    },
+    "kaida": {
+      "name": "Kaida Voss",
+      "title": "Influencer",
+      "npc": true,
+      "class": "Influencer",
+      "text": "Three million people watch her work. Question is: what are they seeing?",
+      "stats": { "body": 1, "reflexes": 1, "code": 2, "tech": 3, "cool": 2 },
+      "tracks": { "meat": 2, "nerves": 2, "systems": 8 },
+      "attack": { "name": "stun glove", "stat": "tech", "costTrack": "systems", "ranged": false },
+      "abilities": ["the-stream", "trouble-stream", "apex-optics"],
+      "items": { "battery": 1 },
+      "fate": 3,
+      "chromeLine": "Apex Optics Suite V7 (+2 Systems, -1 Meat). Neural Interface Pro (+2 Systems, -1 Nerves). Subdermal Display Mesh (+1 Systems)."
+    }
+  }
+}
