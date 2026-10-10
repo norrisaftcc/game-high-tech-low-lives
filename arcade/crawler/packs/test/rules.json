@@ -1,0 +1,19 @@
+{
+  "resolver": "ose",
+  "party": { "size": 4 },
+  "stats": [ { "id": "str", "label": "STR" }, { "id": "int", "label": "INT" }, { "id": "wis", "label": "WIS" },
+             { "id": "dex", "label": "DEX" }, { "id": "con", "label": "CON" }, { "id": "cha", "label": "CHA" } ],
+  "tracks": [ { "id": "hp", "label": "HP" } ],
+  "down": "dead",
+  "clock": {
+    "turnMinutes": 10, "newArea": 1, "search": 1, "fight": 1, "rest": 1, "listen": 0,
+    "wander": { "every": 2, "inSix": 1, "onNoise": true },
+    "tired": { "every": 6, "mod": -1 },
+    "light": { "order": ["oil-flask", "torch"], "outScene": "dark" }
+  },
+  "combat": { "front": 2, "reach": 2, "flee": { "inSix": 4 } },
+  "fate": { "start": 3, "reroll": 1, "cheatDeath": 2 },
+  "endings": { "wipe": "end-dead" },
+  "skills": { "listen": { "inSix": 1 }, "forceDoor": { "inSix": 2 }, "search": { "inSix": 1 } },
+  "statMods": "ose"
+}

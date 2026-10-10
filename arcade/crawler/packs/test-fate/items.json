@@ -1,0 +1,64 @@
+{
+  "flare": {
+    "name": "Flare",
+    "kind": "light",
+    "value": 5,
+    "light": {
+      "turns": 6
+    }
+  },
+  "dive-lamp": {
+    "name": "Dive lamp",
+    "kind": "gear",
+    "value": 40
+  },
+  "battery": {
+    "name": "Battery cell",
+    "kind": "light",
+    "value": 10,
+    "light": {
+      "turns": 24,
+      "requires": "dive-lamp"
+    },
+    "use": {
+      "when": "fight",
+      "target": "foes",
+      "check": {
+        "stat": "tech",
+        "difficulty": 2
+      },
+      "on": {
+        "success": {
+          "item": {
+            "remove": {
+              "battery": 1
+            }
+          },
+          "damage": {
+            "who": "nearest",
+            "n": 2,
+            "amount": 2
+          },
+          "say": [
+            "You short the cell into the water."
+          ]
+        },
+        "fail": {
+          "item": {
+            "remove": {
+              "battery": 1
+            }
+          },
+          "say": [
+            "The cell fizzes and dies."
+          ]
+        }
+      }
+    }
+  },
+  "data-shard": {
+    "name": "Data shard",
+    "kind": "treasure",
+    "value": 100
+  }
+}

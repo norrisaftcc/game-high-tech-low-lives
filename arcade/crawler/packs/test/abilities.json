@@ -1,0 +1,9 @@
+{
+  "light": { "name": "Light", "kind": "spell", "per": "rest", "uses": 1, "when": "any", "target": "none", "effects": { "light": { "turns": 12 }, "say": ["Cold light gathers on the blade."] } },
+  "sleep": { "name": "Sleep", "kind": "spell", "per": "rest", "uses": 1, "when": "fight", "target": "foes", "effects": { "condition": { "who": "foes", "add": "asleep", "budget": "2d8" } } },
+  "cure-light-wounds": { "name": "Cure Light Wounds", "kind": "spell", "per": "rest", "uses": 1, "when": "any", "target": "ally", "effects": { "heal": { "who": "target", "amount": "1d6+1" } } },
+  "lay-on-hands": { "name": "Lay on Hands", "kind": "power", "per": "rest", "uses": 1, "when": "any", "target": "ally", "effects": { "heal": { "who": "target", "amount": 2 } } },
+  "know-how-made": { "name": "I Know How This Was Made", "kind": "fate", "per": "delve", "uses": 1, "when": "scene", "target": "none", "effects": {} },
+  "remember-when": { "name": "I Remember When", "kind": "fate", "per": "delve", "uses": 1, "when": "scene", "target": "none", "effects": {} },
+  "read-about-this": { "name": "I've Read About This", "kind": "fate", "per": "delve", "uses": 1, "when": "scene", "target": "none", "effects": {} }
+}

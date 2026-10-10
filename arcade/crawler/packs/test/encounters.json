@@ -1,0 +1,8 @@
+{
+  "store-rats": { "foes": [ { "id": "giant-rat", "count": 2, "hp": [2, 3] } ],
+    "first": { "ifFlag": "heard-rats", "then": "party", "else": "foes" },
+    "text": [ "Two rats the size of dogs come out of the racks." ],
+    "onWin": { "flag": { "set": ["rats-gone"] }, "item": { "add": { "gold": 10 } } } },
+  "lone-rat": { "foes": [ { "id": "giant-rat", "count": 1, "hp": [2] } ], "first": "foes", "nonLethal": true,
+    "text": [ "A lone rat runs at the light." ] }
+}

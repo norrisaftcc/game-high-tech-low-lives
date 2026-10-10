@@ -1,0 +1,103 @@
+{
+  "nobody-stops-me": {
+    "name": "Nobody Stops Me",
+    "kind": "fate",
+    "per": "delve",
+    "uses": 1,
+    "when": "scene",
+    "target": "none",
+    "effects": {}
+  },
+  "familiar-ground": {
+    "name": "Familiar Ground",
+    "kind": "fate",
+    "per": "delve",
+    "uses": 1,
+    "when": "scene",
+    "target": "none",
+    "effects": {}
+  },
+  "the-stream": {
+    "name": "The Stream",
+    "kind": "power",
+    "per": "delve",
+    "uses": 1,
+    "when": "fight",
+    "target": "self",
+    "effects": {
+      "bonus": {
+        "who": "self",
+        "amount": 2,
+        "scope": "fight"
+      },
+      "say": [
+        "The chat goes wild."
+      ]
+    }
+  },
+  "know-someone": {
+    "name": "I Know Someone Who Can Help",
+    "kind": "fate",
+    "per": "delve",
+    "uses": 1,
+    "when": "scene",
+    "target": "none",
+    "effects": {}
+  },
+  "spoof": {
+    "name": "Spoof",
+    "kind": "chrome",
+    "per": "rest",
+    "uses": 1,
+    "when": "fight",
+    "target": "foe",
+    "check": {
+      "stat": "code",
+      "difficulty": 2
+    },
+    "on": {
+      "success": {
+        "condition": {
+          "who": "foe",
+          "add": "asleep"
+        },
+        "say": [
+          "The drone sees a friend."
+        ]
+      },
+      "fail": {
+        "say": [
+          "Rejected."
+        ]
+      }
+    }
+  },
+  "patch": {
+    "name": "Patch Job",
+    "kind": "power",
+    "per": "rest",
+    "uses": 1,
+    "when": "any",
+    "target": "ally",
+    "effects": {
+      "heal": {
+        "who": "target",
+        "amount": 2,
+        "track": "meat"
+      }
+    }
+  },
+  "light": {
+    "name": "Glowstick",
+    "kind": "chrome",
+    "per": "rest",
+    "uses": 1,
+    "when": "any",
+    "target": "none",
+    "effects": {
+      "light": {
+        "turns": 12
+      }
+    }
+  }
+}

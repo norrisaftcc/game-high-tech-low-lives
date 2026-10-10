@@ -1,0 +1,99 @@
+{
+  "resolver": "fate4df",
+  "party": {
+    "size": 4
+  },
+  "stats": [
+    {
+      "id": "body",
+      "label": "Body"
+    },
+    {
+      "id": "reflexes",
+      "label": "Reflexes"
+    },
+    {
+      "id": "code",
+      "label": "Code"
+    },
+    {
+      "id": "tech",
+      "label": "Tech"
+    },
+    {
+      "id": "cool",
+      "label": "Cool"
+    }
+  ],
+  "tracks": [
+    {
+      "id": "meat",
+      "label": "Meat"
+    },
+    {
+      "id": "nerves",
+      "label": "Nerves"
+    },
+    {
+      "id": "systems",
+      "label": "Systems"
+    }
+  ],
+  "down": "recover",
+  "clock": {
+    "turnMinutes": 10,
+    "newArea": 1,
+    "search": 1,
+    "fight": 1,
+    "rest": 1,
+    "listen": 0,
+    "wander": {
+      "every": 2,
+      "inSix": 1,
+      "onNoise": true
+    },
+    "tired": {
+      "every": 6,
+      "mod": -1
+    },
+    "light": {
+      "order": [
+        "battery",
+        "flare"
+      ],
+      "outScene": "dark"
+    }
+  },
+  "combat": {
+    "front": 2,
+    "reach": 2,
+    "flee": {
+      "stat": "reflexes",
+      "difficulty": 1
+    },
+    "defense": "reflexes"
+  },
+  "fate": {
+    "start": 3,
+    "reroll": 1,
+    "cheatDeath": 2,
+    "bonus": 2
+  },
+  "endings": {
+    "wipe": "end-dead"
+  },
+  "skills": {
+    "listen": {
+      "stat": "cool",
+      "difficulty": 1
+    },
+    "forceDoor": {
+      "stat": "body",
+      "difficulty": 2
+    },
+    "search": {
+      "stat": "tech",
+      "difficulty": 2
+    }
+  }
+}

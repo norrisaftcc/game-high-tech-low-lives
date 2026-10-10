@@ -1,0 +1,182 @@
+{
+  "job": {
+    "title": "The Captain's Job",
+    "text": [
+      "Maren puts a key on the table. \"The old cellar. Rats in the oil. Clear it.\""
+    ],
+    "choices": [
+      {
+        "id": "ok",
+        "mode": "plan",
+        "text": "Take the job.",
+        "effects": {
+          "goto": {
+            "close": true
+          }
+        }
+      }
+    ]
+  },
+  "gate": {
+    "title": "The Gate",
+    "text": [
+      "The cellar is a short walk. The yard is in daylight."
+    ],
+    "choices": [
+      {
+        "id": "go",
+        "mode": "act",
+        "text": "Go to the cellar.",
+        "effects": {
+          "goto": {
+            "map": "yard",
+            "x": 1,
+            "y": 1,
+            "facing": 1
+          }
+        }
+      },
+      {
+        "id": "stay",
+        "mode": "plan",
+        "text": "Not yet.",
+        "effects": {
+          "goto": {
+            "close": true
+          }
+        }
+      }
+    ]
+  },
+  "yard": {
+    "title": "The Yard",
+    "area": "A",
+    "text": [
+      "A yard of packed earth. A door east. A stuck hatch south."
+    ],
+    "choices": [
+      {
+        "id": "look",
+        "mode": "plan",
+        "text": "Look at the hatch.",
+        "say": [
+          "Swollen oak. It will take a shoulder."
+        ],
+        "once": true
+      },
+      {
+        "id": "remember",
+        "mode": "fate",
+        "ability": "remember-when",
+        "text": "I Remember When.",
+        "effects": {
+          "reveal": {
+            "map": "yard",
+            "cells": [
+              "6,4"
+            ]
+          },
+          "say": [
+            "There was a door in the store's south wall once."
+          ]
+        }
+      }
+    ]
+  },
+  "nook-search": {
+    "title": "The Nook",
+    "area": "D",
+    "text": [
+      "A shelf. Dust."
+    ],
+    "choices": [
+      {
+        "id": "take",
+        "mode": "act",
+        "text": "Take what is on the shelf.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "oil-flask": 2,
+              "stone-apple": 1
+            }
+          },
+          "say": [
+            "Two flasks of oil. An apple of stone."
+          ]
+        }
+      }
+    ]
+  },
+  "dark": {
+    "title": "Dark",
+    "text": [
+      "The last light goes out."
+    ],
+    "noLeave": true,
+    "choices": [
+      {
+        "id": "feel",
+        "mode": "act",
+        "text": "Feel your way back.",
+        "effects": {
+          "goto": {
+            "hub": true
+          }
+        }
+      }
+    ]
+  },
+  "store": {
+    "title": "The Store",
+    "area": "B",
+    "text": [
+      "Racks of broken jars. Eyes in the dark."
+    ],
+    "choices": [
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Fight.",
+        "effects": {
+          "goto": {
+            "encounter": "store-rats"
+          }
+        }
+      },
+      {
+        "id": "back",
+        "mode": "act",
+        "text": "Back out.",
+        "effects": {
+          "goto": {
+            "map": "yard",
+            "x": 3,
+            "y": 1,
+            "facing": 3
+          }
+        }
+      }
+    ],
+    "noLeave": true
+  },
+  "draft": {
+    "title": "A Draft",
+    "text": [
+      "Cold air from the north wall."
+    ],
+    "choices": [
+      {
+        "id": "feel",
+        "mode": "plan",
+        "text": "Feel the wall.",
+        "say": [
+          "The mortar is newer here."
+        ],
+        "once": true
+      }
+    ]
+  }
+}

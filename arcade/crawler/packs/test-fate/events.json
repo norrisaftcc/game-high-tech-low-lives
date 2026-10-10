@@ -1,0 +1,182 @@
+{
+  "job": {
+    "title": "The Captain's Job",
+    "text": [
+      "Marcus slides a chip across the bar. \"Old store under the pier. Scavengers in it. Clear it.\""
+    ],
+    "choices": [
+      {
+        "id": "ok",
+        "mode": "plan",
+        "text": "Take the job.",
+        "effects": {
+          "goto": {
+            "close": true
+          }
+        }
+      }
+    ]
+  },
+  "gate": {
+    "title": "The Dock",
+    "text": [
+      "The pier is a short ride. The deck is in daylight."
+    ],
+    "choices": [
+      {
+        "id": "go",
+        "mode": "act",
+        "text": "Take the boat out.",
+        "effects": {
+          "goto": {
+            "map": "yard",
+            "x": 1,
+            "y": 1,
+            "facing": 1
+          }
+        }
+      },
+      {
+        "id": "stay",
+        "mode": "plan",
+        "text": "Not yet.",
+        "effects": {
+          "goto": {
+            "close": true
+          }
+        }
+      }
+    ]
+  },
+  "yard": {
+    "title": "The Pier Deck",
+    "area": "A",
+    "text": [
+      "A deck of rusted plate. A hatch east. A jammed hatch south."
+    ],
+    "choices": [
+      {
+        "id": "look",
+        "mode": "plan",
+        "text": "Look at the hatch.",
+        "say": [
+          "Swollen oak. It will take a shoulder."
+        ],
+        "once": true
+      },
+      {
+        "id": "remember",
+        "mode": "fate",
+        "ability": "familiar-ground",
+        "text": "Familiar Ground.",
+        "effects": {
+          "reveal": {
+            "map": "yard",
+            "cells": [
+              "6,4"
+            ]
+          },
+          "say": [
+            "You have run this pier before. There was a crawlway behind the store."
+          ]
+        }
+      }
+    ]
+  },
+  "nook-search": {
+    "title": "The Nook",
+    "area": "D",
+    "text": [
+      "A shelf. Dust."
+    ],
+    "choices": [
+      {
+        "id": "take",
+        "mode": "act",
+        "text": "Take what is in the locker.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "battery": 2,
+              "data-shard": 1
+            }
+          },
+          "say": [
+            "Two battery cells. A data shard."
+          ]
+        }
+      }
+    ]
+  },
+  "dark": {
+    "title": "Dark",
+    "text": [
+      "The last light goes out."
+    ],
+    "noLeave": true,
+    "choices": [
+      {
+        "id": "feel",
+        "mode": "act",
+        "text": "Feel your way back.",
+        "effects": {
+          "goto": {
+            "hub": true
+          }
+        }
+      }
+    ]
+  },
+  "store": {
+    "title": "The Store",
+    "area": "B",
+    "text": [
+      "Racks of broken jars. Eyes in the dark."
+    ],
+    "choices": [
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Fight.",
+        "effects": {
+          "goto": {
+            "encounter": "store-rats"
+          }
+        }
+      },
+      {
+        "id": "back",
+        "mode": "act",
+        "text": "Back out.",
+        "effects": {
+          "goto": {
+            "map": "yard",
+            "x": 3,
+            "y": 1,
+            "facing": 3
+          }
+        }
+      }
+    ],
+    "noLeave": true
+  },
+  "draft": {
+    "title": "A Draft",
+    "text": [
+      "Cold air from the north wall."
+    ],
+    "choices": [
+      {
+        "id": "feel",
+        "mode": "plan",
+        "text": "Feel the wall.",
+        "say": [
+          "The mortar is newer here."
+        ],
+        "once": true
+      }
+    ]
+  }
+}

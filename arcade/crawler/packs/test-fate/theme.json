@@ -1,0 +1,28 @@
+{
+  "palette": {
+    "paper": "#0A1F44",
+    "ink": "#FF006E",
+    "accent": "#E8C547",
+    "muted": "#7A86A8"
+  },
+  "paletteDark": {
+    "paper": "#060F22",
+    "ink": "#FF3D8F",
+    "accent": "#E8C547",
+    "muted": "#7A86A8"
+  },
+  "fonts": {
+    "title": "system-ui, sans-serif",
+    "body": "system-ui, sans-serif",
+    "mono": "ui-monospace, Menlo, Consolas, monospace"
+  },
+  "titleCaps": false,
+  "labels": {
+    "leave": "Back off",
+    "light": "Dive light",
+    "search": "Scan",
+    "rest": "Breathe",
+    "map": "Map",
+    "act": "Act"
+  }
+}
