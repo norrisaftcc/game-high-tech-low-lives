@@ -1,0 +1,73 @@
+{
+  "id": "yard",
+  "title": "The Old Cellar",
+  "tier": "Fixture",
+  "grid": [
+    "#########",
+    "#aaa+bbb#",
+    "#aaa#bbb#",
+    "#a<a#bbb#",
+    "##=###S##",
+    "#ccccc.d#",
+    "#########"
+  ],
+  "legend": {
+    "a": {
+      "area": "A"
+    },
+    "b": {
+      "area": "B"
+    },
+    "c": {
+      "area": "C"
+    },
+    "d": {
+      "area": "D"
+    }
+  },
+  "cells": {
+    "2,3": {
+      "area": "A",
+      "link": {
+        "hub": true
+      }
+    },
+    "6,5": {
+      "event": "draft"
+    }
+  },
+  "areas": {
+    "A": {
+      "name": "The Yard",
+      "light": "daylight",
+      "enter": "yard"
+    },
+    "B": {
+      "name": "The Store",
+      "light": "dark",
+      "encounter": "store-rats",
+      "enter": "store",
+      "listen": {
+        "flag": "heard-rats",
+        "say": [
+          "Scratching. Squeaks. Two, maybe three."
+        ]
+      }
+    },
+    "C": {
+      "name": "The Passage",
+      "light": "dark"
+    },
+    "D": {
+      "name": "The Nook",
+      "light": "dark",
+      "search": "nook-search"
+    }
+  },
+  "wander": [
+    {
+      "weight": 1,
+      "encounter": "lone-rat"
+    }
+  ]
+}

@@ -1,0 +1,3421 @@
+{
+  "job": {
+    "title": "The Job",
+    "text": [
+      "Marcus Kain slides a chip across the booth without looking at it. \"Meridian condemned a tower on the Shoals nine years ago. It has been sinking at its own pace since. This morning a Meridian diver, Juno Pell, was found at the waterline. Her chrome was locked. Her eyes were open.\"",
+      "\"She was diving the lower floors for something. I have a buyer for it. I do not ask who. Fifteen percent.\""
+    ],
+    "choices": [
+      {
+        "id": "what",
+        "mode": "plan",
+        "text": "Ask what Juno was diving for.",
+        "say": [
+          "\"Cold cores. Four, maybe. Meridian lost count. They will want them back. So will whoever she sold to.\""
+        ]
+      },
+      {
+        "id": "buyer",
+        "mode": "plan",
+        "text": "Ask who the buyer is.",
+        "say": [
+          "\"A desk. It writes letters. It does not blink.\""
+        ]
+      },
+      {
+        "id": "clock",
+        "mode": "plan",
+        "text": "Ask how long you have.",
+        "say": [
+          "\"The Kelp Line works the lower floors. They move their stock when the dusk patrol gap closes. Four nights. Be quick.\""
+        ]
+      },
+      {
+        "id": "take",
+        "mode": "plan",
+        "text": "Take the job.",
+        "say": [
+          "Marcus advances you sixty credits. \"Buy light. Buy a line. Buy salt.\""
+        ],
+        "effects": {
+          "item": {
+            "add": {
+              "gold": 60
+            }
+          },
+          "flag": {
+            "set": [
+              "job-taken"
+            ]
+          },
+          "goto": {
+            "close": true
+          }
+        }
+      },
+      {
+        "id": "later",
+        "mode": "plan",
+        "text": "Not yet.",
+        "effects": {
+          "goto": {
+            "close": true
+          }
+        }
+      }
+    ]
+  },
+  "gate": {
+    "title": "The Run Out",
+    "text": [
+      "Reyes has the Mirasol warm and grumbling at the pier. Two ways out to the tower. The day route is long and the patrols are thick as gulls. The dusk route waits for the cutter to change crews, when the sweep goes dark for eleven minutes."
+    ],
+    "choices": [
+      {
+        "id": "chart",
+        "mode": "plan",
+        "text": "Study the chart.",
+        "say": [
+          "The tower stands on the Shoals, three hours out. Meridian lights ring it. One stretch of its north side has none."
+        ]
+      },
+      {
+        "id": "day",
+        "mode": "act",
+        "text": "Run out by day.",
+        "turns": 1,
+        "effects": {
+          "flag": {
+            "set": [
+              "run-day"
+            ]
+          },
+          "say": [
+            "Three hours of patrol wake and bad coffee. The Mirasol holds."
+          ],
+          "goto": {
+            "map": "waterline",
+            "x": 10,
+            "y": 7,
+            "facing": 3
+          }
+        }
+      },
+      {
+        "id": "dusk",
+        "mode": "act",
+        "text": "Run out under the dusk gap.",
+        "turns": 0,
+        "effects": {
+          "flag": {
+            "set": [
+              "run-dusk"
+            ]
+          },
+          "say": [
+            "You cut the engines for the last mile. The sweep goes dark, as promised."
+          ],
+          "goto": {
+            "map": "waterline",
+            "x": 10,
+            "y": 7,
+            "facing": 3
+          }
+        }
+      },
+      {
+        "id": "nsm",
+        "mode": "fate",
+        "ability": "nobody-stops-me",
+        "text": "Nobody Stops Me.",
+        "effects": {
+          "flag": {
+            "set": [
+              "run-clean"
+            ]
+          },
+          "say": [
+            "Reyes takes the Mirasol through the sweep at full burn. Nobody stops him. The cutter logs a ghost."
+          ],
+          "goto": {
+            "map": "waterline",
+            "x": 10,
+            "y": 7,
+            "facing": 3
+          }
+        }
+      },
+      {
+        "id": "boat-accept",
+        "mode": "fate",
+        "ability": "trouble-boat",
+        "text": "Compel: the pumps fail. Take a Fate point.",
+        "effects": {
+          "fate": {
+            "who": "self",
+            "amount": 1
+          },
+          "damage": {
+            "who": "self",
+            "amount": 1,
+            "track": "systems"
+          },
+          "say": [
+            "The bilge pump quits. Reyes is up to his wrists in it, and the repair bill grows by another line."
+          ]
+        }
+      },
+      {
+        "id": "boat-refuse",
+        "mode": "fate",
+        "ability": "trouble-boat",
+        "text": "Refuse the compel. Pay a Fate point.",
+        "effects": {
+          "fate": {
+            "who": "self",
+            "amount": -1
+          },
+          "say": [
+            "Reyes slaps the pump housing and it catches. Nobody asks how."
+          ]
+        }
+      },
+      {
+        "id": "no",
+        "mode": "plan",
+        "text": "Not yet.",
+        "effects": {
+          "goto": {
+            "close": true
+          }
+        }
+      }
+    ]
+  },
+  "dark": {
+    "title": "Dark",
+    "text": [
+      "The last light goes out. The dark is total and has no direction."
+    ],
+    "noLeave": true,
+    "choices": [
+      {
+        "id": "feel",
+        "mode": "act",
+        "text": "Feel your way back to the Mirasol.",
+        "effects": {
+          "say": [
+            "You crawl the walls and find the way. It takes a long time."
+          ],
+          "goto": {
+            "hub": true
+          }
+        }
+      }
+    ]
+  },
+  "s1": {
+    "title": "The Wreck Pier",
+    "area": "S1",
+    "text": [
+      "Pre-Rise concrete runs out from the shore and stops where the sea has eaten it. At the tower end a steel bollard stands with its eyelet worn bright by a line tied up this week. Past the break the water rises once, smooth and unhurried, around something that does not surface. The sea goes back to being the sea."
+    ],
+    "choices": [
+      {
+        "id": "bollard",
+        "mode": "plan",
+        "text": "Look at the bollard.",
+        "say": [
+          "The scoring is days old, not weeks. Tarred fibers are caught in the eyelet. The Kelp Line tars everything it ties."
+        ]
+      },
+      {
+        "id": "prints",
+        "mode": "plan",
+        "text": "Look at the bootprints.",
+        "say": [
+          "Deep treads, several wearers, a week old under newer grit. They go toward the shell."
+        ]
+      },
+      {
+        "id": "order",
+        "mode": "plan",
+        "text": "Set the order of march.",
+        "say": [
+          "The pier is two wide. Front rank first. Say who holds the light before you go below."
+        ]
+      },
+      {
+        "id": "tie",
+        "mode": "act",
+        "text": "Tie up the Mirasol.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "tied-up"
+            ]
+          },
+          "say": [
+            "Reyes ties off and pats the rail. She groans. A turn is gone."
+          ]
+        }
+      },
+      {
+        "id": "watch",
+        "mode": "act",
+        "text": "Watch the water for one turn.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "watched-circuit"
+            ]
+          },
+          "say": [
+            "A swell comes round the east point and keeps going, clockwise, always at the edge of the light. It has done this before. It has a route."
+          ]
+        }
+      },
+      {
+        "id": "end",
+        "mode": "act",
+        "text": "Walk out onto the broken end.",
+        "turns": 0,
+        "once": true,
+        "check": {
+          "stat": "reflexes",
+          "difficulty": 1
+        },
+        "on": {
+          "success": {
+            "say": [
+              "The slab holds. You see nothing under the water but your own light."
+            ]
+          },
+          "fail": {
+            "damage": {
+              "who": "leader",
+              "amount": 1,
+              "track": "meat"
+            },
+            "say": [
+              "The slab tips. You go in to the waist, and out again, and you are cold."
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "s2": {
+    "title": "The Atrium Shell",
+    "area": "S2",
+    "text": [
+      "The tower's upper floors have come down into the atrium and stayed: a slope of glass, cable and sodden carpet, reaching halfway to a lid of sky. A stair climbs the inner wall to a ragged edge where the gulls hold their meetings. Over the old lobby door, in letters as tall as a child: MERIDIAN. SUB-LEVEL NINE. AUTHORIZED DIVERS ONLY."
+    ],
+    "choices": [
+      {
+        "id": "letters",
+        "mode": "plan",
+        "text": "Read the lettering.",
+        "say": [
+          "Someone has scratched an eye beneath it, and struck a line through the eye."
+        ]
+      },
+      {
+        "id": "climb",
+        "mode": "act",
+        "text": "Climb for the view.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "saw-island"
+            ]
+          },
+          "say": [
+            "From the top: the pier, the booth, the posts on the east point, the whole island laid out like a floor plan. Under the overhang of the north wall, a boat-shaped shadow in the water, showing no light."
+          ]
+        }
+      },
+      {
+        "id": "nest",
+        "mode": "act",
+        "text": "Search the gull nest.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "meridian-signet": 1
+            }
+          },
+          "say": [
+            "A signet ring stamped with a tower and the numeral IX. Twenty-five credits to a fence."
+          ]
+        }
+      },
+      {
+        "id": "fg",
+        "mode": "fate",
+        "ability": "familiar-ground",
+        "text": "Familiar Ground.",
+        "effects": {
+          "reveal": {
+            "map": "waterline",
+            "cells": [
+              "2,7"
+            ]
+          },
+          "say": [
+            "You have audited a hundred lobbies like this one. The service hatch is behind the dead fire panel. It is always behind the dead fire panel."
+          ]
+        }
+      }
+    ]
+  },
+  "s2-search": {
+    "title": "Under the Rubble",
+    "area": "S2",
+    "text": [
+      "Cable, glass, wet carpet. You turn over a hill of it. Cold air breathes from somewhere low in the pile, and it smells of old battery acid."
+    ],
+    "choices": [
+      {
+        "id": "dig",
+        "mode": "act",
+        "text": "Dig through the carpet by hand. (One turn.)",
+        "turns": 1,
+        "check": {
+          "skill": "search"
+        },
+        "on": {
+          "success": {
+            "reveal": {
+              "map": "waterline",
+              "cells": [
+                "2,7"
+              ]
+            },
+            "say": [
+              "Under a slab of ceiling tile: a steel plate, a ring handle, and the hatch."
+            ]
+          },
+          "fail": {
+            "say": [
+              "Glass and mud. Nothing."
+            ]
+          }
+        }
+      },
+      {
+        "id": "wait",
+        "mode": "plan",
+        "text": "Think about where a service hatch would be.",
+        "say": [
+          "Behind something that looks dead. Along the south wall."
+        ]
+      }
+    ]
+  },
+  "s3": {
+    "title": "The Watch Booth",
+    "area": "S3",
+    "text": [
+      "A guard booth with the roof gone and the walls stopping at the shoulder. Someone has been sleeping beside the heater: the floor panel there is scorched black, and a corner holds a heap of fish bones cleaned to the last pin. Chalked on the door, still bright: an eye, crossed out with one hard stroke."
+    ],
+    "choices": [
+      {
+        "id": "sign",
+        "mode": "plan",
+        "text": "Study the chalk sign.",
+        "say": [
+          "An eye with a line through it. It means keep out. It also mocks the Meridian cameras. You copy it into your head, stroke by stroke."
+        ],
+        "effects": {
+          "flag": {
+            "set": [
+              "knows-sign"
+            ]
+          }
+        }
+      },
+      {
+        "id": "tub",
+        "mode": "plan",
+        "text": "Look at the shelf.",
+        "say": [
+          "A tub of coarse road salt, and a spare battery cell, in plain view. Free."
+        ]
+      },
+      {
+        "id": "shelf",
+        "mode": "act",
+        "text": "Take the salt and the cell.",
+        "turns": 0,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "salt-tin": 1,
+              "battery": 1
+            }
+          },
+          "say": [
+            "One salt tin. One battery cell."
+          ]
+        }
+      },
+      {
+        "id": "panel",
+        "mode": "act",
+        "text": "Pry up the scorched floor panel.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "service-key": 1
+            }
+          },
+          "say": [
+            "Under the panel, a service key on a cord. Someone used this hiding place often."
+          ]
+        }
+      },
+      {
+        "id": "cot",
+        "mode": "act",
+        "text": "Turn over the cot.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "say": [
+            "Rotted webbing. Nothing under it. Spending a turn on nothing is allowed."
+          ]
+        }
+      }
+    ]
+  },
+  "s3-search": {
+    "title": "Searching the Booth",
+    "area": "S3",
+    "text": [
+      "Six squares of floor, and one turn to scan each. The scan finds heat in one of them."
+    ],
+    "choices": [
+      {
+        "id": "heat",
+        "mode": "plan",
+        "text": "Read the scan.",
+        "say": [
+          "The panel by the heater is warm and worn at one corner. Dust lies thick on everything else."
+        ]
+      }
+    ]
+  },
+  "s4": {
+    "title": "The Leash Posts",
+    "area": "S4",
+    "text": [
+      "Three steel posts stand on the point, spaced as if for a conversation. Each carries a camera eye set at your eye level, and a dish on top that has been collecting rain since the Rise. Close up they hum, a note your fillings pick up before your ears do."
+    ],
+    "choices": [
+      {
+        "id": "hum",
+        "mode": "plan",
+        "text": "Listen to the hum.",
+        "say": [
+          "Louder at dusk. It is the same note the water makes under the Mirasol's keel."
+        ]
+      },
+      {
+        "id": "broken",
+        "mode": "plan",
+        "text": "Look at the broken post.",
+        "say": [
+          "One of the five lone posts has fallen on the south shore. Cable runs from the break into the rock. This is a fence, and it is wired. Eight posts in all, ringing the island."
+        ]
+      },
+      {
+        "id": "light",
+        "mode": "act",
+        "text": "Seat a battery cell in a dish.",
+        "turns": 1,
+        "if": {
+          "items": {
+            "battery": 1
+          }
+        },
+        "effects": {
+          "item": {
+            "remove": {
+              "battery": 1
+            }
+          },
+          "flag": {
+            "set": [
+              "post-lit"
+            ]
+          },
+          "say": [
+            "The post's eye glows green. Far out, something turns toward it and holds there."
+          ]
+        }
+      },
+      {
+        "id": "ks",
+        "mode": "fate",
+        "ability": "know-someone",
+        "text": "I Know Someone Who Can Help.",
+        "effects": {
+          "flag": {
+            "set": [
+              "read-posts"
+            ]
+          },
+          "say": [
+            "Marcus patches in a hydrophone tech. \"Leash posts. Eight round the shore. Light one and the thing comes to it. That's your answer. You owe me one.\""
+          ]
+        }
+      }
+    ]
+  },
+  "s5": {
+    "title": "The North Seawall",
+    "area": "S5",
+    "text": [
+      "The island ends in a wall of concrete and fifty feet of air. At the foot of the wall a cave mouth lets in the sea, and inside it a long open boat is moored on a line, a figure in a salt-white oilskin fishing from the stern. A crack splits the wall top at your feet. Down it hangs a tarred line, knotted every foot and made fast to a rail post."
+    ],
+    "choices": [
+      {
+        "id": "watch",
+        "mode": "plan",
+        "text": "Lie flat and watch.",
+        "say": [
+          "The fisher rings a handbell twice before he takes the oars. He does it like someone who has been told to."
+        ]
+      },
+      {
+        "id": "count",
+        "mode": "act",
+        "text": "Wait two turns and count his glances.",
+        "turns": 2,
+        "once": true,
+        "effects": {
+          "say": [
+            "He looks up one time in six. You note the gap."
+          ]
+        }
+      },
+      {
+        "id": "rope",
+        "mode": "act",
+        "text": "Climb down the line.",
+        "turns": 1,
+        "effects": {
+          "say": [
+            "Hand over hand, fifty feet. The line is tarred and holds."
+          ],
+          "goto": {
+            "map": "sump",
+            "x": 26,
+            "y": 2,
+            "facing": 2
+          }
+        }
+      }
+    ]
+  },
+  "c1": {
+    "title": "The Service Stair",
+    "area": "C1",
+    "text": [
+      "Cold comes up the service stair to meet you, and it has had years to settle. Lamp brackets stand out from the wall every ten feet, each holding nothing. The landing at the bottom is the size of an elevator car, and the steel door on it is shut, stenciled DO NOT PROP, and warped in its frame."
+    ],
+    "choices": [
+      {
+        "id": "door",
+        "mode": "plan",
+        "text": "Look at the door.",
+        "say": [
+          "Steel, warped in its frame. It will give to a shoulder. Every try is loud."
+        ]
+      },
+      {
+        "id": "wall",
+        "mode": "plan",
+        "text": "Look at the east wall.",
+        "say": [
+          "The paint on the east wall is newer than the paint around it."
+        ]
+      },
+      {
+        "id": "listen",
+        "mode": "act",
+        "text": "Listen at the door.",
+        "turns": 0,
+        "once": true,
+        "check": {
+          "skill": "listen"
+        },
+        "on": {
+          "success": {
+            "flag": {
+              "set": [
+                "heard-rats"
+              ]
+            },
+            "say": [
+              "Scratching beyond the door. Squeaks. Many."
+            ]
+          },
+          "fail": {
+            "say": [
+              "You hear nothing."
+            ]
+          }
+        }
+      },
+      {
+        "id": "fg",
+        "mode": "fate",
+        "ability": "familiar-ground",
+        "text": "Familiar Ground.",
+        "effects": {
+          "reveal": {
+            "map": "floors",
+            "cells": [
+              "8,20"
+            ]
+          },
+          "say": [
+            "Service stairs end the same way everywhere: a maintenance panel on the landing, and a passage behind it. You press the east wall and it gives."
+          ]
+        }
+      }
+    ]
+  },
+  "c2": {
+    "title": "The Battery Store",
+    "area": "C2",
+    "noLeave": true,
+    "text": [
+      "Racks of dead battery cells reach the ceiling, most of them split, and what leaked has set into a black glaze that holds a bootprint the way wax does. The air tastes of pennies. Something with too many feet leaves your light at a run. The squeaking follows it, then overtakes it."
+    ],
+    "notes": [
+      "Many small bodies, low and fast. If a round goes badly, choose Run."
+    ],
+    "choices": [
+      {
+        "id": "racks",
+        "mode": "plan",
+        "text": "Look at the racks.",
+        "say": [
+          "One rack still holds five sound cells."
+        ]
+      },
+      {
+        "id": "floor",
+        "mode": "plan",
+        "text": "Look at the floor.",
+        "say": [
+          "Old electrolyte, slow and gummy. A dropped flare will not catch it. A cell shorted into it will."
+        ]
+      },
+      {
+        "id": "cells",
+        "mode": "act",
+        "text": "Take the five sound cells.",
+        "turns": 0,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "battery": 5
+            }
+          },
+          "say": [
+            "Five sound battery cells."
+          ]
+        }
+      },
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Fight.",
+        "effects": {
+          "goto": {
+            "encounter": "c2-rats"
+          }
+        }
+      },
+      {
+        "id": "back",
+        "mode": "act",
+        "text": "Back out to the stair.",
+        "effects": {
+          "goto": {
+            "map": "floors",
+            "x": 6,
+            "y": 20,
+            "facing": 0
+          }
+        }
+      }
+    ]
+  },
+  "c3": {
+    "title": "Stairwell Eight",
+    "area": "C3",
+    "text": [
+      "A wide stair goes down from the landing and does not stop where the building does. After a dozen steps it enters black water that lies perfectly flat. Your light rests on the surface and stays on it. Watch long enough and the water takes one more step, and holds it."
+    ],
+    "choices": [
+      {
+        "id": "water",
+        "mode": "plan",
+        "text": "Look at the water.",
+        "say": [
+          "From the twelfth step the stair is flooded, thirty feet to the bottom. Under the water, at the foot, a drain gate."
+        ]
+      },
+      {
+        "id": "tanks",
+        "mode": "act",
+        "text": "Go down on Reyes's pressure mods.",
+        "turns": 1,
+        "if": {
+          "flags": [
+            "pressure-ready"
+          ]
+        },
+        "effects": {
+          "say": [
+            "Reyes goes first, breathing slow. The rest follow his hand on the rail."
+          ],
+          "goto": {
+            "map": "sump",
+            "x": 3,
+            "y": 17,
+            "facing": 1
+          }
+        }
+      },
+      {
+        "id": "line",
+        "mode": "act",
+        "text": "Swim it on the dive line.",
+        "turns": 1,
+        "if": {
+          "items": {
+            "line": 1
+          }
+        },
+        "check": {
+          "stat": "body",
+          "difficulty": 2
+        },
+        "on": {
+          "success": {
+            "say": [
+              "Down the line, hand over hand. You come up in warm water."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 3,
+              "y": 17,
+              "facing": 1
+            }
+          },
+          "tie": {
+            "damage": {
+              "who": "leader",
+              "amount": 1,
+              "track": "meat"
+            },
+            "say": [
+              "You come up coughing, with a cut across the palm."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 3,
+              "y": 17,
+              "facing": 1
+            }
+          },
+          "fail": {
+            "damage": {
+              "who": "leader",
+              "amount": 1,
+              "track": "meat"
+            },
+            "say": [
+              "You come up in the wrong place. A turn gone, and a lungful of the stair."
+            ]
+          }
+        }
+      },
+      {
+        "id": "swim",
+        "mode": "act",
+        "text": "Swim it with no line.",
+        "turns": 1,
+        "check": {
+          "stat": "body",
+          "difficulty": 4
+        },
+        "on": {
+          "success": {
+            "say": [
+              "You hold on and kick, and make it."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 3,
+              "y": 17,
+              "facing": 1
+            }
+          },
+          "tie": {
+            "damage": {
+              "who": "leader",
+              "amount": 1,
+              "track": "meat"
+            },
+            "say": [
+              "You make it, barely."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 3,
+              "y": 17,
+              "facing": 1
+            }
+          },
+          "fail": {
+            "damage": {
+              "who": "leader",
+              "amount": 2,
+              "track": "meat"
+            },
+            "say": [
+              "The dark takes your direction. You come up where you started."
+            ]
+          }
+        }
+      },
+      {
+        "id": "dry",
+        "mode": "act",
+        "text": "Walk down the drained stair.",
+        "turns": 1,
+        "if": {
+          "flags": [
+            "drained"
+          ]
+        },
+        "effects": {
+          "say": [
+            "The water is gone. A wet slope, knee-deep at the bottom."
+          ],
+          "goto": {
+            "map": "sump",
+            "x": 3,
+            "y": 17,
+            "facing": 1
+          }
+        }
+      }
+    ]
+  },
+  "c4": {
+    "title": "The Concourse",
+    "area": "C4",
+    "text": [
+      "A long concourse. Along each wall a recess opens at ten-foot intervals, and each holds a dead lamp housing. Halfway down, a shift board is bolted up, its columns of tally marks gathered in sixes. Both ends of the hall lie beyond your light. Somewhere in the dark, water falls at regular intervals, in the manner of a supervisor."
+    ],
+    "choices": [
+      {
+        "id": "board",
+        "mode": "plan",
+        "text": "Read the shift board.",
+        "say": [
+          "Every sixth mark is circled: the crew rested on the sixth turn. Do the same."
+        ]
+      },
+      {
+        "id": "exits",
+        "mode": "plan",
+        "text": "Count the exits.",
+        "say": [
+          "Five ways out, left to right: the bunks, the arch, the lab, the ward hall, the way you came."
+        ]
+      },
+      {
+        "id": "mic",
+        "mode": "act",
+        "text": "Take the contact mic from its hook.",
+        "turns": 0,
+        "once": true,
+        "effects": {
+          "bonus": {
+            "who": "party",
+            "amount": 2,
+            "scope": "next"
+          },
+          "say": [
+            "A contact mic on a hook by the board. Held to a door, it makes the listener sharper."
+          ]
+        }
+      },
+      {
+        "id": "fixtures",
+        "mode": "act",
+        "text": "Pry the fixtures off the wall.",
+        "turns": 2,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "fixture-lot": 1
+            }
+          },
+          "say": [
+            "Twenty copper-backed housings. Heavy, and worth a hundred to a tinker."
+          ]
+        }
+      }
+    ]
+  },
+  "c5": {
+    "title": "The Crew Bunks",
+    "area": "C5",
+    "text": [
+      "Two rows of six bunks, and four of them occupied by custodian frames that have lain there since the condemnation. They wear coveralls gone green at the seams, and over each chest housing a name tag is bolted, in case the crew should be mistaken for someone else. When your light touches them the tags begin to glow, and the frames rise from the bunks one at a time, oldest first."
+    ],
+    "choices": [
+      {
+        "id": "tag",
+        "mode": "plan",
+        "text": "Read a tag.",
+        "say": [
+          "A name, a date, SUB 9. Each tag is wired into the building's current. Someone wanted the crew to go on working."
+        ]
+      },
+      {
+        "id": "dark",
+        "mode": "act",
+        "text": "Kill the light and hold still.",
+        "turns": 1,
+        "effects": {
+          "flag": {
+            "set": [
+              "custodians-settled"
+            ]
+          },
+          "say": [
+            "You hold still in the dark. The glow fades, and they lie back down."
+          ],
+          "goto": {
+            "close": true
+          }
+        }
+      },
+      {
+        "id": "rite",
+        "mode": "act",
+        "text": "Say the decommission phrase.",
+        "turns": 0,
+        "if": {
+          "flags": [
+            "rite-said"
+          ]
+        },
+        "effects": {
+          "flag": {
+            "set": [
+              "custodians-down"
+            ]
+          },
+          "say": [
+            "Four tags click dark. The frames fold flat."
+          ],
+          "goto": {
+            "close": true
+          }
+        }
+      },
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Fight.",
+        "effects": {
+          "goto": {
+            "encounter": "c5-custodians"
+          }
+        }
+      },
+      {
+        "id": "lockers",
+        "mode": "act",
+        "text": "Open the lockers.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "locker-take": 1
+            }
+          },
+          "say": [
+            "Three lockers still shut. Cash, a knotted sock of chits, a service medal."
+          ]
+        }
+      }
+    ]
+  },
+  "c6": {
+    "title": "The Camera Hall",
+    "area": "C6",
+    "text": [
+      "An eight-sided hall, and every wall of it is cameras: dozens, hoods up, each lens a bead of black glass. A steel ring is sunk in the floor, and within it a plinth carries a hooded lamp in a cradle stained green. When you step toward it the lenses all adjust at once, with a sound like a room full of people deciding to be quiet, and your light goes thin."
+    ],
+    "choices": [
+      {
+        "id": "ring",
+        "mode": "plan",
+        "text": "Look at the ring.",
+        "say": [
+          "Thirty feet across. Any light that is not green fails inside it. A flare carried in will die at the edge."
+        ]
+      },
+      {
+        "id": "wire",
+        "mode": "plan",
+        "text": "Look at the wiring.",
+        "say": [
+          "Cable runs out of the ring toward the posts on the shore, and toward the pool."
+        ]
+      },
+      {
+        "id": "take",
+        "mode": "act",
+        "text": "Cross the ring in the dark and take the lamp.",
+        "turns": 1,
+        "if": {
+          "notFlags": [
+            "have-lamp"
+          ]
+        },
+        "check": {
+          "stat": "reflexes",
+          "difficulty": 2
+        },
+        "on": {
+          "success": {
+            "item": {
+              "add": {
+                "green-lamp": 1
+              }
+            },
+            "flag": {
+              "set": [
+                "have-lamp"
+              ]
+            },
+            "say": [
+              "Your hand finds the cradle. Every lens in the room closes at once."
+            ]
+          },
+          "tie": {
+            "item": {
+              "add": {
+                "green-lamp": 1
+              }
+            },
+            "flag": {
+              "set": [
+                "have-lamp"
+              ]
+            },
+            "damage": {
+              "who": "leader",
+              "amount": 1,
+              "track": "systems"
+            },
+            "say": [
+              "You take it. The lenses close, and one of them flashes your face first."
+            ]
+          },
+          "fail": {
+            "damage": {
+              "who": "leader",
+              "amount": 1,
+              "track": "nerves"
+            },
+            "say": [
+              "You lose the cradle in the dark. A lens flashes. The hall remembers you."
+            ]
+          }
+        }
+      },
+      {
+        "id": "emp-accept",
+        "mode": "fate",
+        "ability": "trouble-employer",
+        "text": "Compel: a private channel pings. Take a Fate point.",
+        "effects": {
+          "fate": {
+            "who": "self",
+            "amount": 1
+          },
+          "flag": {
+            "set": [
+              "employer-pinged"
+            ]
+          },
+          "say": [
+            "A lens finds Ann's face, and a channel only her old employer uses opens in her ear. It offers a debt forgiven, or a location leaked. She reads it. She keeps moving."
+          ]
+        }
+      },
+      {
+        "id": "emp-refuse",
+        "mode": "fate",
+        "ability": "trouble-employer",
+        "text": "Refuse the compel. Pay a Fate point.",
+        "effects": {
+          "fate": {
+            "who": "self",
+            "amount": -1
+          },
+          "say": [
+            "Ann burns the channel at the first line and tells the cameras nothing."
+          ]
+        }
+      }
+    ]
+  },
+  "c7": {
+    "title": "The Engineer's Office",
+    "area": "C7",
+    "text": [
+      "The one dry room on this level, and it smells, improbably, of paper. At the desk sits a woman in a quilted vest the color of tea, and she has been bones since before the lawyers finished arguing about it. Her skull rests on her folded arms, like a thought she meant to come back to.",
+      "Squared on the blotter in front of her: a stack of printed logs. At her elbow, a depth scope on a stand, pointed through the north wall at the sea."
+    ],
+    "choices": [
+      {
+        "id": "name",
+        "mode": "plan",
+        "text": "Read her badge.",
+        "say": [
+          "ODELE BRANDT. CHIEF ENGINEER. SUB-LEVEL NINE. She is not a custodian. She is just dead."
+        ]
+      },
+      {
+        "id": "west",
+        "mode": "plan",
+        "text": "Look at the west door.",
+        "say": [
+          "Unmarked and unlocked. The passage behind it is fifty feet of nothing, ending in a lever: the back of the hidden panel in the service stair."
+        ]
+      },
+      {
+        "id": "east",
+        "mode": "plan",
+        "text": "Look at the east door.",
+        "say": [
+          "Barred from inside. Her last act. On the far side, in chalk, the eye with the line."
+        ]
+      },
+      {
+        "id": "lamp",
+        "mode": "act",
+        "text": "Read the log on the green lamp. (One turn.)",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "read-lamp"
+            ]
+          },
+          "say": [
+            "\"Green is the keyholder's color. Show it, and the Moray recalls that it is staff.\""
+          ]
+        }
+      },
+      {
+        "id": "leash",
+        "mode": "act",
+        "text": "Read the log on the leash. (One turn.)",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "read-leash"
+            ]
+          },
+          "say": [
+            "A drawing of the leash node at the throat. \"Crack the seal and it is an animal again. Nobody should.\""
+          ]
+        }
+      },
+      {
+        "id": "bell",
+        "mode": "act",
+        "text": "Read the feeding roster. (One turn.)",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "read-bell"
+            ]
+          },
+          "say": [
+            "Roster, in a neat hand: \"Feed at the east ledge. Ring first. It will not come without the bell.\""
+          ]
+        }
+      },
+      {
+        "id": "still",
+        "mode": "act",
+        "text": "Read the log on the hum. (One turn.)",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "read-still"
+            ]
+          },
+          "say": [
+            "\"It listens through its skin. Stand still on dry deck and you are, as far as it can tell, elsewhere.\""
+          ]
+        }
+      },
+      {
+        "id": "posts",
+        "mode": "act",
+        "text": "Read the log on the posts. (One turn.)",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "read-posts"
+            ]
+          },
+          "say": [
+            "A plan of the island with eight marks round the shore. In the margin: \"Power one post and the leash goes to it.\""
+          ]
+        }
+      },
+      {
+        "id": "last",
+        "mode": "act",
+        "text": "Read the last log. (One turn.)",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "read-last"
+            ]
+          },
+          "say": [
+            "\"The vault under the sea is shut and faces north. I am the engineer of its guard. When I am gone, someone please close out the roster, and the rounds will stop.\" Below it, a phrase: DECOMMISSION. ALL TAGS. SUB-LEVEL NINE. THANK YOU."
+          ]
+        }
+      },
+      {
+        "id": "say",
+        "mode": "act",
+        "text": "Say the phrase over her chair.",
+        "turns": 0,
+        "once": true,
+        "if": {
+          "flags": [
+            "read-last"
+          ]
+        },
+        "effects": {
+          "flag": {
+            "set": [
+              "rite-said"
+            ]
+          },
+          "say": [
+            "Somewhere in the walls, a hundred small clicks. Then silence. The rounds have ended."
+          ]
+        }
+      },
+      {
+        "id": "ks",
+        "mode": "fate",
+        "ability": "know-someone",
+        "text": "I Know Someone Who Can Help.",
+        "effects": {
+          "flag": {
+            "set": [
+              "read-leash"
+            ]
+          },
+          "say": [
+            "Marcus patches in a retired Meridian electrician. \"The fish wears a leash. Break the seal at the throat when its head is up. One hit, no more.\""
+          ]
+        }
+      },
+      {
+        "id": "take",
+        "mode": "act",
+        "text": "Take the depth scope and the purse.",
+        "turns": 0,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "depth-scope": 1,
+              "engineer-chits": 1
+            }
+          },
+          "say": [
+            "A depth scope, heavy. A drawer of chits, two hundred credits' worth."
+          ]
+        }
+      }
+    ]
+  },
+  "c8": {
+    "title": "The Optics Lab",
+    "area": "C8",
+    "noLeave": true,
+    "text": [
+      "A pair of grinding wheels face each other across a trough of glass grit, and on the bench beyond lies a lens as wide as a cartwheel, polished halfway to usefulness. In one corner of the ceiling a vent exhales cold air and some gray light. From deep inside it comes a dry, hurried ticking, like a long document being skimmed by many hands."
+    ],
+    "choices": [
+      {
+        "id": "vent",
+        "mode": "plan",
+        "text": "Look at the vent.",
+        "say": [
+          "It runs up to a crack in the hillside. A damper with a lever beside the bench can shut it."
+        ]
+      },
+      {
+        "id": "grit",
+        "mode": "plan",
+        "text": "Look at the grit.",
+        "say": [
+          "Glass dust. Thrown in a drone's sensor, it blinds it for a round."
+        ]
+      },
+      {
+        "id": "damper",
+        "mode": "act",
+        "text": "Shut the damper while they roost.",
+        "turns": 1,
+        "check": {
+          "stat": "reflexes",
+          "difficulty": 1
+        },
+        "on": {
+          "success": {
+            "flag": {
+              "set": [
+                "ticks-gone"
+              ]
+            },
+            "say": [
+              "The damper falls with a soft clang. The rustle goes thin and stops. They are shut in the flue for good."
+            ],
+            "goto": {
+              "close": true
+            }
+          },
+          "fail": {
+            "say": [
+              "The lever squeals. The rustle stops, then comes down the vent all at once."
+            ],
+            "goto": {
+              "encounter": "c8-ticks"
+            }
+          }
+        }
+      },
+      {
+        "id": "lenses",
+        "mode": "act",
+        "text": "Take the finished lenses.",
+        "turns": 0,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "optic-lenses": 1
+            }
+          },
+          "say": [
+            "Twelve palm-sized lenses in a padded case. Fragile."
+          ]
+        }
+      },
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Fight.",
+        "effects": {
+          "goto": {
+            "encounter": "c8-ticks"
+          }
+        }
+      },
+      {
+        "id": "back",
+        "mode": "act",
+        "text": "Back out.",
+        "effects": {
+          "goto": {
+            "map": "floors",
+            "x": 11,
+            "y": 7,
+            "facing": 2
+          }
+        }
+      }
+    ]
+  },
+  "c9": {
+    "title": "The Choked Stair",
+    "area": "C9",
+    "text": [
+      "The passage becomes a stair, and about halfway up the stair becomes a slope of fallen slab and snapped beams. A draft whistles through the gaps in it, smelling of gulls. Far above, one thread of daylight has found a single tread and stays on it."
+    ],
+    "choices": [
+      {
+        "id": "gaps",
+        "mode": "plan",
+        "text": "Listen to the gaps.",
+        "say": [
+          "Wind. Gulls. It only goes up to the atrium."
+        ]
+      },
+      {
+        "id": "dig",
+        "mode": "act",
+        "text": "Dig.",
+        "turns": 3,
+        "effects": {
+          "say": [
+            "Three turns of dust and noise. It comes out under the rubble you already know."
+          ]
+        }
+      },
+      {
+        "id": "boot",
+        "mode": "act",
+        "text": "Look in the rubble.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "gold": 3
+            }
+          },
+          "say": [
+            "A boot, and three credits in the toe."
+          ]
+        }
+      },
+      {
+        "id": "fg",
+        "mode": "fate",
+        "ability": "familiar-ground",
+        "text": "Familiar Ground.",
+        "effects": {
+          "flag": {
+            "set": [
+              "dead-end-marked"
+            ]
+          },
+          "say": [
+            "You have audited a hundred stairwells. This one is a dead end. You mark it on the map, and you do not come back."
+          ]
+        }
+      }
+    ]
+  },
+  "c10": {
+    "title": "The Pump Room",
+    "area": "C10",
+    "text": [
+      "The pump room is mostly basin: a square of black water, brimming, smelling of the open sea. A steel pipe feeds it through the far wall at a steady, indifferent rate. In the corner by the pipe a spoked valve wheel is fixed to the wall. The water beside it is perfectly still, in a room where nothing else is."
+    ],
+    "choices": [
+      {
+        "id": "wheel",
+        "mode": "plan",
+        "text": "Look at the wheel.",
+        "say": [
+          "It drains Stairwell Eight in two turns. Turn it back, and the stair refills."
+        ]
+      },
+      {
+        "id": "floor",
+        "mode": "plan",
+        "text": "Look at the basin floor.",
+        "say": [
+          "A purse on the bottom. Fifty credits. Something with claws lives beside it."
+        ]
+      },
+      {
+        "id": "bar",
+        "mode": "act",
+        "text": "Turn the wheel with a bar through the spokes, from ten feet off.",
+        "turns": 1,
+        "check": {
+          "stat": "body",
+          "difficulty": 2
+        },
+        "on": {
+          "success": {
+            "flag": {
+              "set": [
+                "drained"
+              ]
+            },
+            "say": [
+              "The wheel groans round. Far off, the stair begins to drain."
+            ]
+          },
+          "tie": {
+            "flag": {
+              "set": [
+                "drained"
+              ]
+            },
+            "damage": {
+              "who": "leader",
+              "amount": 1,
+              "track": "meat"
+            },
+            "say": [
+              "It turns. The crab lunges for the bar, and the bar kicks."
+            ]
+          },
+          "fail": {
+            "say": [
+              "The bar is too short. The wheel does not move."
+            ]
+          }
+        }
+      },
+      {
+        "id": "wheel2",
+        "mode": "act",
+        "text": "Turn the wheel by hand.",
+        "turns": 1,
+        "if": {
+          "flags": [
+            "pump-crab-down"
+          ]
+        },
+        "effects": {
+          "flag": {
+            "set": [
+              "drained"
+            ]
+          },
+          "say": [
+            "Two of you on the spokes. It turns, loudly."
+          ]
+        }
+      },
+      {
+        "id": "dive",
+        "mode": "act",
+        "text": "Dive for the purse.",
+        "turns": 1,
+        "once": true,
+        "check": {
+          "stat": "reflexes",
+          "difficulty": 2
+        },
+        "on": {
+          "success": {
+            "item": {
+              "add": {
+                "pump-purse": 1
+              }
+            },
+            "say": [
+              "You come up with the purse, and the crab misses your heels."
+            ]
+          },
+          "fail": {
+            "say": [
+              "The crab is faster than you."
+            ],
+            "goto": {
+              "encounter": "c10-crab"
+            }
+          }
+        }
+      },
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Fight the crab.",
+        "effects": {
+          "goto": {
+            "encounter": "c10-crab"
+          }
+        }
+      }
+    ]
+  },
+  "c11": {
+    "title": "The Alcove",
+    "area": "C11",
+    "text": [
+      "A shallow alcove holds a console on a plinth, its screen gone gray and crazed like old ice. On either side stands a hardsuit, wrapped to the neck in plastic sheeting like furniture in a house that is being sold, a steel plate showing at the chest. Someone has left a bowl at the console's foot, and in it twelve credit chits, set out neatly."
+    ],
+    "choices": [
+      {
+        "id": "suits",
+        "mode": "plan",
+        "text": "Look at the suits.",
+        "say": [
+          "Dormant. They will stay that way if you only look."
+        ]
+      },
+      {
+        "id": "bowl",
+        "mode": "plan",
+        "text": "Look at the bowl.",
+        "say": [
+          "Twelve chits, old mint. A collector would pay sixty."
+        ]
+      },
+      {
+        "id": "wake",
+        "mode": "act",
+        "text": "Wake the console.",
+        "turns": 1,
+        "check": {
+          "stat": "code",
+          "difficulty": 2
+        },
+        "on": {
+          "success": {
+            "flag": {
+              "set": [
+                "console-woke"
+              ]
+            },
+            "say": [
+              "The glass lights for one breath. NINE. ENGINEER ABSENT. VAULT SHUT. LEASH ACTIVE. Then it is dead again."
+            ]
+          },
+          "tie": {
+            "flag": {
+              "set": [
+                "console-woke"
+              ]
+            },
+            "damage": {
+              "who": "leader",
+              "amount": 1,
+              "track": "systems"
+            },
+            "say": [
+              "It lights, and spits current into the port. NINE. ENGINEER ABSENT. VAULT SHUT. LEASH ACTIVE."
+            ]
+          },
+          "fail": {
+            "say": [
+              "The glass stays gray."
+            ]
+          }
+        }
+      },
+      {
+        "id": "take",
+        "mode": "act",
+        "text": "Take the chits.",
+        "turns": 0,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "alcove-chits": 1
+            }
+          },
+          "say": [
+            "You lift the bowl. Both suits turn their heads."
+          ],
+          "goto": {
+            "encounter": "c11-suits"
+          }
+        }
+      }
+    ]
+  },
+  "c12": {
+    "title": "The Kelp Line Post",
+    "area": "C12",
+    "noLeave": true,
+    "text": [
+      "Heat from a brazier, and the stink of tar with fish frying in it. Three hands in salt-white oilskins are playing for chits on an upturned barrel, spearguns leaning at their knees like umbrellas. A square shaft opens in the floor behind them, winch overhead, ladder inside. The dice are still in the air when all three look up."
+    ],
+    "choices": [
+      {
+        "id": "look",
+        "mode": "plan",
+        "text": "Look at the crates.",
+        "say": [
+          "Kelp Line marks. A horn on a hook. Orders chalked on the wall: keep the tower out of the grotto. Do not go into the office."
+        ]
+      },
+      {
+        "id": "sign",
+        "mode": "act",
+        "text": "Knock, then show the chalk sign.",
+        "turns": 0,
+        "if": {
+          "flags": [
+            "knows-sign"
+          ]
+        },
+        "check": {
+          "stat": "cool",
+          "difficulty": 0
+        },
+        "on": {
+          "style": {
+            "flag": {
+              "set": [
+                "escorted",
+                "ledger-known"
+              ]
+            },
+            "say": [
+              "Jory laughs and calls you new hires. Over the dice he tells you the last run is soon, and what is in the ledger, for a seat in your boat home."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 20,
+              "y": 7,
+              "facing": 1
+            }
+          },
+          "success": {
+            "flag": {
+              "set": [
+                "escorted"
+              ]
+            },
+            "say": [
+              "Pike takes the chalk sign for a password. \"Down you go. Under guard.\""
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 20,
+              "y": 7,
+              "facing": 1
+            }
+          },
+          "tie": {
+            "flag": {
+              "set": [
+                "escorted"
+              ]
+            },
+            "item": {
+              "remove": {
+                "gold": 20
+              }
+            },
+            "say": [
+              "Pike wants twenty for his trouble. You pay it. He walks you down."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 20,
+              "y": 7,
+              "facing": 1
+            }
+          },
+          "fail": {
+            "say": [
+              "Pike's thumb is on the speargun's trigger. \"Wrong stroke.\""
+            ],
+            "goto": {
+              "encounter": "c12-crew"
+            }
+          }
+        }
+      },
+      {
+        "id": "name",
+        "mode": "act",
+        "text": "Say you work for Marcus Kain.",
+        "turns": 0,
+        "check": {
+          "stat": "cool",
+          "difficulty": 1
+        },
+        "on": {
+          "style": {
+            "flag": {
+              "set": [
+                "escorted",
+                "ledger-known"
+              ]
+            },
+            "say": [
+              "Pike knows the name. \"Marcus pays on time. Down you go.\" On the stair Jory whispers what the ledger holds."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 20,
+              "y": 7,
+              "facing": 1
+            }
+          },
+          "success": {
+            "flag": {
+              "set": [
+                "escorted"
+              ]
+            },
+            "say": [
+              "Pike weighs the name. \"Down you go. Under guard.\""
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 20,
+              "y": 7,
+              "facing": 1
+            }
+          },
+          "tie": {
+            "flag": {
+              "set": [
+                "escorted"
+              ]
+            },
+            "item": {
+              "remove": {
+                "gold": 20
+              }
+            },
+            "say": [
+              "The name costs twenty to hear properly."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 20,
+              "y": 7,
+              "facing": 1
+            }
+          },
+          "fail": {
+            "say": [
+              "\"Never heard of him.\" The spearguns come up."
+            ],
+            "goto": {
+              "encounter": "c12-crew"
+            }
+          }
+        }
+      },
+      {
+        "id": "offer",
+        "mode": "act",
+        "text": "Offer food and ten credits.",
+        "turns": 0,
+        "if": {
+          "gold": 10
+        },
+        "check": {
+          "stat": "cool",
+          "difficulty": 1
+        },
+        "on": {
+          "style": {
+            "item": {
+              "remove": {
+                "gold": 10
+              }
+            },
+            "flag": {
+              "set": [
+                "escorted",
+                "ledger-known"
+              ]
+            },
+            "say": [
+              "They are glad of the company. Jory talks. You learn the last run, the boat, the ledger."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 20,
+              "y": 7,
+              "facing": 1
+            }
+          },
+          "success": {
+            "item": {
+              "remove": {
+                "gold": 10
+              }
+            },
+            "flag": {
+              "set": [
+                "escorted"
+              ]
+            },
+            "say": [
+              "The food goes round. \"Down you go.\""
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 20,
+              "y": 7,
+              "facing": 1
+            }
+          },
+          "tie": {
+            "item": {
+              "remove": {
+                "gold": 10
+              }
+            },
+            "flag": {
+              "set": [
+                "escorted"
+              ]
+            },
+            "say": [
+              "They take the money and are still unfriendly. But they let you down."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 20,
+              "y": 7,
+              "facing": 1
+            }
+          },
+          "fail": {
+            "item": {
+              "remove": {
+                "gold": 10
+              }
+            },
+            "say": [
+              "They take the money and keep the spearguns up. \"Back up the stair.\""
+            ],
+            "goto": {
+              "encounter": "c12-crew"
+            }
+          }
+        }
+      },
+      {
+        "id": "talk",
+        "mode": "act",
+        "text": "Just talk.",
+        "turns": 0,
+        "check": {
+          "stat": "cool",
+          "difficulty": 2
+        },
+        "on": {
+          "style": {
+            "flag": {
+              "set": [
+                "escorted"
+              ]
+            },
+            "say": [
+              "Bored, damp, hungry for news. They walk you down."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 20,
+              "y": 7,
+              "facing": 1
+            }
+          },
+          "success": {
+            "flag": {
+              "set": [
+                "escorted"
+              ]
+            },
+            "say": [
+              "Pike wants a reason. You give one. He lets you pass, under guard."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 20,
+              "y": 7,
+              "facing": 1
+            }
+          },
+          "tie": {
+            "say": [
+              "\"Give me a reason, or twenty.\" He waits."
+            ]
+          },
+          "fail": {
+            "say": [
+              "\"Turn around. Back up the stair.\" The spearguns stay level."
+            ],
+            "goto": {
+              "encounter": "c12-crew"
+            }
+          }
+        }
+      },
+      {
+        "id": "nsm",
+        "mode": "fate",
+        "ability": "nobody-stops-me",
+        "text": "Nobody Stops Me.",
+        "check": {
+          "stat": "reflexes",
+          "difficulty": 2
+        },
+        "on": {
+          "success": {
+            "flag": {
+              "set": [
+                "passed-clean"
+              ]
+            },
+            "say": [
+              "Reyes is past the brazier and onto the ladder before the dice finish rolling."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 30,
+              "y": 15,
+              "facing": 0
+            }
+          },
+          "fail": {
+            "flag": {
+              "set": [
+                "alarmed",
+                "passed-known"
+              ]
+            },
+            "say": [
+              "You are through, but Jory has seen your faces. The horn goes up behind you."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 30,
+              "y": 15,
+              "facing": 0
+            }
+          }
+        }
+      },
+      {
+        "id": "str-accept",
+        "mode": "fate",
+        "ability": "trouble-stream",
+        "text": "Compel: chat begs for the price. Take a Fate point.",
+        "effects": {
+          "fate": {
+            "who": "self",
+            "amount": 1
+          },
+          "flag": {
+            "set": [
+              "on-record"
+            ]
+          },
+          "say": [
+            "Chat begs to hear the Kelp Line's price. Reiko gives them the shot. It is reckless and true, and by the time the segment ends, people who should not have seen it have."
+          ]
+        }
+      },
+      {
+        "id": "str-refuse",
+        "mode": "fate",
+        "ability": "trouble-stream",
+        "text": "Refuse the compel. Pay a Fate point.",
+        "effects": {
+          "fate": {
+            "who": "self",
+            "amount": -1
+          },
+          "say": [
+            "Reiko cuts to a sponsor plug and leaves the real footage in the vault."
+          ]
+        }
+      },
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Draw weapons.",
+        "effects": {
+          "goto": {
+            "encounter": "c12-crew"
+          }
+        }
+      },
+      {
+        "id": "back",
+        "mode": "act",
+        "text": "Back off up the passage.",
+        "effects": {
+          "goto": {
+            "map": "floors",
+            "x": 25,
+            "y": 18,
+            "facing": 3
+          }
+        }
+      }
+    ]
+  },
+  "g1": {
+    "title": "The Water Gate",
+    "area": "G1",
+    "text": [
+      "The seawall opens and the sea walks in. Your own footsteps return from the dark ahead half a second late, slightly improved. A long boat is moored in the channel with its nets in a pile, and under the ledge a plate crab as wide as a door raises one claw out of the shallows, as if asking permission."
+    ],
+    "choices": [
+      {
+        "id": "boat",
+        "mode": "plan",
+        "text": "Look at the boat.",
+        "say": [
+          "Thirty feet, six oars, a lug sail. Under the nets, a false bottom sized for crates, empty. If the boat goes, the Kelp Line goes nowhere."
+        ]
+      },
+      {
+        "id": "cut",
+        "mode": "act",
+        "text": "Cut the boat loose.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "boat-cut"
+            ]
+          },
+          "say": [
+            "The line parts. The boat drifts out and the tide takes it."
+          ]
+        }
+      },
+      {
+        "id": "fish",
+        "mode": "act",
+        "text": "Drop a fish off the far end of the ledge.",
+        "turns": 0,
+        "if": {
+          "items": {
+            "chum": 1
+          }
+        },
+        "once": true,
+        "effects": {
+          "item": {
+            "remove": {
+              "chum": 1
+            }
+          },
+          "flag": {
+            "set": [
+              "gate-crab-fed"
+            ]
+          },
+          "say": [
+            "The crab goes for the fish. You walk the ledge behind it."
+          ]
+        }
+      },
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Fight the crab.",
+        "effects": {
+          "goto": {
+            "encounter": "g1-crab"
+          }
+        }
+      }
+    ]
+  },
+  "g2": {
+    "title": "The Kelp Line Dock",
+    "area": "G2",
+    "noLeave": true,
+    "text": [
+      "Work-lamps hang over a plank dock that runs along the channel. At one end a winch; at the other, crates of salt fish, and the smell of them. Five people in oilskins crusted white are mending a net, moving crates and disputing a tally, in descending order of intensity. To the south the cave opens onto wide black water, which accepts the lamplight without comment."
+    ],
+    "choices": [
+      {
+        "id": "tally",
+        "mode": "plan",
+        "text": "Look at the tally board.",
+        "say": [
+          "Crates in, crates out, and four gray circles drawn small."
+        ]
+      },
+      {
+        "id": "crate",
+        "mode": "act",
+        "text": "Take a crate of salt fish.",
+        "turns": 0,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "chum": 1
+            }
+          },
+          "say": [
+            "A crate of salt fish, in plain sight. They watch you take it."
+          ]
+        }
+      },
+      {
+        "id": "guests",
+        "mode": "act",
+        "text": "Go with your escort across the bridge.",
+        "if": {
+          "flags": [
+            "escorted"
+          ]
+        },
+        "effects": {
+          "say": [
+            "Polite, armed, watched. The planks flex under you."
+          ],
+          "goto": {
+            "map": "sump",
+            "x": 16,
+            "y": 7,
+            "facing": 3
+          }
+        }
+      },
+      {
+        "id": "boatback",
+        "mode": "act",
+        "text": "Offer to give the boat back.",
+        "turns": 0,
+        "if": {
+          "flags": [
+            "boat-cut"
+          ],
+          "notFlags": [
+            "escorted"
+          ]
+        },
+        "effects": {
+          "flag": {
+            "set": [
+              "escorted"
+            ]
+          },
+          "say": [
+            "Kell Amadi stops arguing. \"You cut it loose? And you will give it back? Come across.\""
+          ]
+        }
+      },
+      {
+        "id": "talk",
+        "mode": "act",
+        "text": "Talk your way across.",
+        "turns": 0,
+        "if": {
+          "notFlags": [
+            "escorted"
+          ]
+        },
+        "check": {
+          "stat": "cool",
+          "difficulty": 4
+        },
+        "on": {
+          "success": {
+            "flag": {
+              "set": [
+                "escorted"
+              ]
+            },
+            "say": [
+              "Amadi measures you. \"Rook will want to hear this. Under guard.\""
+            ]
+          },
+          "tie": {
+            "flag": {
+              "set": [
+                "escorted"
+              ]
+            },
+            "item": {
+              "remove": {
+                "gold": 20
+              }
+            },
+            "say": [
+              "It costs twenty and a long look. They let you across."
+            ]
+          },
+          "fail": {
+            "say": [
+              "\"Intruders.\" Amadi drops the tally board."
+            ],
+            "goto": {
+              "encounter": "g2-crew"
+            }
+          }
+        }
+      },
+      {
+        "id": "nsm",
+        "mode": "fate",
+        "ability": "nobody-stops-me",
+        "text": "Nobody Stops Me.",
+        "check": {
+          "stat": "reflexes",
+          "difficulty": 2
+        },
+        "on": {
+          "success": {
+            "flag": {
+              "set": [
+                "passed-clean"
+              ]
+            },
+            "say": [
+              "You walk the dock as if you owned it. Nobody stops you. You step off onto the feeding ledge."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 23,
+              "y": 11,
+              "facing": 2
+            }
+          },
+          "fail": {
+            "flag": {
+              "set": [
+                "alarmed"
+              ]
+            },
+            "say": [
+              "You make the ledge, but the whole dock sees you do it. Someone rings a bell."
+            ],
+            "goto": {
+              "map": "sump",
+              "x": 23,
+              "y": 11,
+              "facing": 2
+            }
+          }
+        }
+      },
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Fight.",
+        "effects": {
+          "goto": {
+            "encounter": "g2-crew"
+          }
+        }
+      },
+      {
+        "id": "back",
+        "mode": "act",
+        "text": "Back off to the ledge.",
+        "effects": {
+          "goto": {
+            "map": "sump",
+            "x": 26,
+            "y": 5,
+            "facing": 0
+          }
+        }
+      }
+    ]
+  },
+  "g3-string": {
+    "title": "The Alarm String",
+    "area": "G3",
+    "text": [
+      "Your boot stops a hand's breadth short. Across the passage at ankle height runs a monofilament line, tied off to a bell somewhere back toward the berth."
+    ],
+    "noLeave": true,
+    "choices": [
+      {
+        "id": "look",
+        "mode": "plan",
+        "text": "Look at where the line goes.",
+        "say": [
+          "It runs back along the wall to a small brass bell. Step through it and the bell rings."
+        ]
+      },
+      {
+        "id": "cut",
+        "mode": "act",
+        "text": "Cut it.",
+        "turns": 1,
+        "check": {
+          "stat": "tech",
+          "difficulty": 2
+        },
+        "on": {
+          "success": {
+            "flag": {
+              "set": [
+                "string-cut"
+              ]
+            },
+            "say": [
+              "The line parts without a sound. Beyond, the passage is clear."
+            ],
+            "goto": {
+              "close": true
+            }
+          },
+          "fail": {
+            "flag": {
+              "set": [
+                "bell-rung"
+              ]
+            },
+            "say": [
+              "The knife catches it wrong. Far off a bell rings once."
+            ],
+            "goto": {
+              "close": true
+            }
+          }
+        }
+      },
+      {
+        "id": "step",
+        "mode": "act",
+        "text": "Step through it.",
+        "turns": 0,
+        "effects": {
+          "flag": {
+            "set": [
+              "bell-rung"
+            ]
+          },
+          "say": [
+            "Far off, a bell rings once. Rook is ready."
+          ],
+          "goto": {
+            "close": true
+          }
+        }
+      },
+      {
+        "id": "fg",
+        "mode": "fate",
+        "ability": "familiar-ground",
+        "text": "Familiar Ground.",
+        "effects": {
+          "flag": {
+            "set": [
+              "string-cut"
+            ]
+          },
+          "say": [
+            "Every smuggler ties his alarm at ankle height, on the left. You step over it the way you step over a curb."
+          ],
+          "goto": {
+            "close": true
+          }
+        }
+      },
+      {
+        "id": "back",
+        "mode": "act",
+        "text": "Back off.",
+        "effects": {
+          "goto": {
+            "map": "sump",
+            "x": 26,
+            "y": 5,
+            "facing": 0
+          }
+        }
+      }
+    ]
+  },
+  "g3": {
+    "title": "The Cache",
+    "area": "G3",
+    "text": [
+      "A dry pocket in the cave, stocked with things that do not travel by day: dyed cloth in plastic, a cask branded MERIDIAN, a crate of copper fittings gone green from the damp. On a foam-lined box four gray cores sit side by side, warm as a held hand and far heavier than they look."
+    ],
+    "choices": [
+      {
+        "id": "cores",
+        "mode": "plan",
+        "text": "Look at the cores.",
+        "say": [
+          "Four. Warm. Cold cores are dormant guardian seeds, Meridian property. This is what Juno Pell dived for, and what Marcus's buyer pays for."
+        ]
+      },
+      {
+        "id": "take",
+        "mode": "act",
+        "text": "Take the four cold cores.",
+        "turns": 0,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "cold-core": 4
+            }
+          },
+          "flag": {
+            "set": [
+              "have-cores"
+            ]
+          },
+          "say": [
+            "Four cold cores, warm as a held breath."
+          ]
+        }
+      },
+      {
+        "id": "heavy",
+        "mode": "act",
+        "text": "Take the cloth, the cask and the fittings.",
+        "turns": 2,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "dyed-cloth": 1,
+              "reserve-spirit": 1,
+              "copper-fittings": 1
+            }
+          },
+          "say": [
+            "Heavy. Very heavy. Two turns of hauling, and a bad back each."
+          ]
+        }
+      },
+      {
+        "id": "coffer",
+        "mode": "act",
+        "text": "Break the coffer.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "cache-strongbox": 1
+            }
+          },
+          "say": [
+            "The lock goes with a bang that carries."
+          ]
+        }
+      }
+    ]
+  },
+  "g4": {
+    "title": "Rook's Berth",
+    "area": "G4",
+    "noLeave": true,
+    "text": [
+      "The berth holds a hammock, a strongbox on a chain, and a chart table propped on trestles under a lamp turned low. The woman at the table is lean, with a white braid, and she keeps reading her ledger while she looks at you. Beside the strongbox a broad man rests a hand on an axe, as if it were a railing. \"You're early,\" she says. \"Nobody is early. Mind the bridge.\""
+    ],
+    "choices": [
+      {
+        "id": "ledger",
+        "mode": "plan",
+        "text": "Look at the ledger.",
+        "say": [
+          "Cores bought by date and price. Each batch ends the same way: upstream to the Desk, third pier past the humming buoy. The courier column says Wren, every time. The last entry has no return."
+        ]
+      },
+      {
+        "id": "chart",
+        "mode": "plan",
+        "text": "Look at the chart.",
+        "say": [
+          "The Kelp Line's route east. The tower is marked with eight dots and a circle."
+        ]
+      },
+      {
+        "id": "both",
+        "mode": "act",
+        "text": "Take the ledger and the Desk's letter, for her life and her boat.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "has-ledger",
+              "has-letter",
+              "rook-dealt"
+            ]
+          },
+          "say": [
+            "Rook slides both across the table. \"Final offer. Mind the bridge on your way out.\""
+          ]
+        }
+      },
+      {
+        "id": "tenth",
+        "mode": "act",
+        "text": "Take a tenth of the strongbox for safe passage.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "boss-spoils": 1
+            }
+          },
+          "flag": {
+            "set": [
+              "rook-paid"
+            ]
+          },
+          "say": [
+            "Hobb counts it out. His eyes do not leave your hands."
+          ]
+        }
+      },
+      {
+        "id": "lamp",
+        "mode": "act",
+        "text": "Sell her the Green Lamp: five hundred, now.",
+        "turns": 0,
+        "once": true,
+        "if": {
+          "items": {
+            "green-lamp": 1
+          }
+        },
+        "effects": {
+          "item": {
+            "remove": {
+              "green-lamp": 1
+            },
+            "add": {
+              "gold": 500
+            }
+          },
+          "flag": {
+            "set": [
+              "lamp-sold"
+            ]
+          },
+          "say": [
+            "Rook weighs the lamp. \"The Desk would pay me twice. I will say it was three.\""
+          ]
+        }
+      },
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Take the ledger by force.",
+        "effects": {
+          "goto": {
+            "encounter": "g4-boss"
+          }
+        }
+      },
+      {
+        "id": "fav-accept",
+        "mode": "fate",
+        "ability": "trouble-favours",
+        "text": "Compel: Rook names a debt. Take a Fate point.",
+        "effects": {
+          "fate": {
+            "who": "self",
+            "amount": 1
+          },
+          "item": {
+            "remove": {
+              "gold": 30
+            }
+          },
+          "flag": {
+            "set": [
+              "favour-called"
+            ]
+          },
+          "say": [
+            "\"Marcus Kain,\" Rook says. \"You sold my schedule to the cutter. I know. I will be taking thirty, and your next favor.\" Marcus pays."
+          ]
+        }
+      },
+      {
+        "id": "fav-refuse",
+        "mode": "fate",
+        "ability": "trouble-favours",
+        "text": "Refuse the compel. Pay a Fate point.",
+        "effects": {
+          "fate": {
+            "who": "self",
+            "amount": -1
+          },
+          "say": [
+            "Marcus lets the name go by like a ship he does not own. Rook lets it, too."
+          ]
+        }
+      },
+      {
+        "id": "back",
+        "mode": "act",
+        "text": "Leave across the bridge.",
+        "effects": {
+          "goto": {
+            "map": "sump",
+            "x": 18,
+            "y": 7,
+            "facing": 1
+          }
+        }
+      }
+    ]
+  },
+  "g4-yield": {
+    "title": "Rook Yields",
+    "area": "G4",
+    "noLeave": true,
+    "text": [
+      "Rook slides down the wall and lifts the ledger like a white flag. \"Fine,\" she says, to the floor. \"Ask.\""
+    ],
+    "choices": [
+      {
+        "id": "take",
+        "mode": "act",
+        "text": "Take the ledger and the letter.",
+        "effects": {
+          "flag": {
+            "set": [
+              "has-ledger",
+              "has-letter"
+            ]
+          },
+          "item": {
+            "add": {
+              "boss-spoils": 1,
+              "faceless-chits": 1
+            }
+          },
+          "say": [
+            "Both are yours. So is the strongbox: faceless chits, and the rest."
+          ],
+          "goto": {
+            "close": true
+          }
+        }
+      }
+    ]
+  },
+  "g5": {
+    "title": "The Shaft Foot",
+    "area": "G5",
+    "text": [
+      "Beside the foot of the ladder a man sleeps sitting up, as only a professional can: chin down, speargun across his lap. A cargo basket hangs on a winch line overhead; the floor is trodden sand. From the passage beyond come voices and a steady wooden knock."
+    ],
+    "choices": [
+      {
+        "id": "voices",
+        "mode": "plan",
+        "text": "Listen for the voices.",
+        "say": [
+          "North-west, down the passage: the dock. Four voices, maybe five."
+        ]
+      },
+      {
+        "id": "sneak",
+        "mode": "act",
+        "text": "Let him sleep and go on.",
+        "turns": 1,
+        "effects": {
+          "flag": {
+            "set": [
+              "sentry-bypassed"
+            ]
+          },
+          "say": [
+            "You tread soft. He does not wake."
+          ]
+        }
+      },
+      {
+        "id": "ko",
+        "mode": "act",
+        "text": "Put him down quietly.",
+        "turns": 0,
+        "check": {
+          "stat": "reflexes",
+          "difficulty": 1
+        },
+        "on": {
+          "success": {
+            "flag": {
+              "set": [
+                "sentry-down"
+              ]
+            },
+            "say": [
+              "His speargun goes in the sand."
+            ]
+          },
+          "fail": {
+            "say": [
+              "He wakes."
+            ],
+            "goto": {
+              "encounter": "g5-sentry"
+            }
+          }
+        }
+      },
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Fight.",
+        "effects": {
+          "goto": {
+            "encounter": "g5-sentry"
+          }
+        }
+      }
+    ]
+  },
+  "g6": {
+    "title": "The Drowned Landing",
+    "area": "G6",
+    "text": [
+      "The stair surfaces onto a flooded concrete shelf. The water is body-warm and full of dark ribbons that hang in it and do not drift with the current. East of the stair the shelf pinches into a ledge along a wide dark pool, where, without a sound, a ring opens and fades."
+    ],
+    "choices": [
+      {
+        "id": "ribbons",
+        "mode": "plan",
+        "text": "Look at the ribbons.",
+        "say": [
+          "Leeches. Each wader picks up a few. Salt or a flame takes them off free."
+        ]
+      },
+      {
+        "id": "ring",
+        "mode": "plan",
+        "text": "Watch the ring on the pool.",
+        "say": [
+          "Something large, far out, changing its mind about direction. Not yet."
+        ]
+      },
+      {
+        "id": "tear",
+        "mode": "act",
+        "text": "Wade east and tear them off.",
+        "turns": 1,
+        "if": {
+          "notFlags": [
+            "salted"
+          ]
+        },
+        "effects": {
+          "damage": {
+            "who": "leader",
+            "amount": 1,
+            "track": "meat"
+          },
+          "say": [
+            "Each leech costs a bite. One mark for the lot."
+          ]
+        }
+      },
+      {
+        "id": "salt",
+        "mode": "act",
+        "text": "Salt your suits and wade.",
+        "turns": 1,
+        "if": {
+          "items": {
+            "salt-tin": 1
+          }
+        },
+        "effects": {
+          "item": {
+            "remove": {
+              "salt-tin": 1
+            }
+          },
+          "flag": {
+            "set": [
+              "salted"
+            ]
+          },
+          "say": [
+            "Salt in every seam. The ribbons drop away."
+          ]
+        }
+      }
+    ]
+  },
+  "g7": {
+    "title": "The Moray's Pool",
+    "area": "G7",
+    "noLeave": true,
+    "text": [
+      "Black water, and no far side to it. Something under the surface is lit from inside, a blue-green indicator light the size of a window, patient. It comes up. The water slumps off a back of gray armor plate, and then there is the head: long jaw, lens-bright eyes, and at the throat a steel leash band holding one dark seal."
+    ],
+    "choices": [
+      {
+        "id": "watch",
+        "mode": "plan",
+        "text": "Watch the water.",
+        "say": [
+          "It does not look. It feels. It circles at the edge of your light."
+        ]
+      },
+      {
+        "id": "lamp",
+        "mode": "act",
+        "text": "Hold up the Green Lamp.",
+        "turns": 0,
+        "if": {
+          "flags": [
+            "read-lamp"
+          ],
+          "items": {
+            "green-lamp": 1,
+            "battery": 1
+          }
+        },
+        "effects": {
+          "item": {
+            "remove": {
+              "battery": 1
+            }
+          },
+          "flag": {
+            "set": [
+              "guardian-stilled",
+              "pool-clear"
+            ]
+          },
+          "say": [
+            "The lamp throws green. The Moray sinks and lies still beneath you. You are staff. For as long as the cell holds, it lets you pass."
+          ]
+        }
+      },
+      {
+        "id": "bell",
+        "mode": "act",
+        "text": "Ring the bell with salt fish in hand.",
+        "turns": 0,
+        "if": {
+          "flags": [
+            "read-bell"
+          ],
+          "items": {
+            "chum": 1
+          }
+        },
+        "effects": {
+          "item": {
+            "remove": {
+              "chum": 1
+            }
+          },
+          "flag": {
+            "set": [
+              "guardian-fed",
+              "pool-clear"
+            ]
+          },
+          "say": [
+            "It goes to the feeding ledge and eats. You have four rounds, and the rim is yours."
+          ]
+        }
+      },
+      {
+        "id": "posts",
+        "mode": "act",
+        "text": "Cross while the pool is empty.",
+        "turns": 0,
+        "if": {
+          "flags": [
+            "post-lit"
+          ]
+        },
+        "effects": {
+          "flag": {
+            "set": [
+              "guardian-passed",
+              "pool-clear"
+            ],
+            "unset": [
+              "post-lit"
+            ]
+          },
+          "say": [
+            "A post on the surface is lit. The pool is empty. You have six turns."
+          ]
+        }
+      },
+      {
+        "id": "gap",
+        "mode": "act",
+        "text": "Cross in the gap in its circuit.",
+        "turns": 1,
+        "if": {
+          "flags": [
+            "watched-circuit"
+          ]
+        },
+        "check": {
+          "stat": "reflexes",
+          "difficulty": 1
+        },
+        "on": {
+          "success": {
+            "flag": {
+              "set": [
+                "guardian-passed",
+                "pool-clear"
+              ]
+            },
+            "say": [
+              "You know its circuit. You walk the rim while it is out at the east point."
+            ]
+          },
+          "fail": {
+            "say": [
+              "The gap is shorter than you thought."
+            ],
+            "goto": {
+              "encounter": "g7-guardian"
+            }
+          }
+        }
+      },
+      {
+        "id": "still",
+        "mode": "act",
+        "text": "Everyone hold still on dry deck.",
+        "turns": 1,
+        "if": {
+          "flags": [
+            "read-still"
+          ]
+        },
+        "check": {
+          "stat": "cool",
+          "difficulty": 2
+        },
+        "on": {
+          "success": {
+            "flag": {
+              "set": [
+                "guardian-passed",
+                "pool-clear"
+              ]
+            },
+            "say": [
+              "You stand like posts. It circles twice and goes away."
+            ]
+          },
+          "tie": {
+            "damage": {
+              "who": "leader",
+              "amount": 1,
+              "track": "systems"
+            },
+            "flag": {
+              "set": [
+                "guardian-passed",
+                "pool-clear"
+              ]
+            },
+            "say": [
+              "One of you twitches. It lunges once, and misses most of you."
+            ]
+          },
+          "fail": {
+            "say": [
+              "Someone breathes wrong."
+            ],
+            "goto": {
+              "encounter": "g7-guardian"
+            }
+          }
+        }
+      },
+      {
+        "id": "seal",
+        "mode": "act",
+        "text": "Break the leash seal.",
+        "turns": 0,
+        "if": {
+          "flags": [
+            "read-leash"
+          ]
+        },
+        "effects": {
+          "goto": {
+            "encounter": "g7-exposed"
+          }
+        }
+      },
+      {
+        "id": "ks",
+        "mode": "fate",
+        "ability": "know-someone",
+        "text": "I Know Someone Who Can Help.",
+        "effects": {
+          "flag": {
+            "set": [
+              "read-leash"
+            ]
+          },
+          "say": [
+            "Marcus's retired electrician, in your ear: \"Break the seal at the throat when the head is up. One hit.\""
+          ]
+        }
+      },
+      {
+        "id": "fight",
+        "mode": "act",
+        "text": "Fight it.",
+        "effects": {
+          "goto": {
+            "encounter": "g7-guardian"
+          }
+        }
+      },
+      {
+        "id": "back",
+        "mode": "act",
+        "text": "Back off to the landing.",
+        "effects": {
+          "goto": {
+            "map": "sump",
+            "x": 11,
+            "y": 17,
+            "facing": 2
+          }
+        }
+      },
+      {
+        "id": "dive",
+        "mode": "act",
+        "text": "Dive the feeding shelf for old salvage.",
+        "turns": 3,
+        "once": true,
+        "if": {
+          "flags": [
+            "pool-clear"
+          ]
+        },
+        "effects": {
+          "item": {
+            "add": {
+              "sump-shelf": 1
+            }
+          },
+          "say": [
+            "Three turns under the ledge. Offerings and leavings: nine hundred credits of old coin and plate."
+          ]
+        }
+      },
+      {
+        "id": "onward",
+        "mode": "act",
+        "text": "Go on along the rim.",
+        "turns": 0,
+        "if": {
+          "flags": [
+            "pool-clear"
+          ]
+        },
+        "effects": {
+          "goto": {
+            "close": true
+          }
+        }
+      }
+    ]
+  },
+  "g8": {
+    "title": "The Vault Door",
+    "area": "G8",
+    "text": [
+      "Past the last of the ledge is a low cave beneath the seawall, half of it flooded and entirely still. Across the water, in the north wall, is a disc of black alloy fifteen feet wide, sunk to its middle in the pool. Twelve cameras ring the rim, every lens closed. Beyond the wall is the sea, then the Deep, and the door faces it as something does that has been told to expect a knock."
+    ],
+    "choices": [
+      {
+        "id": "count",
+        "mode": "plan",
+        "text": "Count the cameras.",
+        "say": [
+          "Twelve. All shut. The same make as the ones in the camera hall, which are open. These are waiting."
+        ],
+        "effects": {
+          "flag": {
+            "set": [
+              "vault-seen"
+            ]
+          }
+        }
+      },
+      {
+        "id": "ear",
+        "mode": "plan",
+        "text": "Put an ear to the alloy.",
+        "say": [
+          "Very far down, a hum. The sea, singing."
+        ]
+      },
+      {
+        "id": "try",
+        "mode": "act",
+        "text": "Try the door.",
+        "turns": 1,
+        "once": true,
+        "effects": {
+          "flag": {
+            "set": [
+              "vault-tried",
+              "vault-seen"
+            ]
+          },
+          "say": [
+            "A speaker in the rim clears its throat, flat and polite.",
+            "\"New arrival detected. This door is not scheduled to open.\"",
+            "\"Please do not knock. Please do not return. Your visit has been logged.\""
+          ]
+        }
+      },
+      {
+        "id": "again",
+        "mode": "act",
+        "text": "Try again.",
+        "turns": 1,
+        "if": {
+          "flags": [
+            "vault-tried"
+          ]
+        },
+        "effects": {
+          "say": [
+            "Nothing answers. The cameras do not move. It has said what it has to say."
+          ]
+        }
+      },
+      {
+        "id": "disc",
+        "mode": "act",
+        "text": "Take the votive disc from the shelf.",
+        "turns": 0,
+        "once": true,
+        "effects": {
+          "item": {
+            "add": {
+              "vault-disc": 1
+            }
+          },
+          "say": [
+            "A gold disc stamped with an open eye. It was left here by people who asked for nothing."
+          ]
+        }
+      }
+    ]
+  },
+  "debrief": {
+    "title": "What You Tell Marcus",
+    "text": [
+      "Marcus Kain does not look up from his tablet. \"Start with what you are willing to say out loud. Then I will tell you what it is worth.\""
+    ],
+    "choices": [
+      {
+        "id": "shut",
+        "mode": "act",
+        "text": "Hand over the ledger and the Desk's letter. Leave the door shut.",
+        "turns": 0,
+        "if": {
+          "flags": [
+            "has-ledger",
+            "vault-seen"
+          ]
+        },
+        "effects": {
+          "goto": {
+            "ending": "end-shut"
+          }
+        }
+      },
+      {
+        "id": "sell",
+        "mode": "act",
+        "text": "Sell the cold cores to the buyer.",
+        "turns": 0,
+        "if": {
+          "items": {
+            "cold-core": 1
+          }
+        },
+        "effects": {
+          "goto": {
+            "ending": "end-sold"
+          }
+        }
+      },
+      {
+        "id": "quiet",
+        "mode": "act",
+        "text": "Tell him the tower is deep and the door is shut. Nothing more.",
+        "turns": 0,
+        "if": {
+          "flags": [
+            "vault-seen"
+          ]
+        },
+        "effects": {
+          "goto": {
+            "ending": "end-quiet"
+          }
+        }
+      },
+      {
+        "id": "later",
+        "mode": "plan",
+        "text": "Not yet.",
+        "effects": {
+          "goto": {
+            "close": true
+          }
+        }
+      }
+    ]
+  }
+}

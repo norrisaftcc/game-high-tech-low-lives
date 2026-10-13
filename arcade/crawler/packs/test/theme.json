@@ -1,0 +1,7 @@
+{
+  "palette":     { "paper": "#F2EAD3", "ink": "#1B1712", "accent": "#7A2E1C", "muted": "#6B6253" },
+  "paletteDark": { "paper": "#14120F", "ink": "#E9E0C9", "accent": "#D0704E", "muted": "#9C927F" },
+  "fonts": { "title": "Georgia, 'Times New Roman', serif", "body": "Georgia, 'Times New Roman', serif", "mono": "ui-monospace, Menlo, Consolas, monospace" },
+  "titleCaps": true,
+  "labels": { "leave": "Leave", "light": "Torch", "search": "Search", "rest": "Rest", "map": "Map", "act": "Act" }
+}

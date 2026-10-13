@@ -1,0 +1,79 @@
+{
+  "title": "The Dock",
+  "text": [
+    "Neon on wet concrete. The boats knock together. Somewhere above, a Meridian drone crosses and does not stop."
+  ],
+  "places": [
+    {
+      "id": "booth",
+      "label": "Marcus's Booth",
+      "text": "Marcus is always here. He does not do the work. He makes it possible.",
+      "actions": [
+        { "id": "roster", "label": "Change the crew", "kind": "roster" },
+        { "id": "debrief", "label": "Tell Marcus", "kind": "scene", "scene": "debrief" }
+      ]
+    },
+    {
+      "id": "fence",
+      "label": "The Fence",
+      "text": "Cash, no questions. Prices are on the wall.",
+      "actions": [
+        {
+          "id": "trade", "label": "Trade", "kind": "shop",
+          "stock": [
+            { "item": "flare", "price": 5 },
+            { "item": "battery", "price": 10 },
+            { "item": "dive-lamp", "price": 40 },
+            { "item": "line", "price": 6 },
+            { "item": "salt-tin", "price": 3 },
+            { "item": "stim-patch", "price": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "clinic",
+      "label": "The Clinic",
+      "text": "Dr. Kahale's cousin. Clean enough. She does not ask.",
+      "actions": [
+        { "id": "rest", "label": "Patch up", "kind": "rest", "price": 20 }
+      ]
+    },
+    {
+      "id": "mirasol",
+      "label": "The Mirasol",
+      "text": "Reyes's boat. She is leaking again.",
+      "actions": [
+        { "id": "ship", "label": "Sail for the tower", "kind": "scene", "scene": "gate" }
+      ]
+    }
+  ],
+  "report": {
+    "title": "What you tell Marcus",
+    "lines": {
+      "heard-rats": "You heard the rats before you met them.",
+      "rats-gone": "The battery store is clear.",
+      "rite-said": "You said the engineer's phrase. The custodians are stood down.",
+      "have-lamp": "You carry the Green Lamp.",
+      "guardian-stilled": "The Moray stood down for the lamp.",
+      "guardian-fed": "You fed the Moray and it let you by.",
+      "guardian-passed": "You passed the Moray without a fight.",
+      "guardian-freed": "You broke the leash. The Moray went north and has not come back.",
+      "guardian-down": "The Moray is dead.",
+      "have-cores": "You have the four cold cores.",
+      "has-ledger": "You hold the Kelp Line's ledger.",
+      "has-letter": "You hold the Desk's letter.",
+      "rook-dealt": "Rook dealt, and walked free.",
+      "boss-yielded": "Rook yielded.",
+      "boat-cut": "The Kelp Line's boat is adrift.",
+      "alarmed": "The Kelp Line knows you came.",
+      "vault-seen": "You have seen the vault door.",
+      "vault-tried": "The Algorithm spoke once, and filed you.",
+      "employer-pinged": "Ann's old employer knows where she was.",
+      "on-stream": "Reiko's feed has the whole fight.",
+      "on-record": "The Kelp Line has Reiko's face on record.",
+      "favour-called": "Rook called a favor on Marcus.",
+      "lamp-sold": "You sold the Green Lamp to Rook."
+    }
+  }
+}

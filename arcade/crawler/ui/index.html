@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>{{title}}</title>
+<noscript><style>#stage, #party, #log, #controls { display: none; }</style></noscript>
+<!-- @style -->
+</head>
+<body>
+<div id="app" data-mode="boot">
+  <header id="hud" aria-label="Status"><span class="hud-area">{{title}}</span></header>
+
+  <section id="stage" aria-label="View">
+    <canvas id="wire" role="img" aria-label="The view ahead"></canvas>
+    <div id="plate" hidden></div>
+    <div id="panel" hidden></div>
+  </section>
+
+  <section id="party" aria-label="Party"></section>
+
+  <div id="log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Log" tabindex="0"></div>
+
+  <section id="controls" aria-label="Controls"></section>
+
+  <footer id="frame">
+    <details id="help">
+      <summary>F1 How to play</summary>
+      <div class="help-body">
+        <p>You lead a party of four through a grid of 10-foot squares. You see what is ahead. The cards show your party. The <span data-l="front">Front rank</span> is the top row. The <span data-l="back2">Back rank</span> is the bottom row.</p>
+        <h2>Move</h2>
+        <table>
+          <tr><th>Do</th><th>Tap</th><th>Key</th><th>Swipe</th></tr>
+          <tr><td>Move forward</td><td>Up arrow</td><td>Up, W</td><td>Up</td></tr>
+          <tr><td>Move back</td><td>Down arrow</td><td>Down, S</td><td>Down</td></tr>
+          <tr><td>Turn left or right</td><td>Turn arrows</td><td>Left, A and Right, D</td><td>Left, right</td></tr>
+          <tr><td>Move sideways</td><td>Side arrows</td><td>Q and E</td><td></td></tr>
+          <tr><td>Open or force a door, use stairs</td><td data-l="act">Act</td><td>Space, Enter</td><td></td></tr>
+          <tr><td>Search the area</td><td data-l="search">Search</td><td>F</td><td></td></tr>
+          <tr><td>Listen at the door ahead</td><td data-l="listen">Listen</td><td>L</td><td></td></tr>
+          <tr><td>Rest one turn</td><td data-l="rest">Rest</td><td>R</td><td></td></tr>
+          <tr><td>Map and route</td><td data-l="map">Map</td><td>M, Esc to close</td><td></td></tr>
+          <tr><td>Pick a choice or an order</td><td>The button</td><td>1 to 9</td><td></td></tr>
+          <tr><td>This page</td><td>F1 How to play</td><td>F1</td><td></td></tr>
+        </table>
+        <h2>Planning and acting</h2>
+        <p data-l="gate">Planning is free. Acting costs time.</p>
+        <p>A <strong>dashed</strong> choice is a plan: talk, look, think. It costs nothing. A <strong>solid</strong> choice is an act: it costs time and may roll dice. A <strong>double</strong> choice spends a Fate use.</p>
+        <h2>Time and light</h2>
+        <p>Each turn is ten minutes. Entering a new area takes a turn. Light burns down. In the dark you see nothing. A party that does not rest becomes tired.</p>
+        <h2>Fights</h2>
+        <p>Each member in turn gets an order: <span data-l="fight">Fight</span>, <span data-l="ability">Ability</span>, <span data-l="item">Item</span>, <span data-l="guard">Guard</span> or <span data-l="run">Run</span>. When all have one, the round plays. <span data-l="reroll">Reroll</span>: spend <span data-l="fate">Fate</span> to roll the last miss again.</p>
+        <h2>Cards and saves</h2>
+        <p>Tap a card for abilities and marching order. The game saves in this browser after each step. The seed in the footer repeats the same dice. <span data-l="newGame">New game</span> erases the save.</p>
+      </div>
+    </details>
+    <div class="frame-row">
+      <span id="seedline" class="mono">Seed</span>
+      <button type="button" id="newgame" class="btn small" data-l="newGame">New game</button>
+    </div>
+    <noscript><p class="noscript">This game needs JavaScript. The help above reads without it.</p></noscript>
+  </footer>
+
+  <div id="mapov" role="dialog" aria-modal="true" aria-label="Map" hidden></div>
+  <div id="sheet" role="dialog" aria-modal="true" hidden></div>
+</div>
+<!-- @pack -->
+<!-- @engine -->
+<!-- @view -->
+</body>
+</html>

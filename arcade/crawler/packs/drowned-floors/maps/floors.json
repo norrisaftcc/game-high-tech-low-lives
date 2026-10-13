@@ -1,0 +1,207 @@
+{
+  "id": "floors",
+  "title": "The Drowned Floors",
+  "tier": "Sub-levels 1 to 4",
+  "grid": [
+    "###############################",
+    "#jjjj####hhhhh#################",
+    "#jjjj####hhhhh######kkk########",
+    "#jjjj...+hhhhh######kkk########",
+    "##.######hhhhh######kkk########",
+    "##.###i##hhhhh#######.#########",
+    "##+###i####+#########.#########",
+    "#eeee#i####.#########+#########",
+    "#eeee#i####.#######fffff#######",
+    "#eeee#.####.#######fffff#######",
+    "#eeee+dddddddddd..+fffff#######",
+    "#eeee#dddddddddd###fffff#######",
+    "######.############fffff#######",
+    "######.##############L#########",
+    "######.##############.#########",
+    "##>###+##############.####lllll",
+    "#ccc#bbb###########gggg###lllll",
+    "#ccc.bbb###########gggg###lllll",
+    "#ccc#bbb###########gggg+..lllll",
+    "######=##########.+gggg###lllll",
+    "######aaS.........##########>##",
+    "######<########################"
+  ],
+  "legend": {
+    "a": {
+      "area": "C1"
+    },
+    "b": {
+      "area": "C2"
+    },
+    "c": {
+      "area": "C3"
+    },
+    "d": {
+      "area": "C4"
+    },
+    "e": {
+      "area": "C5"
+    },
+    "f": {
+      "area": "C6"
+    },
+    "g": {
+      "area": "C7"
+    },
+    "h": {
+      "area": "C8"
+    },
+    "i": {
+      "area": "C9"
+    },
+    "j": {
+      "area": "C10"
+    },
+    "k": {
+      "area": "C11"
+    },
+    "l": {
+      "area": "C12"
+    }
+  },
+  "cells": {
+    "6,21": {
+      "link": {
+        "map": "waterline",
+        "x": 2,
+        "y": 6,
+        "facing": 0
+      }
+    },
+    "2,15": {
+      "link": {
+        "map": "sump",
+        "x": 3,
+        "y": 17,
+        "facing": 1
+      }
+    },
+    "28,20": {
+      "link": {
+        "map": "sump",
+        "x": 30,
+        "y": 15,
+        "facing": 0
+      }
+    },
+    "21,13": {
+      "key": "service-key"
+    }
+  },
+  "areas": {
+    "C1": {
+      "name": "The Service Stair",
+      "light": "dark",
+      "enter": "c1"
+    },
+    "C2": {
+      "name": "The Battery Store",
+      "light": "dark",
+      "enter": "c2",
+      "encounter": "c2-rats",
+      "listen": {
+        "flag": "heard-rats",
+        "say": [
+          "Scratching. Squeaks. Many."
+        ]
+      }
+    },
+    "C3": {
+      "name": "Stairwell Eight",
+      "light": "dark",
+      "enter": "c3"
+    },
+    "C4": {
+      "name": "The Concourse",
+      "light": "dark",
+      "enter": "c4"
+    },
+    "C5": {
+      "name": "The Crew Bunks",
+      "light": "dark",
+      "enter": "c5",
+      "listen": {
+        "flag": "heard-bunks",
+        "say": [
+          "A soft ticking. Like servos cooling."
+        ]
+      }
+    },
+    "C6": {
+      "name": "The Camera Hall",
+      "light": "dark",
+      "enter": "c6"
+    },
+    "C7": {
+      "name": "The Engineer's Office",
+      "light": "dark",
+      "enter": "c7"
+    },
+    "C8": {
+      "name": "The Optics Lab",
+      "light": "dim",
+      "enter": "c8",
+      "listen": {
+        "flag": "heard-ticks",
+        "say": [
+          "A dry whine, high in the vent."
+        ]
+      }
+    },
+    "C9": {
+      "name": "The Choked Stair",
+      "light": "dim",
+      "enter": "c9"
+    },
+    "C10": {
+      "name": "The Pump Room",
+      "light": "dark",
+      "enter": "c10",
+      "listen": {
+        "flag": "heard-pump",
+        "say": [
+          "Water, pouring. Something heavy shifts in it."
+        ]
+      }
+    },
+    "C11": {
+      "name": "The Alcove",
+      "light": "dark",
+      "enter": "c11"
+    },
+    "C12": {
+      "name": "The Kelp Line Post",
+      "light": "dim",
+      "enter": "c12",
+      "listen": {
+        "flag": "heard-post",
+        "say": [
+          "Dice. Low voices. A brazier ticking."
+        ]
+      }
+    }
+  },
+  "wander": [
+    {
+      "weight": 2,
+      "encounter": "w-rats"
+    },
+    {
+      "weight": 1,
+      "encounter": "w-custodians"
+    },
+    {
+      "weight": 1,
+      "encounter": "w-ticks"
+    },
+    {
+      "weight": 1,
+      "encounter": "w-kelp"
+    }
+  ]
+}

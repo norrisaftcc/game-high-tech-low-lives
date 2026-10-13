@@ -1,0 +1,6 @@
+{
+  "giant-rat": { "name": "Giant rat", "ac": 12, "hd": 0.5, "hp": [2, 3, 1, 4, 2],
+    "attack": { "bonus": 0, "damage": "1d3" }, "ml": 8, "breakAt": { "dead": 2 }, "xp": 5,
+    "oseLine": "AC 7 [12] · HD ½ · Att 1 × bite (1d3) · THAC0 19 [0] · MV 120' (40'), swim 60' (20') · SV D12 W13 P14 B15 S16 (1) · ML 8 · XP 5",
+    "note5e": "5e: CR 1/4 · AC 12 · bite +0 (1d3) · flees at 2 dead." }
+}

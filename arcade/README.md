@@ -30,6 +30,9 @@ arcade/
   spikes/
     hard-land-rising/             M3 spike: capacity, complication, compel
   personas/                       six pair sheets plus personas.json and the palette record
+  crawler/                        a first-person party crawler: a vendored engine, view and
+                                  tools (from the Fort repository), and the Drowned Floors
+                                  pack; see crawler/README.md
 ```
 
 Phase note: this is technical implementation, which the project deferred to Phase 3. A

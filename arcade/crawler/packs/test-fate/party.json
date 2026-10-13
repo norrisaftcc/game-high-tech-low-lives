@@ -1,0 +1,163 @@
+{
+  "default": [
+    "reyes",
+    "shodann",
+    "undertow",
+    "marcus"
+  ],
+  "roster": {
+    "reyes": {
+      "name": "Reyes Tovan",
+      "title": "Nomad",
+      "npc": true,
+      "class": "Nomad",
+      "text": "The Mirasol has gotten him through worse.",
+      "stats": {
+        "body": 2,
+        "reflexes": 3,
+        "code": 0,
+        "tech": 1,
+        "cool": 1
+      },
+      "tracks": {
+        "meat": 3,
+        "nerves": 3,
+        "systems": 3
+      },
+      "attack": {
+        "name": "flare pistol",
+        "stat": "reflexes",
+        "costTrack": "meat"
+      },
+      "abilities": [
+        "nobody-stops-me"
+      ],
+      "items": {
+        "flare": 2
+      },
+      "fate": 3
+    },
+    "shodann": {
+      "name": "Ann Sho",
+      "title": "Infiltrator",
+      "npc": true,
+      "class": "Infiltrator",
+      "text": "Every bug is an education. Whose?",
+      "stats": {
+        "body": 1,
+        "reflexes": 2,
+        "code": 3,
+        "tech": 1,
+        "cool": 1
+      },
+      "tracks": {
+        "meat": 3,
+        "nerves": 3,
+        "systems": 3
+      },
+      "attack": {
+        "name": "shock baton",
+        "stat": "reflexes",
+        "costTrack": "nerves"
+      },
+      "abilities": [
+        "familiar-ground",
+        "spoof"
+      ],
+      "items": {},
+      "fate": 3
+    },
+    "undertow": {
+      "name": "Reiko Alvarez",
+      "title": "Influencer",
+      "npc": true,
+      "class": "Influencer",
+      "text": "The dive is real. The stream is always on.",
+      "stats": {
+        "body": 1,
+        "reflexes": 1,
+        "code": 1,
+        "tech": 3,
+        "cool": 2
+      },
+      "tracks": {
+        "meat": 3,
+        "nerves": 3,
+        "systems": 3
+      },
+      "attack": {
+        "name": "pry bar",
+        "stat": "body",
+        "costTrack": "meat",
+        "ranged": false
+      },
+      "abilities": [
+        "the-stream"
+      ],
+      "items": {
+        "battery": 1
+      },
+      "fate": 3
+    },
+    "marcus": {
+      "name": "Marcus Kain",
+      "title": "Fixer",
+      "npc": true,
+      "class": "Fixer",
+      "text": "He does not do the work. He makes it possible.",
+      "stats": {
+        "body": 0,
+        "reflexes": 1,
+        "code": 1,
+        "tech": 1,
+        "cool": 3
+      },
+      "tracks": {
+        "meat": 3,
+        "nerves": 3,
+        "systems": 3
+      },
+      "attack": {
+        "name": "pistol",
+        "stat": "cool",
+        "costTrack": "nerves",
+        "ranged": true
+      },
+      "abilities": [
+        "know-someone",
+        "patch"
+      ],
+      "items": {},
+      "fate": 3
+    },
+    "kaida": {
+      "name": "Kaida Voss",
+      "title": "Influencer",
+      "npc": true,
+      "class": "Influencer",
+      "text": "Three million people watch her work.",
+      "stats": {
+        "body": 0,
+        "reflexes": 2,
+        "code": 3,
+        "tech": 2,
+        "cool": 2
+      },
+      "tracks": {
+        "meat": 3,
+        "nerves": 3,
+        "systems": 3
+      },
+      "attack": {
+        "name": "stun glove",
+        "stat": "code",
+        "costTrack": "systems"
+      },
+      "abilities": [
+        "the-stream"
+      ],
+      "items": {},
+      "fate": 3
+    }
+  }
+}

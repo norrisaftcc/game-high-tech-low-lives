@@ -1,0 +1,31 @@
+{
+  "wreck-rat": {
+    "name": "Wreck rat",
+    "rating": 1,
+    "stress": 2,
+    "attack": {
+      "rating": 1,
+      "track": "meat"
+    },
+    "breakAt": {
+      "dead": 2
+    }
+  },
+  "eye-drone": {
+    "name": "Eye drone",
+    "rating": 2,
+    "stress": 3,
+    "attack": {
+      "rating": 2,
+      "track": "systems"
+    },
+    "aura": {
+      "check": {
+        "stat": "cool",
+        "difficulty": 1
+      },
+      "condition": "flagged",
+      "avoid": "guard"
+    }
+  }
+}

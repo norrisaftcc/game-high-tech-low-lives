@@ -1,0 +1,66 @@
+{
+  "flare": { "name": "Flare", "kind": "light", "value": 5, "light": { "turns": 6 } },
+  "dive-lamp": { "name": "Dive lamp", "kind": "gear", "value": 40 },
+  "battery": {
+    "name": "Battery cell", "kind": "light", "value": 10,
+    "light": { "turns": 24, "requires": "dive-lamp" },
+    "use": {
+      "when": "fight", "target": "foes",
+      "check": { "stat": "tech", "difficulty": 2 },
+      "on": {
+        "success": {
+          "item": { "remove": { "battery": 1 } },
+          "damage": { "who": "nearest", "n": 2, "amount": 2 },
+          "say": ["You short the cell into the water. Two bodies jerk."]
+        },
+        "fail": {
+          "item": { "remove": { "battery": 1 } },
+          "say": ["The cell fizzes and dies."]
+        }
+      }
+    }
+  },
+  "line": { "name": "Dive line", "kind": "gear", "value": 6 },
+  "salt-tin": {
+    "name": "Salt tin", "kind": "use", "value": 3,
+    "use": {
+      "when": "map", "target": "none",
+      "effects": {
+        "item": { "remove": { "salt-tin": 1 } },
+        "flag": { "set": ["salted"] },
+        "say": ["You rub coarse salt into every seam of the suits."]
+      }
+    }
+  },
+  "stim-patch": {
+    "name": "Stim patch", "kind": "use", "value": 15,
+    "use": {
+      "when": "any", "target": "ally",
+      "effects": {
+        "item": { "remove": { "stim-patch": 1 } },
+        "heal": { "who": "target", "amount": 2, "track": "meat" },
+        "say": ["The patch bites. Color comes back."]
+      }
+    }
+  },
+  "chum": { "name": "Crate of salt fish", "kind": "gear", "value": 4 },
+  "service-key": { "name": "Service key", "kind": "gear", "value": 0 },
+  "green-lamp": { "name": "The Green Lamp", "kind": "gear", "value": 0 },
+  "meridian-signet": { "name": "Meridian signet", "kind": "treasure", "value": 25 },
+  "fixture-lot": { "name": "Concourse fixtures", "kind": "treasure", "value": 100 },
+  "locker-take": { "name": "Bunk-locker take", "kind": "treasure", "value": 104 },
+  "depth-scope": { "name": "Depth scope", "kind": "treasure", "value": 250 },
+  "engineer-chits": { "name": "Engineer's chits", "kind": "treasure", "value": 200 },
+  "optic-lenses": { "name": "Finished lenses", "kind": "treasure", "value": 120 },
+  "pump-purse": { "name": "Pump-room purse", "kind": "treasure", "value": 50 },
+  "alcove-chits": { "name": "Alcove chits", "kind": "treasure", "value": 60 },
+  "cold-core": { "name": "Cold core", "kind": "treasure", "value": 100 },
+  "dyed-cloth": { "name": "Bolts of dyed cloth", "kind": "treasure", "value": 120 },
+  "reserve-spirit": { "name": "Cask of reserve spirit", "kind": "treasure", "value": 80 },
+  "copper-fittings": { "name": "Crate of copper fittings", "kind": "treasure", "value": 150 },
+  "cache-strongbox": { "name": "Cache strongbox", "kind": "treasure", "value": 800 },
+  "faceless-chits": { "name": "Faceless chits", "kind": "treasure", "value": 1800 },
+  "boss-spoils": { "name": "Boss's spoils", "kind": "treasure", "value": 450 },
+  "sump-shelf": { "name": "Shelf salvage", "kind": "treasure", "value": 900 },
+  "vault-disc": { "name": "Vault votive disc", "kind": "treasure", "value": 400 }
+}

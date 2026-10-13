@@ -1,0 +1,9 @@
+{
+  "torch": { "name": "Torch", "kind": "light", "value": 0, "light": { "turns": 6 } },
+  "lantern": { "name": "Lantern", "kind": "gear", "value": 10 },
+  "oil-flask": { "name": "Flask of oil", "kind": "light", "value": 2, "light": { "turns": 24, "requires": "lantern" },
+    "use": { "when": "fight", "target": "foes", "check": { "inSix": 3 },
+      "on": { "success": { "item": { "remove": { "oil-flask": 1 } }, "damage": { "who": "nearest", "n": 2, "amount": "1d8" }, "say": ["The oil catches."] },
+              "fail": { "item": { "remove": { "oil-flask": 1 } }, "say": ["The flask breaks short. Fire between you."] } } } },
+  "stone-apple": { "name": "Stone apple", "kind": "treasure", "value": 25 }
+}

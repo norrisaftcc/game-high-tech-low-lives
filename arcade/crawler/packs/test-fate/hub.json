@@ -1,0 +1,79 @@
+{
+  "title": "The Dock",
+  "text": [
+    "Neon on wet concrete. The boats knock together."
+  ],
+  "places": [
+    {
+      "id": "bar",
+      "label": "Marcus's Booth",
+      "text": "Marcus is always here.",
+      "actions": [
+        {
+          "id": "roster",
+          "label": "Change the crew",
+          "kind": "roster"
+        }
+      ]
+    },
+    {
+      "id": "fence",
+      "label": "The Fence",
+      "text": "Cash, no questions.",
+      "actions": [
+        {
+          "id": "buy",
+          "label": "Trade",
+          "kind": "shop",
+          "stock": [
+            {
+              "item": "flare",
+              "price": 5
+            },
+            {
+              "item": "battery",
+              "price": 10
+            },
+            {
+              "item": "dive-lamp",
+              "price": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "clinic",
+      "label": "The Clinic",
+      "text": "Clean enough.",
+      "actions": [
+        {
+          "id": "rest",
+          "label": "Patch up",
+          "kind": "rest",
+          "price": 20
+        }
+      ]
+    },
+    {
+      "id": "dock",
+      "label": "The Mirasol",
+      "text": "Reyes's boat.",
+      "actions": [
+        {
+          "id": "go",
+          "label": "Ship out",
+          "kind": "scene",
+          "scene": "gate"
+        }
+      ]
+    }
+  ],
+  "report": {
+    "title": "What you tell Marcus",
+    "lines": {
+      "rats-gone": "The store is clear.",
+      "heard-rats": "You heard them first."
+    }
+  }
+}

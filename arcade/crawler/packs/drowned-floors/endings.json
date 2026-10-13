@@ -1,0 +1,34 @@
+{
+  "end-dead": {
+    "title": "Flatline",
+    "kind": "dead",
+    "text": [
+      "The sea takes the crew, one chrome light at a time.",
+      "A Meridian cutter finds the Mirasol drifting at dawn. It files her as salvage."
+    ]
+  },
+  "end-shut": {
+    "title": "A User-Interface Defect",
+    "kind": "good",
+    "text": [
+      "Marcus reads the ledger twice, then makes the call he has put off for five years. Detective Lim takes the Desk's letter and a statement. The Kelp Line loses its berth.",
+      "The door under the sea stays shut. Somewhere, a flat voice files the whole matter as a user-interface defect."
+    ]
+  },
+  "end-sold": {
+    "title": "Faceless Chits",
+    "kind": "back",
+    "text": [
+      "Marcus counts the cores into a case and does not ask who. The Desk pays in chits with the faces ground off. Fifteen percent comes off the top, as agreed.",
+      "The door under the sea stays shut, for now. You do not know what the cores are for. You are careful not to find out."
+    ]
+  },
+  "end-quiet": {
+    "title": "A Quiet Account",
+    "kind": "back",
+    "text": [
+      "You tell Marcus the tower is deep and the door is shut. He nods as if that were an answer.",
+      "Out on the water, a Meridian cutter sweeps its light across the Shoals, and on."
+    ]
+  }
+}

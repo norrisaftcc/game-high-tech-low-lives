@@ -1,0 +1,10 @@
+{
+  "title": "The Fort", "text": [ "Smoke, goats, the lake." ],
+  "places": [
+    { "id": "hall", "label": "The Hall", "text": "Maren's table.", "actions": [ { "id": "roster", "label": "Change the party", "kind": "roster" } ] },
+    { "id": "shop", "label": "Harrow's Cart", "text": "Harrow sells, and buys.", "actions": [ { "id": "buy", "label": "Trade", "kind": "shop", "stock": [ { "item": "torch", "price": 1 }, { "item": "oil-flask", "price": 2 } ] } ] },
+    { "id": "shrine", "label": "The Shrine", "text": "The Terminal scrolls.", "actions": [ { "id": "rest", "label": "Rest", "kind": "rest", "price": 0 } ] },
+    { "id": "gate", "label": "The Gate", "text": "The way out.", "actions": [ { "id": "go", "label": "Go out", "kind": "scene", "scene": "gate" } ] }
+  ],
+  "report": { "title": "What you tell Maren", "lines": { "rats-gone": "The rats are gone from the store.", "heard-rats": "You heard them before you saw them." } }
+}

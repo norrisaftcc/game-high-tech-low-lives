@@ -1,0 +1,361 @@
+{
+  "c2-rats": {
+    "foes": [
+      {
+        "id": "wreck-rat",
+        "count": 5
+      }
+    ],
+    "first": {
+      "ifFlag": "heard-rats",
+      "then": "party",
+      "else": "foes"
+    },
+    "text": [
+      "Five wreck rats pour out of the racks."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "rats-gone"
+        ]
+      }
+    }
+  },
+  "c5-custodians": {
+    "foes": [
+      {
+        "id": "custodian",
+        "count": 4
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "Four custodian units step down from their bunks. The tags on their chests glow."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "custodians-down"
+        ]
+      }
+    }
+  },
+  "c8-ticks": {
+    "foes": [
+      {
+        "id": "tick-drone",
+        "count": 3
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "The tick drones drop from the flue and go for your ports."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "ticks-gone"
+        ]
+      }
+    }
+  },
+  "c10-crab": {
+    "foes": [
+      {
+        "id": "plate-crab",
+        "count": 1
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "The still water breaks. The crab climbs the basin wall, unhurried."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "pump-crab-down"
+        ]
+      }
+    }
+  },
+  "c11-suits": {
+    "foes": [
+      {
+        "id": "dead-suit",
+        "count": 2
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "Both hardsuits turn their heads. Servos whine."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "suits-down"
+        ]
+      }
+    }
+  },
+  "c12-crew": {
+    "foes": [
+      {
+        "id": "kelp-hand",
+        "count": 2
+      },
+      {
+        "id": "kelp-mate",
+        "count": 1
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "Dov Pike kicks the barrel over. The dice are still rolling when the shooting starts."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "post-cleared"
+        ]
+      },
+      "item": {
+        "add": {
+          "gold": 22
+        }
+      }
+    },
+    "onFlee": {
+      "flag": {
+        "set": [
+          "alarmed"
+        ]
+      },
+      "say": [
+        "Behind you a horn sounds. The grotto knows."
+      ]
+    }
+  },
+  "g1-crab": {
+    "foes": [
+      {
+        "id": "plate-crab",
+        "count": 1
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "The plate crab comes out of the shallows, one claw first."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "gate-crab-down"
+        ]
+      }
+    }
+  },
+  "g2-crew": {
+    "foes": [
+      {
+        "id": "kelp-hand",
+        "count": 4
+      },
+      {
+        "id": "kelp-mate",
+        "count": 1
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "Kell Amadi drops the tally board. The dock wakes up."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "dock-cleared"
+        ]
+      }
+    },
+    "onFlee": {
+      "flag": {
+        "set": [
+          "alarmed"
+        ]
+      }
+    }
+  },
+  "g4-boss": {
+    "foes": [
+      {
+        "id": "rook",
+        "count": 1
+      },
+      {
+        "id": "hobb",
+        "count": 1
+      }
+    ],
+    "first": "party",
+    "text": [
+      "Hobb takes the axe off the wall. Rook does not stand."
+    ],
+    "after": "g4-yield",
+    "onWin": {
+      "flag": {
+        "set": [
+          "boss-yielded"
+        ]
+      }
+    }
+  },
+  "g5-sentry": {
+    "foes": [
+      {
+        "id": "kelp-hand",
+        "count": 1
+      }
+    ],
+    "first": {
+      "ifFlag": "alarmed",
+      "then": "foes",
+      "else": "party"
+    },
+    "text": [
+      "The sentry jerks awake and reaches for his speargun."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "sentry-down"
+        ]
+      }
+    }
+  },
+  "g7-guardian": {
+    "foes": [
+      {
+        "id": "moray",
+        "count": 1
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "The Moray rolls. Blue light runs down its flank and the water crackles."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "guardian-down",
+          "pool-clear"
+        ]
+      }
+    }
+  },
+  "g7-exposed": {
+    "foes": [
+      {
+        "id": "moray-exposed",
+        "count": 1
+      }
+    ],
+    "first": "party",
+    "text": [
+      "The leash node sits bare at its throat. One clean hit."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "guardian-freed",
+          "pool-clear"
+        ]
+      }
+    }
+  },
+  "w-gulls": {
+    "foes": [
+      {
+        "id": "gull",
+        "count": 3
+      }
+    ],
+    "first": "foes",
+    "nonLethal": true,
+    "text": [
+      "Gulls. Thirty of them, then three that mean it."
+    ]
+  },
+  "w-rats": {
+    "foes": [
+      {
+        "id": "wreck-rat",
+        "count": 2
+      }
+    ],
+    "first": "foes",
+    "nonLethal": true,
+    "text": [
+      "Rats from the drains."
+    ]
+  },
+  "w-custodians": {
+    "foes": [
+      {
+        "id": "custodian",
+        "count": 2
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "Two custodian units, walking their round. They do not stop for you."
+    ]
+  },
+  "w-ticks": {
+    "foes": [
+      {
+        "id": "tick-drone",
+        "count": 2
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "A whine from the vents. Tick drones."
+    ]
+  },
+  "w-kelp": {
+    "foes": [
+      {
+        "id": "kelp-hand",
+        "count": 2
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "Two Kelp Line hands, hauling a crate. They see you first."
+    ]
+  },
+  "w-kelp3": {
+    "foes": [
+      {
+        "id": "kelp-hand",
+        "count": 3
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "Three Kelp Line hands with a crate on a pole. The crate goes down."
+    ]
+  },
+  "w-crab": {
+    "foes": [
+      {
+        "id": "plate-crab",
+        "count": 1
+      }
+    ],
+    "first": "foes",
+    "text": [
+      "A plate crab, up the channel from the sea."
+    ]
+  }
+}

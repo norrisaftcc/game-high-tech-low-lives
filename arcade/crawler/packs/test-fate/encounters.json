@@ -1,0 +1,43 @@
+{
+  "store-rats": {
+    "foes": [
+      {
+        "id": "wreck-rat",
+        "count": 2
+      }
+    ],
+    "first": {
+      "ifFlag": "heard-rats",
+      "then": "party",
+      "else": "foes"
+    },
+    "text": [
+      "Two salvage scavengers come up out of the racks, knives out."
+    ],
+    "onWin": {
+      "flag": {
+        "set": [
+          "rats-gone"
+        ]
+      },
+      "item": {
+        "add": {
+          "gold": 40
+        }
+      }
+    }
+  },
+  "lone-rat": {
+    "foes": [
+      {
+        "id": "eye-drone",
+        "count": 1
+      }
+    ],
+    "first": "foes",
+    "nonLethal": true,
+    "text": [
+      "A drone wakes and turns its eye on you."
+    ]
+  }
+}

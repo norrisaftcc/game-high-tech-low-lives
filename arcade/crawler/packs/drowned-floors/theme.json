@@ -1,0 +1,40 @@
+{
+  "palette":     { "paper": "#F3E9F4", "ink": "#4A0E4E", "accent": "#006B88", "muted": "#6B4770" },
+  "paletteDark": { "paper": "#2A0630", "ink": "#00D9FF", "accent": "#7FEFFF", "muted": "#A97FAF" },
+  "fonts": {
+    "title": "system-ui, -apple-system, 'Segoe UI', sans-serif",
+    "body": "system-ui, -apple-system, 'Segoe UI', sans-serif",
+    "mono": "ui-monospace, Menlo, Consolas, monospace"
+  },
+  "titleCaps": false,
+  "labels": {
+    "leave": "Leave",
+    "turn": "Turn",
+    "light": "Dive light",
+    "search": "Search",
+    "rest": "Rest",
+    "map": "Map",
+    "act": "Act",
+    "listen": "Listen",
+    "plan": "Plan",
+    "fate": "Fate",
+    "gold": "cr",
+    "gate": "Planning is free. Acting costs time.",
+    "fight": "Hit",
+    "guard": "Cover",
+    "run": "Run",
+    "ability": "Chrome",
+    "item": "Kit",
+    "reroll": "Reroll (Fate)",
+    "newGame": "New run",
+    "sure": "Tap again to erase the run",
+    "dark": "Dark",
+    "tired": "Tired",
+    "report": "Tell Marcus",
+    "deathDoor": "Critical",
+    "cheat": "Pay 2 Fate",
+    "letgo": "Flatline",
+    "abilities": "Chrome and powers",
+    "order": "Marching order"
+  }
+}
