@@ -3,6 +3,7 @@
   "title": "Test Wreck",
   "version": "0.1",
   "credits": "Fixture for the fate4df resolver.",
+  "storage": "htll.crawler",
   "start": {
     "scene": "job"
   }

@@ -43,7 +43,7 @@ No libraries, no network, no npm install. Node 22 and the global Playwright (`/o
 
 | File | Holds |
 |------|-------|
-| `pack.json` | `id`, `title`, `version`, `credits`, and optional `start: {scene}`: a scene that opens the first time the party reaches the hub (the job) |
+| `pack.json` | `id`, `title`, `version`, `credits`, optional `start: {scene}`: a scene that opens the first time the party reaches the hub (the job), and optional `storage`: the localStorage key prefix (default `crawl`; lower-case letters, digits, dots and dashes) |
 | `theme.json` | Look and words only: palette, fonts, labels. A reskin changes only this file. |
 | `rules.json` | Numbers and procedures: resolver, stats, tracks, clock, combat, fate, skills |
 | `party.json` | `default` (four ids, marching order) and `roster` (all characters) |
@@ -438,7 +438,7 @@ Cell kinds in `ahead`: `wall`, `open`, `door`, `stuck`, `locked`, `stairs`, `wat
 - **Fight.** One member at a time: the view asks for each living member's order, then sends one `orders` command. Rolls appear in the log in mono: `Fighter d20 14 +1 = 15 vs AC 12 · hit · 1d8+1 = 6`. On a portrait screen the orders sit in a sheet pinned to the bottom of the screen, two buttons to a row, with *Undo* and *Reroll* beside the question, so no order button is below the fold at 360 × 780. A round writes about nine lines, and the log shows three. So the sheet keeps the lines of the round just played above the next orders (*Last round*, until the next round plays), and when a step writes more than three lines outside a fight the log grows to seven lines and scrolls to the first new one.
 - **The hub.** The action that leaves for the dungeon (kind `scene`) is pinned to the bottom of the screen, so it is never below the fold. A stall row the party cannot pay for is greyed, and the line after a purchase shows under the stall.
 - **Light and dark.** CSS tokens on `:root` from `theme.palette`; `prefers-color-scheme: dark` uses `paletteDark`. Respect `prefers-reduced-motion`.
-- **Saves.** `localStorage["crawl.<pack id>"]` holds `{seed, commands}`, written after each step; the page replays it on load. Wrap every storage call in try/catch; the page must work without storage. `?seed=N` sets the seed; the footer shows it. A *New game* button clears the save: tap it twice within four seconds (no dialog). The line *Planning is free. Acting costs time.* is shown once, and that is remembered in a second key, `crawl.<pack id>.gate`, which is not part of `{seed, commands}`.
+- **Saves.** `localStorage["<storage>.<pack id>"]` holds (`<storage>` is `pack.storage`, default `crawl`) `{seed, commands}`, written after each step; the page replays it on load. Wrap every storage call in try/catch; the page must work without storage. `?seed=N` sets the seed; the footer shows it. A *New game* button clears the save: tap it twice within four seconds (no dialog). The line *Planning is free. Acting costs time.* is shown once, and that is remembered in a second key, `<storage>.<pack id>.gate`, which is not part of `{seed, commands}`.
 - **Frame bar.** `F1 How to play` (a `<details>` with the controls and the gate) in the static HTML, so it reads with scripting off. Words in it that are labels carry `data-l="<label key>"`; with scripting on, the view sets their text from the pack's labels, so the help says Hit where the button says Hit.
 - **Test hook.** `window.CRAWL = { pack, get state(), step(cmd), view(), replay({seed, commands}), seed }`.
 
@@ -478,7 +478,7 @@ Four agents built the engine, the view and two packs at once, to this file. Wher
 | 10 | Can a scene mark an encounter done, or open a door? | Not yet. The effect vocabulary stays at ten verbs. Both packs ask for a `done` list on `goto`/effects; it is the first thing to add if a third pack wants it. |
 | 11 | Can a scene spend a spell? | Not yet. A scene-only spell is a `fate`-kind ability. |
 | 12 | Does the Fort need a calendar? | The engine has turns, not days. Night counts and the restock table are not modelled. |
-| 13 | How is the gate line remembered? | A second storage key, `crawl.<id>.gate`. |
+| 13 | How is the gate line remembered? | A second storage key, `<storage>.<id>.gate`. |
 | 14 | How are foe stat cards shown? | `foes[].card`, once per kind, in the foe plate (section 7). |
 | 15 | Do the number keys reach a long hub? | Only the places' own actions; stall rows are tap, or Tab and Enter (section 9). |
 | 16 | New game: a dialog? | A second tap within four seconds. |
