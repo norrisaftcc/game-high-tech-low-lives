@@ -29,7 +29,7 @@ The built page is [`dist/drowned-floors.html`](dist/drowned-floors.html). The bu
 | Pick a choice, an order, a Dock action | The button | 1 to 9 | |
 | Help | F1 How to play | F1 | |
 
-The game saves in the browser after every step, under the key `crawl.drowned-floors`. `?seed=N` on the address picks the dice. The same seed and the same commands give the same game. *New run* clears the save (tap it twice).
+The game saves in the browser after every step, under the key `htll.crawler.drowned-floors` (every key sits under `htll.`, as `arcade/TESTS.md` row A-13 requires). `?seed=N` on the address picks the dice. The same seed and the same commands give the same game. *New run* clears the save (tap it twice).
 
 Planning is free. Acting costs time. A dashed choice is a plan. A solid choice is an act: it costs turns and may roll. A double choice spends a Fate use: a move or a Trouble from the playbooks.
 
@@ -53,10 +53,13 @@ See the Fort's [`crawler/README.md`](https://github.com/norrisaftcc/games-osr-fo
 | The engine (vendored tests) | `node --test arcade/crawler/engine/test.mjs` | `# fail 0` |
 | The whole game | build the pack, then `node arcade/crawler/test.mjs` | `PASS` |
 | The vendored copy is the Fort's | `node arcade/crawler/check-vendor.mjs` | `vendor matches <commit>` |
+| Every shipped page saves under `htll.` (A-13) | `node arcade/crawler/check-storage.mjs` | `ok <page>` for each page in `dist/` |
 
 `test.mjs` loads each page in `dist/` at 360 × 780 and plays four seeds (1, 7, 42, 2026) with an explorer that sends only the commands a tap sends. Across the seeds it must visit all 25 areas. It also replays one recorded path with real key presses, reloads the page, and plays with storage blocked. The explorer is not a good player: a seed that ends with the party down is a normal outcome. See the Fort's README for the switches (`SEEDS`, `VERBOSE`, `TRACE`).
 
 `check-vendor.mjs` finds the Fort checkout at `../../../games-osr-fort-on-lake/crawler` (next to this repository), or at the path in the environment variable `FORT_CRAWLER`. It prints `vendor matches <commit>` or lists the files that differ and exits 1. With no Fort checkout it prints `skip: no Fort checkout` and exits 0.
+
+`check-storage.mjs` reads the pack built into each page in `dist/` and fails unless its `storage` prefix starts with `htll.`. The `htll.` is fixed in the script, not read from the pack, so a pack that loses its `storage` field fails here. `test.mjs` checks the other half: a page writes keys only under its pack's prefix.
 
 ## Update the vendored copy
 
@@ -72,6 +75,7 @@ node arcade/crawler/check-vendor.mjs                        # vendor matches <co
 node arcade/crawler/tools/validate.mjs arcade/crawler/packs/drowned-floors
 node arcade/crawler/tools/build.mjs arcade/crawler/packs/drowned-floors --out arcade/crawler/dist/drowned-floors.html
 node arcade/crawler/test.mjs                                # PASS
+node arcade/crawler/check-storage.mjs                       # ok drowned-floors.html
 ```
 
 Commit the copy, the rebuilt `dist/drowned-floors.html` and any pack change together, and name the Fort commit in the message.
