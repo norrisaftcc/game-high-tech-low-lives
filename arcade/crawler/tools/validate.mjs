@@ -26,6 +26,7 @@ export function validate(pack) {
   // ---- pack.json
   for (const k of ["id", "title", "version"]) if (!pack[k]) err("pack.json", `missing ${k}`);
   if (pack.id && !/^[a-z0-9-]+$/.test(pack.id)) err("pack.json", `id "${pack.id}" is not lower-kebab-case`);
+  if (pack.storage != null && !(typeof pack.storage === "string" && /^[a-z0-9.-]+$/.test(pack.storage))) err("pack.json", `storage "${pack.storage}" must be lower-case letters, digits, dots and dashes`);
   if (pack.start?.scene && !has("events", pack.start.scene)) err("pack.json", `start.scene "${pack.start.scene}" is not an event`);
 
   // ---- rules.json

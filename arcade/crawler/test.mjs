@@ -626,6 +626,12 @@ for (const file of files) {
     if (before !== after) fail(name, "a reload did not restore the game from localStorage");
     // The save keeps playing after a reload.
     const more = await a.page.evaluate(() => { window.CRAWL.step({ t: "turn", dir: "right" }); return window.CRAWL.state.mode; });
+    // Every key the page writes sits under the pack's storage prefix.
+    const keys = await a.page.evaluate(() => Object.keys(localStorage));
+    const prefix = (await a.page.evaluate(() => window.CRAWL.pack.storage)) || "crawl";
+    const stray = keys.filter(k => !k.startsWith(prefix + "."));
+    if (!keys.length) fail(name, "the page wrote no save to localStorage");
+    if (stray.length) fail(name, `localStorage keys outside "${prefix}.": ${stray.join(", ")}`);
     await a.ctx.close();
     const b = await open(file, "?seed=" + recordedSeed, { blocked: true });
     const played = await b.page.evaluate(cmds => {

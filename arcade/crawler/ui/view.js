@@ -71,7 +71,8 @@
 
   // ---------------------------------------------------------------- storage (every call in try/catch)
 
-  const SAVE_KEY = "crawl." + PACK.id;
+  const PREFIX = typeof PACK.storage === "string" && /^[a-z0-9.-]+$/.test(PACK.storage) ? PACK.storage : "crawl";
+  const SAVE_KEY = PREFIX + "." + PACK.id;
   const GATE_KEY = SAVE_KEY + ".gate";
   let memGate = null;
   function storeGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }

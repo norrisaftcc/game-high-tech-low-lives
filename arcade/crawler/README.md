@@ -82,4 +82,3 @@ Commit the copy, the rebuilt `dist/drowned-floors.html` and any pack change toge
 - A scene cannot mark an encounter done, so fights do not come back after a retreat anywhere except the Battery Store (C2). Backing off from a fight leaves the monsters where they are.
 - The `shocked` aura condition has no mechanical effect in the engine yet.
 - Neural Link (Reyes, boat only) is in the card text and the track arithmetic, but it has no ability.
-- The page saves under `crawl.<pack id>`, not under the `htll.` prefix that `arcade/TESTS.md` (row A-13) asks of the cabinet's pages.

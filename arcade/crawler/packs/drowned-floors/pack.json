@@ -3,5 +3,8 @@
   "title": "The Drowned Floors",
   "version": "0.1",
   "credits": "High Tech, Low Lives. A crawl through a condemned pre-Rise tower. Rhymes The Drowned Tower, Module 2 of The Fort on the Lake.",
-  "start": { "scene": "job" }
+  "storage": "htll.crawler",
+  "start": {
+    "scene": "job"
+  }
 }
