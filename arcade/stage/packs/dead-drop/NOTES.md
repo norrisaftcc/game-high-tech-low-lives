@@ -246,11 +246,11 @@ For `cast.json` and `art/cast.jpg` (the feed-kit agent). One sheet, three tiles.
 | Cast id | Name | Role | File in `build/art/` | Original size | Face centre, radius | Tile centre on the sheet |
 |---------|------|------|----------------------|---------------|---------------------|--------------------------|
 | `ann` | Ann Sho | Subject 1 | `ann-sho-at-workxcf.png` | 932 by 936 | (430, 390), r 200 | (160, 160) |
-| `chen` | Manager Chen | Subject 2 | `corpo-cubicle-dweller.jpeg` (stand-in) | 1620 by 1673 | (750, 565), r 170 | (480, 160) |
+| `chen` | Manager Chen | Subject 2 | none: no crop (decided 2026-10-14) | — | — | — |
 | `g0` | g0 | Contact | none: draw the tile | | | (800, 160) |
 
 - **`ann`.** The best match for "Ann" in the Twine: dark bob, orange glasses, the ANN SHO // SHODANN badge, teal and orange. Alternate for the Sable identity: `sable-harker-algocratic.jpeg`, 1620 by 1663, face centre (780, 620), r 370. The kit may swap the portrait when `fields.identity` is the badge (add a `sable` entry; `validate` warns that she never speaks, which is fine).
-- **`chen`.** The art folder holds no Chen. The nearest face is the goggled analyst in `corpo-cubicle-dweller.jpeg`. It is a stand-in. Chen is older, tired, in wire-frame glasses and a yellow lanyard. Ask the user for a portrait. A prompt, in the style of `build/art/raw/character_art_prompts.md`: "Duotone ink line art, orange #FF6B35 and teal #1B4D5C. A tired woman in her fifties, wire-frame glasses, hair pulled back, a yellow lanyard, a tablet in one hand, a stylus in the other. Head and shoulders. Neutral, watchful."
+- **`chen`.** Decided by the user, 2026-10-14: Chen has no portrait in this version. The feed shows her as a **"VIDEO FEED DISABLED"** box: a staticky outline where her face would be. Her metadata still reads ("CHEN, M. · YELLOW CLEARANCE"), but her video is masked. The Algorithm can name her and cannot see her, and that fits the scene. In `cast.json` she has a name and role and no `x`, `y` or `r`; the feed kit draws the disabled box for any person without a crop (SPEC §2, cast.json). The user also confirmed that Chen is both the Twine's lecturer and the pregen's Manager YELLOW#A1C4. Other faces may reuse art from `build/art/`.
 - **`g0`.** g0 has no face; the Twine shows only dead image files. Draw a tile: teal ground, an orange "g0" glyph, a noise band across the middle. No portrait.
 - Another face for reference, not needed: `infiltrator-infiltrating.jpeg`, 1620 by 972, centre (680, 230), r 170.
 
@@ -280,7 +280,7 @@ Scenes and beats that use it: arrive, beats 6 to 8 (a `shift` from door)
 Look: paint   Art style: duotone ink
 Layers, back to front:
   1. frame   art: the wide floor from the ceiling camera. Empty tables, a barista at the back, Chen four tables from the door with a tablet. CH 3.   moves on: shift (dissolve)
-  2. track   cast: chen. Label "SUBJECT 2 · CHEN, M. · 97 PCT". Fixed at 97 percent.   moves on: shift
+  2. track   cast: chen. Label "SUBJECT 2 · CHEN, M. · VIDEO FEED DISABLED". A staticky outline box, no face.   moves on: shift
   3. track   cast: ann at the door, small. Label per identity.   moves on: shift
   4. scan    a sweep   moves on: none
 Cues this set must answer: shift, bloom, ink. Bound state for update(): fields.identity, meters.exposure
