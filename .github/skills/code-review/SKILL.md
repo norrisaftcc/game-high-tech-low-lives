@@ -11,7 +11,7 @@ This repository is a Fate-based cyberpunk RPG on a 93% ocean world: playbooks, s
 
 | Check | What to look for |
 |-------|------------------|
-| Vendored files | An edit to `arcade/crawler/engine/`, `ui/`, `tools/`, `SPEC.md`, the fixture packs, or to `arcade/stage/engine/`, `ui/`, `tools/`, `SPEC.md`, `MOTION.md`, `GUIDE.md`, `test.mjs` or the stage fixtures. These are byte-for-byte copies from the games-osr-fort-on-lake repository. They change there first, then are re-copied; `check-vendor.mjs` must pass. |
+| Vendored files | An edit to `arcade/crawler/engine/`, `ui/`, `tools/`, `test.mjs`, `SPEC.md`, the fixture packs, or to `arcade/stage/engine/`, `ui/`, `tools/`, `SPEC.md`, `MOTION.md`, `GUIDE.md`, `test.mjs` or the stage fixtures. These are byte-for-byte copies from the games-osr-fort-on-lake repository. They change there first, then are re-copied; `check-vendor.mjs` must pass. |
 | Storage | `localStorage` outside try/catch, or a key that does not start with `htll.`. |
 | Network | Any external script, style, font or image in a page under `arcade/` that must open from `file://`. |
 | Fate math | 4dF is four dice of −1, 0, +1, so totals run −4 to +4 before the stat. Success with style is 3 or more over the difficulty. A tie is equal. Check thresholds against this. |
@@ -30,7 +30,7 @@ Duotone ink line art, one pair per playbook: Infiltrator orange `#FF6B35` / teal
 
 ## The Stage (`arcade/stage/`)
 
-The contract is `arcade/stage/SPEC.md` (vendored). A pack (`arcade/stage/packs/<id>/`) is data only. It never names a motion; the engine picks cues. Every ending must be reachable (`sim.mjs`). Note texts are 60 words or fewer.
+This section applies once `arcade/stage/` lands (PR #34). The contract is `arcade/stage/SPEC.md` (vendored). A pack (`arcade/stage/packs/<id>/`) is data only. It never names a motion; the engine picks cues. Every ending must be reachable (`sim.mjs`). Note texts are 60 words or fewer.
 
 ## Do not raise
 
