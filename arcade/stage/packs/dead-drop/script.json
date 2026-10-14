@@ -1110,7 +1110,7 @@
       "beats": [
         {
           "kicker": "CH 3 · TABLE 9 · 06:58:10",
-          "text": "You sit at the corner table. The espresso is bitter and cooling fast."
+          "text": "You sit. The espresso is bitter and cooling fast."
         },
         {
           "text": "Chen marks something on her tablet, still reading. Thirty seconds later she stands, gathers her things and walks to the door. She pauses at your table.",
@@ -1517,7 +1517,16 @@
           ],
           "text": "Chen's eyes stay on you. You still have a favour to call, if you choose to pay for it.",
           "when": {
-            "flag": "sus"
+            "all": [
+              {
+                "flag": "sus"
+              },
+              {
+                "not": {
+                  "flag": "burned"
+                }
+              }
+            ]
           }
         }
       ],
@@ -1605,7 +1614,16 @@
               "label": "Let it pass",
               "sub": "No cost.",
               "when": {
-                "flag": "sus"
+                "all": [
+                  {
+                    "flag": "sus"
+                  },
+                  {
+                    "not": {
+                      "flag": "burned"
+                    }
+                  }
+                ]
               }
             },
             {
@@ -1616,6 +1634,11 @@
                 "all": [
                   {
                     "flag": "sus"
+                  },
+                  {
+                    "not": {
+                      "flag": "burned"
+                    }
                   },
                   {
                     "meter": "fate",
@@ -2074,7 +2097,7 @@
           "comment": "a-end-noticed",
           "screen": [
             "SUBJECT 1: MEDIUM EXPOSURE",
-            "EVENT: LATE GLANCE, CH 3",
+            "EVENT: NOTED, CH 3",
             "FLAG: NONE",
             "FILE: OPEN"
           ],
