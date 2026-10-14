@@ -1,0 +1,2259 @@
+{
+  "scenes": [
+    {
+      "id": "arrive",
+      "title": "Seven Minutes Early",
+      "place": "Harborview Cafe · 06:47",
+      "look": "paint",
+      "set": "door",
+      "beats": [
+        {
+          "kicker": "CH 1 · DOOR · 06:47:12 · CONF 38%",
+          "notes": [
+            "lore-protocol"
+          ],
+          "comment": "a-open",
+          "text": "Three weeks since the feed went dark. You push through the door at 6:47, seven minutes early. Protocol: never be the last person at a dead drop."
+        },
+        {
+          "text": "The Harborview Cafe sits wedged between a chrome clinic and a ship chandler's. Dawn cuts across salt-streaked glass. Beyond it the sea is gunmetal, with trawler lights on it."
+        },
+        {
+          "kicker": "NOT ON FEED",
+          "look": "ink",
+          "notes": [
+            "lore-blackout"
+          ],
+          "text": "Your budget hand whirs as the door closes. Three weeks of g0's protocols: text in dead image files, orders that are not orders, cups that mean coordinates."
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Learn this. Prove you can do it. Then we talk about the Blackout."
+        },
+        {
+          "look": "ink",
+          "text": "Today's protocol. Order a double espresso, no sugar. Set it at the corner table, handle to the window."
+        },
+        {
+          "look": "ink",
+          "comment": "h-protocol",
+          "text": "Check the cup three seats down. A stirrer across the rim means the message is live. Photograph it with your student ID in frame. Leave."
+        },
+        {
+          "kicker": "CH 3 · FLOOR · 06:47:40 · CONF 97%",
+          "set": "floor",
+          "text": "Simple. Except Manager Chen is already here."
+        },
+        {
+          "text": "Chen, from Applied Systems. Your lecturer on Tuesdays and Thursdays, who marks late arrivals in red."
+        },
+        {
+          "comment": "a-chen",
+          "text": "She sits four tables away with a tablet and a cappuccino. She frowns at the screen. You have never seen her anywhere before 8:55."
+        },
+        {
+          "kicker": "CH 3 · CUP · 06:47:58",
+          "set": "cup",
+          "comment": "a-cup",
+          "text": "The dead drop cup is three seats from her. Handle at four o'clock. Stirrer across the rim. Live."
+        },
+        {
+          "look": "ink",
+          "notes": [
+            "g-chen"
+          ],
+          "comment": "h-early",
+          "text": "Your Nerves tighten. This is a test or a coincidence. You cannot afford to guess wrong."
+        },
+        {
+          "notes": [
+            "g-observe",
+            "g-split"
+          ],
+          "comment": "a-track",
+          "screen": [
+            "CH 3 · TRACK",
+            "SUBJECT 2: CHEN, M.",
+            "CONF 97%",
+            "SUBJECT 1: ██████████",
+            "CONF 38%"
+          ],
+          "text": "The feed has two faces in frame. It knows one of them."
+        },
+        {
+          "look": "ink",
+          "notes": [
+            "rule-plan",
+            "rule-reveal"
+          ],
+          "comment": "h-plan",
+          "text": "You have a moment, and nothing is on the line yet. Look first, or act. Looking is free."
+        }
+      ],
+      "choices": [
+        {
+          "key": "observe",
+          "ask": "What do you take in first? Looking is free.",
+          "gate": "plan",
+          "options": [
+            {
+              "key": "cones",
+              "label": "The cameras",
+              "sub": "No dice, no time. Find where the feed is blind.",
+              "effects": [
+                {
+                  "flag": "cones"
+                },
+                {
+                  "set": {
+                    "chenKnows": "Nothing yet",
+                    "learned": "The feed is blind in one seat, behind the espresso machine."
+                  }
+                }
+              ],
+              "then": [
+                {
+                  "comment": "a-cones",
+                  "reveal": true,
+                  "screen": [
+                    "CH 1 DOOR: COVERED",
+                    "CH 2 COUNTER: COVERED",
+                    "CH 3 FLOOR: COVERED",
+                    "SEAT 9, BEHIND MACHINE: NOT COVERED"
+                  ],
+                  "text": "Three cameras. One dead seat, behind the espresso machine. The feed forgot it."
+                }
+              ]
+            },
+            {
+              "key": "chen",
+              "label": "Chen",
+              "sub": "No dice, no time. Learn how she works.",
+              "effects": [
+                {
+                  "flag": "rhythm"
+                },
+                {
+                  "set": {
+                    "chenKnows": "Nothing yet",
+                    "learned": "Chen marks her tablet every forty seconds. Then she looks up."
+                  }
+                }
+              ],
+              "then": [
+                {
+                  "comment": "a-rhythm",
+                  "reveal": true,
+                  "text": "She reads left to right. She marks the screen every forty seconds. When she marks, her eyes drop. When she finishes, they lift."
+                }
+              ]
+            },
+            {
+              "key": "none",
+              "label": "Neither",
+              "sub": "Trust the protocol. Look at nothing.",
+              "effects": [
+                {
+                  "set": {
+                    "chenKnows": "Nothing yet",
+                    "learned": "Nothing. You trusted the protocol."
+                  }
+                }
+              ],
+              "then": [
+                {
+                  "look": "ink",
+                  "text": "You keep your eyes on the menu board. You learn nothing. The feed learns nothing either."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "approach",
+          "ask": "What do you do?",
+          "gate": "plan",
+          "options": [
+            {
+              "key": "direct",
+              "label": "Proceed with the dead drop",
+              "sub": "Make it look natural. Code carries you.",
+              "effects": [
+                {
+                  "flag": "direct"
+                }
+              ],
+              "to": "counter"
+            },
+            {
+              "key": "split",
+              "label": "Try to split your attention",
+              "sub": "Watch Chen and grab the check. Harder: difficulty 3.",
+              "effects": [
+                {
+                  "flag": "split"
+                }
+              ],
+              "to": "counter"
+            },
+            {
+              "key": "abort",
+              "label": "Abort and sit with Chen",
+              "sub": "Give up the drop. Keep your cover. No roll.",
+              "effects": [
+                {
+                  "set": {
+                    "drop": "Skipped",
+                    "chenKnows": "Small talk only",
+                    "learned": "Chen's remarks are too precise for small talk."
+                  }
+                }
+              ],
+              "to": "abort"
+            },
+            {
+              "key": "change",
+              "label": "Change the order pattern",
+              "sub": "Skip the protocol. Chen never knows. No roll.",
+              "effects": [
+                {
+                  "set": {
+                    "drop": "Skipped",
+                    "chenKnows": "Nothing",
+                    "learned": "A changed order is safe, and the intel is lost."
+                  }
+                }
+              ],
+              "to": "change"
+            }
+          ]
+        }
+      ],
+      "next": "counter"
+    },
+    {
+      "id": "counter",
+      "title": "Double Espresso",
+      "place": "Harborview Cafe · 06:49",
+      "look": "paint",
+      "set": "counter",
+      "beats": [
+        {
+          "kicker": "CH 2 · COUNTER · 06:49:03 · CONF 41%",
+          "notes": [
+            "g-exposure"
+          ],
+          "comment": "a-counter",
+          "text": "You step to the counter. The barista's nails click on the register screen. She does not look up from her own feed."
+        },
+        {
+          "speaker": "ann",
+          "notes": [
+            "g-pay"
+          ],
+          "text": "Double espresso, no sugar."
+        },
+        {
+          "notes": [
+            "rule-gate",
+            "rule-exposure"
+          ],
+          "comment": "h-gate",
+          "text": "Your voice is steady. The machine hisses. You count four heartbeats. Now the register wants payment. Whatever you hand over, the feed will read."
+        }
+      ],
+      "choices": [
+        {
+          "key": "pay",
+          "ask": "How do you pay?",
+          "gate": "exec",
+          "notes": [
+            "rule-gate"
+          ],
+          "options": [
+            {
+              "key": "card",
+              "label": "Tap the student card",
+              "sub": "Names you: Ann Sho. Exposure +1.",
+              "effects": [
+                {
+                  "meter": "exposure",
+                  "add": 1
+                },
+                {
+                  "set": {
+                    "identity": "Ann Sho (student card)"
+                  }
+                }
+              ],
+              "then": [
+                {
+                  "comment": "a-card",
+                  "reveal": true,
+                  "screen": [
+                    "SUBJECT 1",
+                    "NAME: ANN SHO",
+                    "SOURCE: STUDENT CARD",
+                    "CONF 91%"
+                  ],
+                  "text": "12 yen leaves your stipend. The transaction burns into the campus network with your name on it."
+                }
+              ]
+            },
+            {
+              "key": "cash",
+              "label": "Pay in coins",
+              "sub": "Names no one. Exposure +0.",
+              "effects": [
+                {
+                  "set": {
+                    "identity": "Unnamed (cash)"
+                  }
+                }
+              ],
+              "then": [
+                {
+                  "comment": "a-cash",
+                  "screen": [
+                    "SUBJECT 1",
+                    "NAME: ██████████",
+                    "SOURCE: NONE",
+                    "CONF 38%"
+                  ],
+                  "text": "Coins on scratched steel. The barista does not look up. The name field stays black."
+                }
+              ]
+            },
+            {
+              "key": "badge",
+              "label": "Show the Harker badge",
+              "sub": "Names you: Sable Harker. Exposure +2.",
+              "effects": [
+                {
+                  "meter": "exposure",
+                  "add": 2
+                },
+                {
+                  "set": {
+                    "identity": "Sable Harker (staff badge)"
+                  }
+                }
+              ],
+              "then": [
+                {
+                  "comment": "a-badge",
+                  "reveal": true,
+                  "screen": [
+                    "SUBJECT 1",
+                    "NAME: SABLE HARKER",
+                    "SOURCE: BADGE B2C7",
+                    "CLEARANCE: ORANGE",
+                    "CONF 99%"
+                  ],
+                  "text": "The reader chirps orange. It is AlgoCratic's own reader, and it reports its own badge."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "route": [
+        {
+          "when": {
+            "flag": "split"
+          },
+          "to": "splitdrop"
+        },
+        {
+          "to": "drop"
+        }
+      ]
+    },
+    {
+      "id": "drop",
+      "title": "Three Seats Down",
+      "place": "Harborview Cafe · 06:51",
+      "look": "paint",
+      "set": "corner",
+      "beats": [
+        {
+          "kicker": "CH 3 · CORNER · 06:51:20",
+          "text": "The barista slides the cup across scratched steel. You carry it to the corner table, the one with the peeling laminate. Handle to the window. Exactly to protocol."
+        },
+        {
+          "text": "Now the hard part. The cup you must check is three seats down. Chen is four tables away. She is reading, but she is *present*. One unnatural glance and she will remember."
+        },
+        {
+          "look": "ink",
+          "text": "This is what Code is for. Make the move look like nothing. Blend the signal into the noise."
+        },
+        {
+          "look": "ink",
+          "when": {
+            "flag": "cones"
+          },
+          "text": "You know the dead seat. It is on your way."
+        },
+        {
+          "notes": [
+            "rule-4df",
+            "g-4df"
+          ],
+          "comment": "a-dice",
+          "text": "The feed rolls four dice. You add your Code, +3. The difficulty is 2."
+        }
+      ],
+      "choices": [
+        {
+          "key": "pass",
+          "ask": "Make the pass?",
+          "gate": "exec",
+          "notes": [
+            "rule-4df"
+          ],
+          "options": [
+            {
+              "key": "line",
+              "label": "Walk the camera line",
+              "sub": "4dF + Code (+3) vs 2",
+              "roll": {
+                "dice": "4dF",
+                "add": "code",
+                "vs": 2,
+                "results": {
+                  "fail": {
+                    "effects": [
+                      {
+                        "flag": "bad"
+                      },
+                      {
+                        "flag": "sus"
+                      },
+                      {
+                        "meter": "nerves",
+                        "add": 1
+                      },
+                      {
+                        "meter": "systems",
+                        "add": 1
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": 2
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "She is watching you",
+                          "drop": "Missed"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · CORNER · 06:51:44",
+                        "notes": [
+                          "rule-stress"
+                        ],
+                        "comment": "a-fail",
+                        "text": "The prosthetic catches a chair back. The servos grind. Chen looks up, straight at you, with your hand halfway to your pocket."
+                      },
+                      {
+                        "look": "ink",
+                        "comment": "h-fail",
+                        "text": "You freeze. The photo is gone and the motion was wrong. You put the ID away like you were only checking it."
+                      }
+                    ]
+                  },
+                  "tie": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "flag": "tie"
+                      },
+                      {
+                        "flag": "sus"
+                      },
+                      {
+                        "meter": "nerves",
+                        "add": 1
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": 1
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "Something is off",
+                          "drop": "Rushed"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · CORNER · 06:51:44",
+                        "notes": [
+                          "rule-stress"
+                        ],
+                        "comment": "a-tie",
+                        "text": "The servos whir louder than you want. Chen looks up. Not at you: at her phone, buzzing on the table. But it breaks your window."
+                      },
+                      {
+                        "comment": "h-tie",
+                        "text": "You rush the photo. The ID is half cropped. You have the stirrer and the timestamp. Probably. Your hands shake as you lift the cup."
+                      }
+                    ]
+                  },
+                  "success": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "Nothing",
+                          "drop": "Complete"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · CORNER · 06:51:44",
+                        "comment": "a-success",
+                        "text": "You drift past Chen's table like someone looking for a seat. Three steps. The prosthetic steadies on a chair back. The other hand palms the ID. *Click.*"
+                      },
+                      {
+                        "text": "Not perfect framing, but complete. Cup, stirrer and timestamp. Chen never looked up."
+                      }
+                    ]
+                  },
+                  "style": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "flag": "style"
+                      },
+                      {
+                        "meter": "fate",
+                        "add": 1
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": -1
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "Nothing",
+                          "drop": "Clean"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · CORNER · 06:51:44",
+                        "comment": "a-style",
+                        "text": "You drift past like someone looking for a seat. Chen's tablet holds her. The ID angles just so. *Click.*"
+                      },
+                      {
+                        "text": "Cup, stirrer and timestamp in one frame. Natural motion. Chen does not even glance up. Flawless. That earns a Fate point."
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "key": "blind",
+              "label": "Walk the blind line",
+              "sub": "4dF + Code (+3) vs 1. Needs the camera cones.",
+              "lock": {
+                "flag": "cones"
+              },
+              "hint": "Look at the cameras first.",
+              "roll": {
+                "dice": "4dF",
+                "add": "code",
+                "vs": 1,
+                "results": {
+                  "fail": {
+                    "effects": [
+                      {
+                        "flag": "bad"
+                      },
+                      {
+                        "flag": "sus"
+                      },
+                      {
+                        "meter": "nerves",
+                        "add": 1
+                      },
+                      {
+                        "meter": "systems",
+                        "add": 1
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": 2
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "She is watching you",
+                          "drop": "Missed"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 2 · SEAT 9 · NO SIGNAL",
+                        "set": "blind",
+                        "notes": [
+                          "rule-stress"
+                        ],
+                        "comment": "a-fail",
+                        "text": "You cut behind the espresso machine. A chair leg finds your shin and the servos squeal. You step out of the dead seat into the camera's cone, and Chen looks up."
+                      },
+                      {
+                        "look": "ink",
+                        "comment": "h-fail",
+                        "text": "No photo. You put the ID away like you were only checking it."
+                      }
+                    ]
+                  },
+                  "tie": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "flag": "tie"
+                      },
+                      {
+                        "flag": "sus"
+                      },
+                      {
+                        "meter": "nerves",
+                        "add": 1
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "Something is off",
+                          "drop": "Rushed"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 2 · SEAT 9 · NO SIGNAL",
+                        "set": "blind",
+                        "notes": [
+                          "rule-stress"
+                        ],
+                        "comment": "a-tie",
+                        "text": "You cut behind the espresso machine. The dead seat swallows you. A hinge squeals as you pass, and Chen's eyes lift for a moment."
+                      },
+                      {
+                        "comment": "h-tie",
+                        "text": "The photo is quick and a little crooked. You have the stirrer and the timestamp. Your pulse is loud."
+                      }
+                    ]
+                  },
+                  "success": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": -1
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "Nothing",
+                          "drop": "Complete"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 2 · SEAT 9 · NO SIGNAL",
+                        "set": "blind",
+                        "comment": "a-blind",
+                        "text": "You cut behind the espresso machine, into the seat the cameras forgot. The ID comes up. *Click.* Cup, stirrer and timestamp."
+                      },
+                      {
+                        "comment": "h-blind",
+                        "text": "No camera saw you take it. Chen did not look up."
+                      }
+                    ]
+                  },
+                  "style": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "flag": "style"
+                      },
+                      {
+                        "meter": "fate",
+                        "add": 1
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": -2
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "Nothing",
+                          "drop": "Clean"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 2 · SEAT 9 · NO SIGNAL",
+                        "set": "blind",
+                        "comment": "a-blind",
+                        "text": "You step into the dead seat like it was built for you. The ID rises. *Click.* One frame, perfect, and nobody saw."
+                      },
+                      {
+                        "comment": "h-blind",
+                        "text": "You step out the far side as if from the restroom. The feed has a gap and no reason for it. That earns a Fate point."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "next": "table"
+    },
+    {
+      "id": "splitdrop",
+      "title": "Two Things at Once",
+      "place": "Harborview Cafe · 06:51",
+      "look": "paint",
+      "set": "corner",
+      "beats": [
+        {
+          "kicker": "CH 3 · TABLE 7 · 06:51:20",
+          "text": "The barista slides the cup across scratched steel. You set it down at a table between Chen and the dead drop cup. Not the corner table, but close enough. You pull out your phone like you are checking messages."
+        },
+        {
+          "text": "You can do both. Watch Chen. Make the drop. It is only timing and divided attention."
+        },
+        {
+          "look": "ink",
+          "notes": [
+            "rule-4df"
+          ],
+          "comment": "h-split",
+          "text": "Harder. Your Code is still +3, but the difficulty is 3."
+        },
+        {
+          "look": "ink",
+          "when": {
+            "flag": "rhythm"
+          },
+          "text": "You know how she works. Forty seconds between marks. You can use that."
+        },
+        {
+          "notes": [
+            "g-4df"
+          ],
+          "comment": "a-dice",
+          "text": "The feed rolls four dice. You add your Code, +3. The difficulty is 3."
+        }
+      ],
+      "choices": [
+        {
+          "key": "pass",
+          "ask": "Make the pass?",
+          "gate": "exec",
+          "notes": [
+            "rule-4df"
+          ],
+          "options": [
+            {
+              "key": "both",
+              "label": "Watch Chen and make the pass",
+              "sub": "4dF + Code (+3) vs 3",
+              "roll": {
+                "dice": "4dF",
+                "add": "code",
+                "vs": 3,
+                "results": {
+                  "fail": {
+                    "effects": [
+                      {
+                        "flag": "bad"
+                      },
+                      {
+                        "flag": "burned"
+                      },
+                      {
+                        "flag": "sus"
+                      },
+                      {
+                        "meter": "nerves",
+                        "add": 2
+                      },
+                      {
+                        "meter": "systems",
+                        "add": 1
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": 3
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "She caught you",
+                          "drop": "Missed"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · TABLE 7 · 06:51:50",
+                        "notes": [
+                          "rule-stress"
+                        ],
+                        "comment": "a-fail",
+                        "text": "You stand just as Chen looks up. Your hand is already moving, the ID in view. There is no natural reason for it."
+                      },
+                      {
+                        "look": "ink",
+                        "comment": "h-fail",
+                        "text": "You abort and reach for a napkin. Chen's eyes follow every inch of it. The drop is blown."
+                      }
+                    ]
+                  },
+                  "tie": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "flag": "tie"
+                      },
+                      {
+                        "flag": "sus"
+                      },
+                      {
+                        "meter": "nerves",
+                        "add": 1
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": 2
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "She is watching you",
+                          "drop": "Rushed"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · TABLE 7 · 06:51:50",
+                        "notes": [
+                          "rule-stress"
+                        ],
+                        "comment": "a-tie",
+                        "text": "You try to time it to her reading, but she skims some lines and deep-reads others. She looks up. You commit anyway."
+                      },
+                      {
+                        "comment": "h-tie",
+                        "text": "You pull the ID, angle it, *click*. The photo is rushed and the framing is poor. You have the stirrer. Probably."
+                      }
+                    ]
+                  },
+                  "success": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "flag": "sus"
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": 1
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "Something is off",
+                          "drop": "Complete"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · TABLE 7 · 06:51:50",
+                        "comment": "a-success",
+                        "text": "You wait for her to turn a page. Then you stand and walk toward the restroom. The path takes you past the cup. *Click.*"
+                      },
+                      {
+                        "text": "Quick, not perfect, but complete. Chen glances up as you pass."
+                      }
+                    ]
+                  },
+                  "style": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "flag": "style"
+                      },
+                      {
+                        "meter": "fate",
+                        "add": 1
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "Nothing",
+                          "drop": "Clean"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · TABLE 7 · 06:51:50",
+                        "comment": "a-style",
+                        "text": "You learn her pattern fast. She scans left to right and marks the screen every forty seconds. When she marks, you stand, stretch, and drift toward the restroom."
+                      },
+                      {
+                        "text": "*Click.* Perfect framing. Cup, stirrer and timestamp. You circle back to your table. Chen never looks up. That earns a Fate point."
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "key": "timed",
+              "label": "Time the pass to her stylus",
+              "sub": "4dF + Code (+3) vs 2. Needs Chen's rhythm.",
+              "lock": {
+                "flag": "rhythm"
+              },
+              "hint": "Watch Chen first.",
+              "roll": {
+                "dice": "4dF",
+                "add": "code",
+                "vs": 2,
+                "results": {
+                  "fail": {
+                    "effects": [
+                      {
+                        "flag": "bad"
+                      },
+                      {
+                        "flag": "sus"
+                      },
+                      {
+                        "meter": "nerves",
+                        "add": 1
+                      },
+                      {
+                        "meter": "systems",
+                        "add": 1
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": 2
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "She is watching you",
+                          "drop": "Missed"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · TABLE 7 · 06:51:50",
+                        "notes": [
+                          "rule-stress"
+                        ],
+                        "comment": "a-fail",
+                        "text": "You wait for the stylus, but she marks early. She looks up with you half out of your chair. You sit back down in time. No photo."
+                      },
+                      {
+                        "look": "ink",
+                        "comment": "h-fail",
+                        "text": "She has nothing to point at. She has seen enough."
+                      }
+                    ]
+                  },
+                  "tie": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "flag": "tie"
+                      },
+                      {
+                        "flag": "sus"
+                      },
+                      {
+                        "meter": "nerves",
+                        "add": 1
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": 1
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "Something is off",
+                          "drop": "Rushed"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · TABLE 7 · 06:51:50",
+                        "notes": [
+                          "rule-stress"
+                        ],
+                        "comment": "a-tie",
+                        "text": "You stand as the stylus moves. She looks up one beat early. You commit."
+                      },
+                      {
+                        "comment": "h-tie",
+                        "text": "The photo is rushed. You have the stirrer. You take the long way to the restroom."
+                      }
+                    ]
+                  },
+                  "success": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "Nothing",
+                          "drop": "Complete"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · TABLE 7 · 06:51:50",
+                        "comment": "a-success",
+                        "text": "You stand as the stylus moves. Forty seconds, you counted. She is deep in the screen. *Click.*"
+                      },
+                      {
+                        "text": "You pass the cup, take the shot, and are back in your seat before she lifts her eyes."
+                      }
+                    ]
+                  },
+                  "style": {
+                    "effects": [
+                      {
+                        "flag": "ok"
+                      },
+                      {
+                        "flag": "style"
+                      },
+                      {
+                        "meter": "fate",
+                        "add": 1
+                      },
+                      {
+                        "meter": "exposure",
+                        "add": -1
+                      },
+                      {
+                        "set": {
+                          "chenKnows": "Nothing",
+                          "drop": "Clean"
+                        }
+                      }
+                    ],
+                    "then": [
+                      {
+                        "kicker": "CH 3 · TABLE 7 · 06:51:50",
+                        "comment": "a-style",
+                        "text": "You stand as the stylus moves. You have forty seconds and you use nineteen. *Click.* The frame is perfect."
+                      },
+                      {
+                        "text": "You are back in your seat before she lifts her eyes. The feed shows a student with a coffee. That earns a Fate point."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "next": "table"
+    },
+    {
+      "id": "table",
+      "title": "Chen Stands",
+      "place": "Harborview Cafe · 07:02",
+      "look": "paint",
+      "set": "corner",
+      "beats": [
+        {
+          "kicker": "CH 3 · TABLE 9 · 06:58:10",
+          "text": "You sit at the corner table. The espresso is bitter and cooling fast."
+        },
+        {
+          "text": "Chen marks something on her tablet, still reading. Thirty seconds later she stands, gathers her things and walks to the door. She pauses at your table.",
+          "when": {
+            "flag": "style"
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "Ann.",
+          "when": {
+            "flag": "style"
+          }
+        },
+        {
+          "speaker": "ann",
+          "text": "Morning, Manager Chen.",
+          "when": {
+            "flag": "style"
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "You're here early. For you.",
+          "when": {
+            "flag": "style"
+          }
+        },
+        {
+          "speaker": "ann",
+          "text": "Couldn't sleep.",
+          "when": {
+            "flag": "style"
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "The ocean helps. I come here when the campus networks are too loud. The trawlers do not argue about topology.",
+          "when": {
+            "flag": "style"
+          }
+        },
+        {
+          "text": "Five minutes later Chen gathers her tablet and coat. She stops at your table.",
+          "when": {
+            "all": [
+              {
+                "flag": "ok"
+              },
+              {
+                "not": {
+                  "flag": "style"
+                }
+              },
+              {
+                "not": {
+                  "flag": "tie"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "Ann. Didn't expect to see you here this early.",
+          "when": {
+            "all": [
+              {
+                "flag": "ok"
+              },
+              {
+                "not": {
+                  "flag": "style"
+                }
+              },
+              {
+                "not": {
+                  "flag": "tie"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "ann",
+          "text": "Coffee before algorithms. Thought I'd try consciousness for once.",
+          "when": {
+            "all": [
+              {
+                "flag": "ok"
+              },
+              {
+                "not": {
+                  "flag": "style"
+                }
+              },
+              {
+                "not": {
+                  "flag": "tie"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "Admirable. You always sit in corners?",
+          "when": {
+            "all": [
+              {
+                "flag": "ok"
+              },
+              {
+                "not": {
+                  "flag": "style"
+                }
+              },
+              {
+                "not": {
+                  "flag": "tie"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "look": "ink",
+          "text": "The question lands odd. Weighted.",
+          "when": {
+            "all": [
+              {
+                "flag": "ok"
+              },
+              {
+                "not": {
+                  "flag": "style"
+                }
+              },
+              {
+                "not": {
+                  "flag": "tie"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "ann",
+          "text": "Better light. The window faces east.",
+          "when": {
+            "all": [
+              {
+                "flag": "ok"
+              },
+              {
+                "not": {
+                  "flag": "style"
+                }
+              },
+              {
+                "not": {
+                  "flag": "tie"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "Mm. See you Tuesday.",
+          "when": {
+            "all": [
+              {
+                "flag": "ok"
+              },
+              {
+                "not": {
+                  "flag": "style"
+                }
+              },
+              {
+                "not": {
+                  "flag": "tie"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "The restroom is the other way.",
+          "when": {
+            "all": [
+              {
+                "flag": "tie"
+              },
+              {
+                "flag": "split"
+              }
+            ]
+          }
+        },
+        {
+          "text": "Chen does not leave. She takes a call, terse and professional. Her eyes work the cafe while she talks. They pass over you once. Twice.",
+          "when": {
+            "flag": "tie"
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "Ann. You look tense.",
+          "when": {
+            "flag": "tie"
+          }
+        },
+        {
+          "speaker": "ann",
+          "text": "Algorithms exam Thursday. Haven't slept much.",
+          "when": {
+            "flag": "tie"
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "Mm. Burnout doesn't look like tiredness. It looks like sloppy operational security.",
+          "when": {
+            "flag": "tie"
+          }
+        },
+        {
+          "look": "ink",
+          "text": "The words are a scalpel. You do not know if she means academic security or something else.",
+          "when": {
+            "flag": "tie"
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "Ann?",
+          "when": {
+            "all": [
+              {
+                "flag": "bad"
+              },
+              {
+                "not": {
+                  "flag": "burned"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "ann",
+          "text": "Manager Chen. Hi. I was just looking for a seat.",
+          "when": {
+            "all": [
+              {
+                "flag": "bad"
+              },
+              {
+                "not": {
+                  "flag": "burned"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "Her eyes go from you to the cup with the stirrer across the rim, and back. She says nothing. She stays another ten minutes, reading but *present*. Watching.",
+          "when": {
+            "all": [
+              {
+                "flag": "bad"
+              },
+              {
+                "not": {
+                  "flag": "burned"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "You seem distracted, Ann. If something is wrong, academically or otherwise, my office hours are Wednesdays.",
+          "when": {
+            "all": [
+              {
+                "flag": "bad"
+              },
+              {
+                "not": {
+                  "flag": "burned"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "ann",
+          "text": "I'm fine. Just tired.",
+          "when": {
+            "all": [
+              {
+                "flag": "bad"
+              },
+              {
+                "not": {
+                  "flag": "burned"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "Fatigue makes people careless. Careless people make mistakes they cannot take back.",
+          "when": {
+            "all": [
+              {
+                "flag": "bad"
+              },
+              {
+                "not": {
+                  "flag": "burned"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "look": "ink",
+          "text": "It is an offer or a threat. You cannot tell which.",
+          "when": {
+            "all": [
+              {
+                "flag": "bad"
+              },
+              {
+                "not": {
+                  "flag": "burned"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "Ann. Sit down.",
+          "when": {
+            "flag": "burned"
+          }
+        },
+        {
+          "speaker": "ann",
+          "text": "I thought I saw someone I knew. From class.",
+          "when": {
+            "flag": "burned"
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "You are a terrible liar. Whatever you are involved in, be smarter about it. Or stop.",
+          "when": {
+            "flag": "burned"
+          }
+        },
+        {
+          "speaker": "chen",
+          "text": "See you Tuesday. If you are still a student then.",
+          "when": {
+            "flag": "burned"
+          }
+        },
+        {
+          "text": "The threat is implicit, and clear. She does not raise her voice once.",
+          "when": {
+            "flag": "burned"
+          }
+        },
+        {
+          "look": "ink",
+          "notes": [
+            "rule-compel"
+          ],
+          "comment": "a-compel",
+          "text": "Your hand is shaking. Somewhere, a model of you is taking notes.",
+          "when": {
+            "any": [
+              {
+                "flag": "tie"
+              },
+              {
+                "flag": "bad"
+              }
+            ]
+          }
+        },
+        {
+          "look": "ink",
+          "notes": [
+            "g-fate"
+          ],
+          "text": "Chen's eyes stay on you. You still have a favour to call, if you choose to pay for it.",
+          "when": {
+            "flag": "sus"
+          }
+        }
+      ],
+      "choices": [
+        {
+          "key": "compel",
+          "ask": "The Algorithm offers a complication.",
+          "gate": "exec",
+          "options": [
+            {
+              "key": "accept",
+              "label": "Accept: the clone logs the tremor",
+              "sub": "Fate +1. Exposure +1.",
+              "when": {
+                "any": [
+                  {
+                    "flag": "tie"
+                  },
+                  {
+                    "flag": "bad"
+                  }
+                ]
+              },
+              "effects": [
+                {
+                  "meter": "fate",
+                  "add": 1
+                },
+                {
+                  "meter": "exposure",
+                  "add": 1
+                }
+              ],
+              "then": [
+                {
+                  "look": "ink",
+                  "text": "Your clone holds 72 gigabytes of you. It notes the shake in your hand and files it. It is learning faster than you are."
+                }
+              ]
+            },
+            {
+              "key": "refuse",
+              "label": "Refuse: keep your hand still",
+              "sub": "Fate -1. The file stays as it is.",
+              "when": {
+                "all": [
+                  {
+                    "any": [
+                      {
+                        "flag": "tie"
+                      },
+                      {
+                        "flag": "bad"
+                      }
+                    ]
+                  },
+                  {
+                    "meter": "fate",
+                    "gte": 1
+                  }
+                ]
+              },
+              "effects": [
+                {
+                  "meter": "fate",
+                  "add": -1
+                }
+              ],
+              "then": [
+                {
+                  "look": "ink",
+                  "text": "You press your thumb against the shaking hand and think of nothing. The clone reports nothing, because you gave it nothing."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "lean",
+          "ask": "Chen is still looking. Do you lean on your Connection?",
+          "gate": "plan",
+          "options": [
+            {
+              "key": "pass",
+              "label": "Let it pass",
+              "sub": "No cost.",
+              "when": {
+                "flag": "sus"
+              }
+            },
+            {
+              "key": "invoke",
+              "label": "Invoke an aspect",
+              "sub": "Costs 1 Fate. Chen Sees Me As The Future.",
+              "when": {
+                "all": [
+                  {
+                    "flag": "sus"
+                  },
+                  {
+                    "meter": "fate",
+                    "gte": 1
+                  }
+                ]
+              },
+              "to": "invoke"
+            }
+          ]
+        }
+      ],
+      "next": "phone"
+    },
+    {
+      "id": "invoke",
+      "title": "A Favour Called In",
+      "place": "Harborview Cafe · 07:03",
+      "look": "ink",
+      "set": "corner",
+      "beats": [
+        {
+          "kicker": "NOT ON FEED",
+          "look": "ink",
+          "notes": [
+            "rule-fate"
+          ],
+          "comment": "h-fate",
+          "text": "You have one move left that is not a roll. Chen believes in you. That belief is a cover and a leash."
+        }
+      ],
+      "choices": [
+        {
+          "key": "invoke",
+          "ask": "Which aspect do you invoke?",
+          "gate": "fate",
+          "cost": {
+            "meter": "fate",
+            "n": 1
+          },
+          "notes": [
+            "rule-fate"
+          ],
+          "options": [
+            {
+              "key": "future",
+              "label": "Chen Sees Me As The Future",
+              "sub": "Fate -1. Chen reads your nerves as exam stress.",
+              "effects": [
+                {
+                  "meter": "exposure",
+                  "add": -1
+                },
+                {
+                  "set": {
+                    "chenKnows": "Only exam stress"
+                  }
+                }
+              ],
+              "then": [
+                {
+                  "speaker": "chen",
+                  "comment": "a-invoke-chen",
+                  "text": "Get some sleep, Ann. I will tell the office you are working hard."
+                }
+              ]
+            },
+            {
+              "key": "loyal",
+              "label": "The Algorithm's Most Loyal Vulnerability",
+              "sub": "Fate -1. The feed trusts its own employee.",
+              "lock": {
+                "field": "identity",
+                "is": "Sable Harker (staff badge)"
+              },
+              "hint": "The feed must have read the Harker badge.",
+              "effects": [
+                {
+                  "meter": "exposure",
+                  "add": -3
+                },
+                {
+                  "set": {
+                    "chenKnows": "Only exam stress"
+                  }
+                }
+              ],
+              "then": [
+                {
+                  "look": "ink",
+                  "comment": "a-invoke-loyal",
+                  "text": "The feed trusts its own. You are the Algorithm's most loyal vulnerability, and it has just closed your anomaly itself."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "next": "phone"
+    },
+    {
+      "id": "phone",
+      "title": "Dead Image File",
+      "place": "Harborview Cafe · 07:09",
+      "look": "ink",
+      "set": "phone",
+      "beats": [
+        {
+          "kicker": "CH 2 · TABLE 9 · 07:09:41",
+          "look": "paint",
+          "comment": "a-phone",
+          "text": "Chen is gone. The door chime rings once, and cold air follows it. Your phone vibrates on the table."
+        },
+        {
+          "kicker": "NOT ON FEED",
+          "look": "ink",
+          "text": "A dead image file. You decode it in three seconds."
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Clean work. You are in. Next: the night the world forgot.",
+          "when": {
+            "flag": "style"
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Campus mailbox tomorrow, 4 PM. Physical media only. Welcome to the signal.",
+          "when": {
+            "flag": "style"
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Adequate. You completed the protocol under pressure.",
+          "when": {
+            "all": [
+              {
+                "flag": "ok"
+              },
+              {
+                "not": {
+                  "flag": "style"
+                }
+              },
+              {
+                "not": {
+                  "flag": "tie"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Campus mailbox tomorrow, 4 PM. We talk about the Blackout then.",
+          "when": {
+            "all": [
+              {
+                "flag": "ok"
+              },
+              {
+                "not": {
+                  "flag": "style"
+                }
+              },
+              {
+                "not": {
+                  "flag": "tie"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Sloppy but complete. Chen is observant. Flag that for later.",
+          "when": {
+            "flag": "tie"
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Mailbox, tomorrow, 4 PM. Bring better nerves.",
+          "when": {
+            "flag": "tie"
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Mission failure. Chen is too observant and you were not ready.",
+          "when": {
+            "all": [
+              {
+                "flag": "bad"
+              },
+              {
+                "not": {
+                  "flag": "burned"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "I am not burning you yet. Everyone fails a first live drop.",
+          "when": {
+            "all": [
+              {
+                "flag": "bad"
+              },
+              {
+                "not": {
+                  "flag": "burned"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Debrief tomorrow, 4 PM, campus mailbox.",
+          "when": {
+            "all": [
+              {
+                "flag": "bad"
+              },
+              {
+                "not": {
+                  "flag": "burned"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Total failure. Chen is on to you and the drop is burned.",
+          "when": {
+            "flag": "burned"
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "I am pulling back from this approach. Lie low.",
+          "when": {
+            "flag": "burned"
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "You used the Harker badge. We will discuss the badge.",
+          "when": {
+            "field": "identity",
+            "is": "Sable Harker (staff badge)"
+          }
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Cash. Old school. I approve.",
+          "when": {
+            "field": "identity",
+            "is": "Unnamed (cash)"
+          }
+        }
+      ],
+      "route": [
+        {
+          "when": {
+            "flag": "burned"
+          },
+          "to": "burned"
+        },
+        {
+          "when": {
+            "flag": "bad"
+          },
+          "to": "debrief"
+        },
+        {
+          "when": {
+            "meter": "exposure",
+            "lte": 1
+          },
+          "to": "clean"
+        },
+        {
+          "when": {
+            "meter": "exposure",
+            "lte": 3
+          },
+          "to": "noticed"
+        },
+        {
+          "to": "logged"
+        }
+      ]
+    },
+    {
+      "id": "abort",
+      "title": "The Safe Chair",
+      "place": "Harborview Cafe · 06:50",
+      "look": "paint",
+      "set": "chen",
+      "beats": [
+        {
+          "kicker": "CH 3 · CHEN'S TABLE · 06:50:05 · CONF 99%",
+          "notes": [
+            "g-abort"
+          ],
+          "comment": "a-abort",
+          "text": "The risk is too high. Chen is too observant, too present. You make the call in half a second. You walk to her table instead of the corner."
+        },
+        {
+          "speaker": "ann",
+          "text": "Manager Chen. Mind if I sit?"
+        },
+        {
+          "speaker": "chen",
+          "text": "Ann. You're here early."
+        },
+        {
+          "speaker": "ann",
+          "text": "Couldn't sleep. I thought coffee might help before Thursday's exam."
+        },
+        {
+          "speaker": "chen",
+          "text": "Sit."
+        },
+        {
+          "text": "The dead drop cup stays three seats away, untouched. Protocol abandoned. No roll required."
+        },
+        {
+          "text": "The talk is small: algorithms, the exam curve, the Harborview's burnt coffee. Chen is tired and sharp. Her remarks about student stress and network behaviour are too precise for small talk."
+        },
+        {
+          "speaker": "chen",
+          "text": "I should get to my office. Good luck Thursday, Ann."
+        },
+        {
+          "kicker": "CH 2 · COUNTER · 07:12:30",
+          "text": "The barista clears the dead drop cup ten minutes later. The window is closed."
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "You aborted. Smart or cowardly? Hard to say."
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Chen is dangerous. You read that right. But I needed that confirmation."
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "No second chances on this one. Maybe later. Maybe never."
+        }
+      ],
+      "ending": "aborted"
+    },
+    {
+      "id": "change",
+      "title": "Another Table",
+      "place": "Harborview Cafe · 06:50",
+      "look": "paint",
+      "set": "far",
+      "beats": [
+        {
+          "kicker": "CH 4 · FAR SIDE · 06:50:22",
+          "notes": [
+            "g-change"
+          ],
+          "comment": "a-change",
+          "text": "You cannot risk it. Not with Chen here. You change the order in your head."
+        },
+        {
+          "speaker": "ann",
+          "text": "Cappuccino. Extra foam."
+        },
+        {
+          "text": "The barista rings it up. You pay and take the cup to a table on the far side of the cafe, away from Chen and away from the dead drop. You sit with your back to the protocol."
+        },
+        {
+          "text": "Chen does not notice you. She finishes her reading and leaves twenty minutes later. The barista clears the cup with the stirrer across the rim. The window closes. The intel is lost."
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "You changed the pattern. Protocol break. I understand the instinct."
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Chen is dangerous. But the mission was time-sensitive."
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "You chose safety over signal. That tells me something."
+        },
+        {
+          "speaker": "g0",
+          "look": "ink",
+          "text": "Good luck with your studies, Ann."
+        }
+      ],
+      "ending": "changed"
+    }
+  ],
+  "endings": {
+    "clean": {
+      "title": "Unresolved",
+      "look": "ink",
+      "set": "ledger",
+      "beats": [
+        {
+          "kicker": "ARCHIVE · CH 1-3 · 07:10",
+          "comment": "a-end-clean",
+          "screen": [
+            "SUBJECT 1: LOW EXPOSURE",
+            "EVENT: NONE",
+            "FLAG: NONE",
+            "FILE: CLOSED"
+          ],
+          "text": "The feed closes the day with one person unnamed, or named and forgotten. There is nothing to report."
+        },
+        {
+          "look": "ink",
+          "comment": "h-end-clean",
+          "text": "You walk out into the early light. The mailbox is tomorrow, at four. Whatever g0 tells you about the Blackout, the feed will not hear it first."
+        }
+      ]
+    },
+    "noticed": {
+      "title": "A Name on the Frame",
+      "look": "paint",
+      "set": "ledger",
+      "beats": [
+        {
+          "kicker": "ARCHIVE · CH 1-3 · 07:10",
+          "comment": "a-end-noticed",
+          "screen": [
+            "SUBJECT 1: MEDIUM EXPOSURE",
+            "EVENT: LATE GLANCE, CH 3",
+            "FLAG: NONE",
+            "FILE: OPEN"
+          ],
+          "text": "The feed keeps the day. It is not a crime. It is a note."
+        },
+        {
+          "text": "The file carries the name Ann Sho, a student, seen at a cafe before class.",
+          "when": {
+            "field": "identity",
+            "is": "Ann Sho (student card)"
+          }
+        },
+        {
+          "text": "The file carries no name. It carries a face, and a time, and a cafe.",
+          "when": {
+            "field": "identity",
+            "is": "Unnamed (cash)"
+          }
+        },
+        {
+          "text": "The file carries the name Sable Harker, an AlgoCratic employee, seen far from her desk.",
+          "when": {
+            "field": "identity",
+            "is": "Sable Harker (staff badge)"
+          }
+        },
+        {
+          "look": "ink",
+          "comment": "h-end-noticed",
+          "text": "Tomorrow, four o'clock, the campus mailbox. You will go. You will go the long way."
+        }
+      ]
+    },
+    "logged": {
+      "title": "Flagged for Review",
+      "look": "paint",
+      "set": "ledger",
+      "beats": [
+        {
+          "kicker": "ARCHIVE · CH 1-3 · 07:10",
+          "comment": "a-end-logged",
+          "screen": [
+            "SUBJECT 1: HIGH EXPOSURE",
+            "EVENT: ANOMALY, CH 3",
+            "FLAG: REVIEW IN 24 HOURS",
+            "FILE: OPEN"
+          ],
+          "text": "The feed does not stop you. It writes you down. In 24 hours a person will read the file."
+        },
+        {
+          "text": "The file carries the name Ann Sho, a student, seen at a cafe before class.",
+          "when": {
+            "field": "identity",
+            "is": "Ann Sho (student card)"
+          }
+        },
+        {
+          "text": "The file carries no name. It carries a face, and a time, and a cafe.",
+          "when": {
+            "field": "identity",
+            "is": "Unnamed (cash)"
+          }
+        },
+        {
+          "text": "The file carries the name Sable Harker, an AlgoCratic employee, seen far from her desk.",
+          "when": {
+            "field": "identity",
+            "is": "Sable Harker (staff badge)"
+          }
+        },
+        {
+          "look": "ink",
+          "comment": "h-end-logged",
+          "text": "You got the intel and g0 still wants you. That is two of three. The third is who reads the file."
+        }
+      ]
+    },
+    "debrief": {
+      "title": "Debrief",
+      "look": "paint",
+      "set": "ledger",
+      "beats": [
+        {
+          "kicker": "ARCHIVE · CH 3 · 07:10",
+          "comment": "a-end-debrief",
+          "screen": [
+            "SUBJECT 1: FAILED EVENT",
+            "PHOTO: NONE",
+            "CONTACT: STILL OPEN",
+            "FILE: OPEN"
+          ],
+          "text": "The drop is blown. The photo is missing. Chen saw you, and said what she said. g0 has not burned you."
+        },
+        {
+          "look": "ink",
+          "comment": "h-end-debrief",
+          "text": "Tomorrow you go to the mailbox and explain what went wrong. You will not enjoy it. You will learn from it."
+        }
+      ]
+    },
+    "burned": {
+      "title": "Cover Burned",
+      "look": "ink",
+      "set": "ledger",
+      "beats": [
+        {
+          "kicker": "ARCHIVE · CH 3 · 07:20",
+          "comment": "a-end-burned",
+          "screen": [
+            "SUBJECT 1: BURNED",
+            "PHOTO: NONE",
+            "CONTACT: CLOSED",
+            "FILE: OPEN"
+          ],
+          "text": "The recruitment is over. Chen's suspicion is too high and the drop is burned. g0 cuts contact."
+        },
+        {
+          "look": "ink",
+          "comment": "h-end-burned",
+          "text": "You go on with your studies. The algorithms exam on Thursday goes well. You graduate on time and take a decent corporate job. The Blackout stays unexplained."
+        },
+        {
+          "look": "ink",
+          "text": "Sometimes you wonder what g0 was going to tell you. What you were being recruited for. What you could have learned about the night the world forgot. You will never know."
+        }
+      ]
+    },
+    "aborted": {
+      "title": "Safe, and Alone",
+      "look": "paint",
+      "set": "ledger",
+      "beats": [
+        {
+          "kicker": "ARCHIVE · CH 3 · 07:30",
+          "comment": "a-end-aborted",
+          "screen": [
+            "SUBJECT 1: FRIENDLY CONTACT",
+            "EVENT: NONE",
+            "CONTACT: CLOSED",
+            "FILE: CLOSED"
+          ],
+          "text": "You finish your coffee in silence, watching the trawlers cut through gray water. The conversation with g0 is over."
+        },
+        {
+          "look": "ink",
+          "comment": "h-end-aborted",
+          "text": "This path closes the recruitment. g0 does not contact you again. The Blackout stays unexplained."
+        },
+        {
+          "look": "ink",
+          "text": "If you want to see what happens when you take the risk, go back to the table and proceed with the drop."
+        }
+      ]
+    },
+    "changed": {
+      "title": "A Different Cup",
+      "look": "paint",
+      "set": "ledger",
+      "beats": [
+        {
+          "kicker": "ARCHIVE · CH 4 · 07:12",
+          "comment": "a-end-changed",
+          "screen": [
+            "SUBJECT 1: NO EVENT",
+            "CONTACT: CLOSED",
+            "FILE: CLOSED"
+          ],
+          "text": "You sit with your cappuccino and watch the sea turn from gunmetal to silver as the sun rises. The trawlers are distant now, heading for deep water."
+        },
+        {
+          "look": "ink",
+          "comment": "h-end-changed",
+          "text": "This path closes the recruitment. g0 does not contact you again."
+        },
+        {
+          "look": "ink",
+          "text": "If you want to see what happens when you take the risk, go back and proceed with the drop."
+        }
+      ]
+    }
+  }
+}

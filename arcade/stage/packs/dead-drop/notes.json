@@ -1,0 +1,322 @@
+{
+  "rule-plan": {
+    "kind": "rule",
+    "term": "Planning",
+    "text": "Planning is free. Look, talk, wait, read the map. No dice and no time pass. You can go back and change a Planning pick. The feed shows a Planning option with a dashed edge."
+  },
+  "rule-gate": {
+    "kind": "rule",
+    "term": "Planning and Execution",
+    "text": "Planning is free: look, talk, wait. You can go back. Execution is final. Dice and consequences, and no undo. A solid option is an Execution choice. Once you break the seal, the result stands."
+  },
+  "rule-reveal": {
+    "kind": "rule",
+    "term": "Redaction",
+    "text": "Black bars cover what the feed cannot see. A choice can lift a bar. Press R or tap the bar to read what is under it. Some bars never lift."
+  },
+  "rule-4df": {
+    "kind": "rule",
+    "term": "Four Fate dice",
+    "text": "Roll four Fate dice. Each shows +1, 0 or -1. Add them, then add your stat. Beat the difficulty to succeed. Match it to tie: you succeed at a cost. Beat it by three or more for success with style, and gain a Fate point."
+  },
+  "rule-stress": {
+    "kind": "rule",
+    "term": "Stress",
+    "text": "Stress boxes fill when you are hurt. Meat is the body. Nerves is the mind. Systems is your chrome. Fill a track and you are taken out. Each track has its own size."
+  },
+  "rule-exposure": {
+    "kind": "rule",
+    "term": "Exposure",
+    "text": "Exposure is how clearly the feed has you. Careless acts raise it. Tradecraft lowers it. It never stops you. It decides what file the Algorithm keeps, and who reads it."
+  },
+  "rule-compel": {
+    "kind": "rule",
+    "term": "Compel",
+    "text": "A compel is the GM offering you a complication that fits your Trouble. Accept it and gain a Fate point. Refuse it and pay one. Here the Algorithm is the GM."
+  },
+  "rule-fate": {
+    "kind": "rule",
+    "term": "Fate points",
+    "text": "A Fate point buys one thing luck could not. You start with three. Style and compels earn them. Invoke an aspect to spend one. Spend it on a person, not a die."
+  },
+  "lore-protocol": {
+    "kind": "lore",
+    "term": "Dead drop",
+    "text": "A dead drop passes a message without a meeting. Here the message is a coffee cup: where the handle points, whether a stirrer lies across the rim, and a timestamp photo as proof."
+  },
+  "lore-blackout": {
+    "kind": "lore",
+    "term": "The Blackout",
+    "text": "The Blackout is the night the world forgot. Nobody in the Institute explains it. g0 says it will, once you prove you can follow protocol."
+  },
+  "h-protocol": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Protocol does not care who is in the room. Do it anyway."
+  },
+  "h-early": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "You are early. So is Chen. One of you has a reason."
+  },
+  "h-plan": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Looking is free. Touching is not. Choose when to stop."
+  },
+  "h-gate": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "From here, everything costs something. Even the coffee."
+  },
+  "h-split": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Two tasks, one attention. The arithmetic is not kind."
+  },
+  "h-blind": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Every room has a seat the cameras forgot. Use it, then forget it."
+  },
+  "h-tie": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Close. Close is a grade, not a compliment."
+  },
+  "h-fail": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Everyone fails the first live drop. Not everyone files the report."
+  },
+  "h-fate": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Fate is a favour you do yourself. Spend it where it counts."
+  },
+  "h-end-clean": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Quiet is a product. You made some today."
+  },
+  "h-end-noticed": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "A name on the frame is a debt. It comes due."
+  },
+  "h-end-logged": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Tomorrow a person reads your file. Be a dull read."
+  },
+  "h-end-debrief": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Failure teaches. It also files a report."
+  },
+  "h-end-burned": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Lie low. Learn to lie better. Both are free."
+  },
+  "h-end-aborted": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "Safe is a fine word. It ends conversations."
+  },
+  "h-end-changed": {
+    "kind": "handler",
+    "term": "g0",
+    "text": "A cappuccino. Bold. Nobody will remember it, which was the point."
+  },
+  "a-open": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Channel 1 shows one person at the door. The feed has not seen this person for 21 days. The feed does not know why."
+  },
+  "a-cup": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Channel 3 shows a cup with a stirrer across the rim. The feed does not know what this means."
+  },
+  "a-chen": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Subject 2 is Chen, M. Clearance is yellow. The feed holds 4,812 earlier frames of Subject 2. Confidence is 97 percent."
+  },
+  "a-track": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Channel 3 has two faces in frame. The feed knows one face. Subject 1 has no name in the file."
+  },
+  "a-cones": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "The subject looks at the ceiling for four seconds. The feed logs the look. The feed does not log the reason."
+  },
+  "a-rhythm": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "The subject looks at Subject 2 for eleven seconds. The feed logs the look. The feed does not log the reason."
+  },
+  "a-counter": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Channel 2 shows two people. One person watches a screen. The other person is Subject 1."
+  },
+  "a-card": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Student card read. Subject 1 is Ann Sho. Confidence is 91 percent. The feed files this visit under campus."
+  },
+  "a-cash": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Payment is 12 yen in cash. No card is read. Subject 1 has no name in the file."
+  },
+  "a-badge": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Badge B2C7 read. Subject 1 is Sable Harker, an AlgoCratic employee. The feed files this visit under her name."
+  },
+  "a-dice": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "The feed rolls four dice when the result is not certain. The feed does not choose the result."
+  },
+  "a-fail": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Subject 1 stops with one hand at the pocket. Subject 2 looks up. The feed logs an anomaly."
+  },
+  "a-tie": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Subject 2 looks up for one second. Subject 1 takes the photo late. The feed logs a late glance."
+  },
+  "a-success": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "The pass takes three seconds. Subject 2 looks down again. The feed logs no anomaly."
+  },
+  "a-style": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "The pass takes three seconds. Subject 2 does not look up. The feed cannot see the photo."
+  },
+  "a-blind": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Subject 1 enters a seat that no channel covers. The feed logs a gap of nine seconds. The feed has no reason for the gap."
+  },
+  "a-compel": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "The feed offers a complication. The clone model has logged a tremor in the subject's hand. Accept it and gain one Fate point. Refuse it and pay one."
+  },
+  "a-invoke-chen": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Subject 2 files a note about Subject 1. The note says exam stress. The feed reads the note."
+  },
+  "a-invoke-loyal": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Subject 1 matches Sable Harker. Sable Harker has a loyalty score of 7.2. The feed closes the anomaly."
+  },
+  "a-phone": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "A phone vibrates once. The feed sees the screen. The feed cannot read the image on it."
+  },
+  "a-abort": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Subject 1 sits at the table of Subject 2. Both faces stay in frame for 20 minutes. Confidence is 99 percent."
+  },
+  "a-change": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Subject 1 sits with her back to Channel 3. A barista clears one cup in nine minutes. The feed logs no event."
+  },
+  "a-end-clean": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "The file is closed. Exposure is low. The event field is empty."
+  },
+  "a-end-noticed": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "The file is open. Exposure is medium. One note is on file, and no flag."
+  },
+  "a-end-logged": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "The file is open. Exposure is high. A flag is set. A person reads the file in 24 hours."
+  },
+  "a-end-debrief": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "The file records one failed event. The feed does not know who Subject 1 contacts."
+  },
+  "a-end-burned": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Subject 2 files no report about Subject 1. The feed notes the omission."
+  },
+  "a-end-aborted": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Subject 1 and Subject 2 share a table for 20 minutes. The feed logs a friendly contact. The feed logs no event."
+  },
+  "a-end-changed": {
+    "kind": "algorithm",
+    "term": "The Algorithm",
+    "text": "Subject 1 leaves at 07:12. The file has no event. The feed does not know what it missed."
+  },
+  "g-observe": {
+    "kind": "guide",
+    "term": "Look first",
+    "text": "TIP: Looking is free. It costs no time and no dice. I have never regretted a look. I have regretted every rush. Pick the look that fits your plan: the cameras for a straight walk, Chen for a split."
+  },
+  "g-pay": {
+    "kind": "guide",
+    "term": "The coffee is a choice",
+    "text": "TIP: The coffee is a choice too. Cash names no one. A card names you. A badge names you loudly. The feed reads whatever the register reads. Cheap coffee, expensive file."
+  },
+  "g-exposure": {
+    "kind": "guide",
+    "term": "Exposure",
+    "text": "TIP: Exposure is the score the feed keeps on your face. Low is quiet. High gets a human to read your file. It never stops you. It changes what is waiting at the end. Watch the bar."
+  },
+  "g-4df": {
+    "kind": "guide",
+    "term": "The odds",
+    "text": "TIP: Code +3 against 2 fails about one roll in five and ties about one in five. The rest succeed. Do not call that safe. Call it good odds with bad luck waiting."
+  },
+  "g-split": {
+    "kind": "guide",
+    "term": "Splitting attention",
+    "text": "WARNING: Splitting your attention is harder: difficulty 3, not 2. Code +3 now fails about two rolls in five. Time it to her stylus and it drops back to 2. Plan first."
+  },
+  "g-chen": {
+    "kind": "guide",
+    "term": "Boss: Manager Chen",
+    "text": "BOSS: MANAGER CHEN. Weak to: facts. Strong against: lies, nerves and small talk. She marks everything in red. Do not out-talk her. Out-prepare her. Note: she is early today. That is her first move."
+  },
+  "g-fate": {
+    "kind": "guide",
+    "term": "Spend Fate on people",
+    "text": "TIP: Spend Fate on people, not dice. A point on a roll is a point you did not need. A point on Chen buys you the next scene. Earn points by style, or by saying yes to a compel. Do both."
+  },
+  "g-abort": {
+    "kind": "guide",
+    "term": "Ending note: abort",
+    "text": "ENDING NOTE: Aborting is safe, and it closes the story. g0 does not call again. You may go back and take the risk. I did. Twice. The stirrer was still there."
+  },
+  "g-change": {
+    "kind": "guide",
+    "term": "Ending note: change",
+    "text": "ENDING NOTE: Changing the order is the polite way to fail. Nobody is hurt. Nothing is learned. The barista clears the cup. Chen never knew you were there."
+  }
+}

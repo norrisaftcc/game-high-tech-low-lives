@@ -1,0 +1,33 @@
+{
+  "light": {
+    "bg": "#E9F0EE",
+    "panel": "#DAE6E3",
+    "card": "#C9DBD7",
+    "line": "#7FA3A0",
+    "ink": "#0E2A33",
+    "ink-soft": "#1B4D5C",
+    "muted": "#3F5F66",
+    "accent": "#A33708",
+    "lamp": "#8A3A12",
+    "good": "#1A5F40",
+    "bad": "#9A2A1C"
+  },
+  "dark": {
+    "bg": "#0A1D24",
+    "panel": "#0E2A33",
+    "card": "#102F39",
+    "line": "#1B4D5C",
+    "ink": "#EAF2F0",
+    "ink-soft": "#C4DAD6",
+    "muted": "#9CBDB9",
+    "accent": "#FF6B35",
+    "lamp": "#FFA77E",
+    "good": "#6FD3A5",
+    "bad": "#FF8A78"
+  },
+  "fonts": [],
+  "mapStyles": [
+    "ink",
+    "blueline"
+  ]
+}
