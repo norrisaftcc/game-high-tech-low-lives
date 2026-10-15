@@ -135,14 +135,16 @@ Left out:
 
 ## Meters and fields
 
-| Meter | Range, start | HUD | What moves it |
-|-------|--------------|-----|---------------|
-| Fate | 0 to 5, 3 | yes | Style +1; a compel accepted +1; a compel refused -1; an invoke -1 |
-| Exposure | 0 to 6, 1 | yes | Card +1, badge +2; tie +0 to +2; fail +2 or +3; untimed split success +1; style -1 or -2 (not on the untimed split); a blind-line success -1; the invokes -1 or -3; a compel accepted +1 |
-| Nerves | 0 to 4, 0 | yes | Tie +1; fail +1; split fail +2 |
-| Systems | 0 to 5, 0 | yes | Any fail +1 |
-| Meat | 0 to 3, 0 | no | Nothing here |
-| Code | 0 to 3, 3 | no | A stat; it never moves |
+| Meter | Range, start | HUD | Bad when it rises | What moves it |
+|-------|--------------|-----|-------------------|---------------|
+| Fate | 0 to 5, 3 | yes | no | Style +1; a compel accepted +1; a compel refused -1; an invoke -1 |
+| Exposure | 0 to 6, 1 | yes | yes | Card +1, badge +2; tie +0 to +2; fail +2 or +3; untimed split success +1; style -1 or -2 (not on the untimed split); a blind-line success -1; the invokes -1 or -3; a compel accepted +1 |
+| Nerves | 0 to 4, 0 | yes | yes | Tie +1; fail +1; split fail +2 |
+| Systems | 0 to 5, 0 | yes | yes | Any fail +1 |
+| Meat | 0 to 3, 0 | no | yes | Nothing here |
+| Code | 0 to 3, 3 | no | no | A stat; it never moves |
+
+Exposure, Nerves, Systems and Meat carry `"bad": true` in `pack.json`, so a rise plays the `cost` cue and a fall plays `gain` (SPEC section 2 and the cue table). Fate is not bad: spending it is the `cost`, and winning it back is the `gain`. `tallies` is `{}`: this pack has no Lens, so no tally exists.
 
 | Field | Side | Reads as |
 |-------|------|----------|
@@ -176,7 +178,9 @@ Orange `#FF6B35` and teal `#1B4D5C` are the Infiltrator pair. Two facts shape th
 - Orange on teal is 3.27:1. That fails 4.5:1 for text. So the two never sit as text on ground.
 - Orange on the light ground is 2.45:1. So the light theme uses a burnt orange `#A33708` for accent text.
 
-The dark theme (the feed) uses the teal as the `line` colour and as the family of the grounds. The light theme uses the teal as `ink-soft` (8.03:1 on the light ground). Every text token on every ground, both themes, is 4.5:1 or better (lowest 4.70:1):
+The dark theme (the feed) uses the teal as the `line` colour and as the family of the grounds. The light theme uses the teal as `ink-soft` (8.03:1 on the light ground). Every text token on every ground, both themes, is 4.5:1 or better (lowest 4.70:1), and so is the button text. Recomputed 2026-10-15 from `theme.json` with the WCAG formula; no value changed:
+
+Both themes define every token in the block TOKENS THE SHELL READS at the top of `stage/ui/style.css`: `bg`, `panel`, `card`, `line`, `ink`, `ink-soft`, `muted`, `accent`, `lamp`, `good` and `bad`. `validate` checks it. `on-accent` is optional and not set, so the text on an accent button is `bg`; that pair is in the last row of each table. The `line` colour is a hairline and not text, so it has no ratio to meet.
 
 **dark**
 
@@ -189,6 +193,7 @@ The dark theme (the feed) uses the teal as the `line` colour and as the family o
 | lamp #FFA77E | 9.13:1 | 7.93:1 | 7.45:1 |
 | good #6FD3A5 | 9.50:1 | 8.25:1 | 7.75:1 |
 | bad #FF8A78 | 7.54:1 | 6.55:1 | 6.16:1 |
+| bg #0A1D24 on accent #FF6B35 (button text) | 6.10:1 | | |
 
 **light**
 
@@ -201,15 +206,21 @@ The dark theme (the feed) uses the teal as the `line` colour and as the family o
 | lamp #8A3A12 | 6.74:1 | 6.09:1 | 5.42:1 |
 | good #1A5F40 | 6.59:1 | 5.96:1 | 5.30:1 |
 | bad #9A2A1C | 6.67:1 | 6.03:1 | 5.36:1 |
+| bg #E9F0EE on accent #A33708 (button text) | 5.85:1 | | |
 
 ## Checks run
 
+Run 2026-10-15 against the engine at the spec of that day, on the real directory (no stub `cast.json`).
+
 ```
-$ node stage/tools/validate.mjs arcade/stage/packs/dead-drop   (scratch copy with a stub cast.json)
+$ node stage/tools/validate.mjs arcade/stage/packs/dead-drop
+  warn cast.json: speaker "g0" is not in cast.json (21 beats; the pack has no cast.json yet)
+  warn cast.json: speaker "ann" is not in cast.json (12 beats; the pack has no cast.json yet)
+  warn cast.json: speaker "chen" is not in cast.json (19 beats; the pack has no cast.json yet)
   warn pack.json: storageKey is usually "htll.dead-drop"
 OK dead-drop
 
-$ node stage/tools/sim.mjs arcade/stage/packs/dead-drop   (same copy)
+$ node stage/tools/sim.mjs arcade/stage/packs/dead-drop
 dead-drop (feed, fate4df) · 266 paths · 3786 states
 endings
   clean                40
@@ -222,22 +233,19 @@ endings
 routes: 251 distinct end states (first 5; --routes for all)
   changed: observe.none > approach.change  [1 paths]
   aborted: observe.none > approach.abort  [1 paths]
-  noticed: observe.none > approach.split > pay.badge > pass.both > roll=style  [1 paths]
-  clean: observe.none > approach.split > pay.badge > pass.both > roll=success > lean.invoke > invoke.loyal  [1 paths]
-  noticed: observe.none > approach.split > pay.badge > pass.both > roll=success > lean.invoke > invoke.future  [1 paths]
+  noticed: observe.none > approach.split > pay.badge > pass.both=style  [1 paths]
+  clean: observe.none > approach.split > pay.badge > pass.both=success > lean.invoke > invoke.loyal  [1 paths]
+  noticed: observe.none > approach.split > pay.badge > pass.both=success > lean.invoke > invoke.future  [1 paths]
 locked options seen: drop:pass.blind, invoke:invoke.loyal, splitdrop:pass.timed
 unreachable: none
 
 $ replay every simulated route (Stage.replay) and compare the ending
-routes 251 {"changed":3,"aborted":3,"noticed":88,"clean":39,"logged":44,"burned":18,"debrief":56} bad 0
+routes 251 ok 251 bad 0 {"changed":3,"aborted":3,"noticed":88,"clean":39,"logged":44,"burned":18,"debrief":56}
+bad meters: exposure,nerves,systems,meat
 
-$ node stage/tools/validate.mjs arcade/stage/packs/dead-drop   (the real directory, no cast.json yet)
-  warn pack.json: storageKey is usually "htll.dead-drop"
-FAIL dead-drop
-  (plus 52 lines: speaker is not in cast.json)
+$ voice checks (throwaway script, not committed)
+handler notes 16, g0 lines 21, longest handler/g0 line 74; algorithm notes 29, sentences 87, longest 11 words; max note words 45; failures 0
 ```
-
-`validate` and `sim` ran on a scratch copy of this directory with a stub `cast.json` and `art/cast.svg`, because the cast belongs to the feed-kit agent. On the real directory `validate` reports only the missing cast (and the speakers that depend on it). It also warns that `htll.stage.dead-drop` is not `htll.dead-drop`; the lead gave the first.
 
 ## CAST BRIEF
 
@@ -399,4 +407,8 @@ Budget: 40 KB; at most 3 layers move at once
 
 ## Spec notes and open questions
 
-See the report that came with this pack. The short list: the engine's `simulate` does not count a group's own `notes` or `comment` as met (SPEC says it does), so every note here is also on a beat; `simulate`'s routes are lists of strings, not the `{ "opt" }` steps SPEC section 3 shows; a meter that goes up is a `gain` cue, which reads as good when the meter is Exposure, Nerves, Systems or Meat; `validate` needs `cast.json` before a pack that uses `speaker` can pass.
+Brought up to the spec on 2026-10-15 (wave 1 integration). Nothing in the spec blocks this pack. What is still open:
+
+- `storageKey` is `htll.stage.dead-drop`. `validate` warns that it is usually `htll.dead-drop`. Both start with `htll.`, so row A-13 of `arcade/TESTS.md` holds. The lead gave the first; change it only if the lead says so.
+- Chen has no portrait (user decision, 2026-10-14). No script change is needed. Speakers `g0`, `ann` and `chen` are warnings until `cast.json` exists; with it, `validate` makes them errors, so `cast.json` must list all three.
+- The Twine's outcomes are unchanged. The script was not edited in this pass.

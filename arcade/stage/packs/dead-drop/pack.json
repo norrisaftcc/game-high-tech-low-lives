@@ -21,7 +21,8 @@
       "min": 0,
       "max": 6,
       "start": 1,
-      "hud": true
+      "hud": true,
+      "bad": true
     },
     {
       "id": "nerves",
@@ -29,7 +30,8 @@
       "min": 0,
       "max": 4,
       "start": 0,
-      "hud": true
+      "hud": true,
+      "bad": true
     },
     {
       "id": "systems",
@@ -37,7 +39,8 @@
       "min": 0,
       "max": 5,
       "start": 0,
-      "hud": true
+      "hud": true,
+      "bad": true
     },
     {
       "id": "meat",
@@ -45,7 +48,8 @@
       "min": 0,
       "max": 3,
       "start": 0,
-      "hud": false
+      "hud": false,
+      "bad": true
     },
     {
       "id": "code",
@@ -78,7 +82,7 @@
       "side": "back"
     }
   ],
-  "tallies": [],
+  "tallies": {},
   "commentary": {
     "label": "What the Algorithm logs",
     "kinds": [
