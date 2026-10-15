@@ -1121,7 +1121,7 @@ test("the views carry what the shell needs", () => {
   let v = g.view();
   assert.equal(v.node, "beat");
   assert.equal(v.seed, 5);
-  assert.deepEqual(Object.keys(v).sort(), ["beat", "canBack", "cues", "ending", "fields", "flags", "found", "group", "input", "met", "meters", "node", "options", "roll", "scene", "seed", "tallies"].sort());
+  assert.deepEqual(Object.keys(v).sort(), ["beat", "canBack", "cues", "ending", "fields", "flags", "found", "group", "input", "met", "meters", "node", "options", "roll", "scene", "seed", "shown", "tallies"].sort());
   assert.deepEqual(v.scene, { id: "s1", title: "The Ford at Dusk", place: "Test · the river road", look: "ink", set: "ford", ending: false });
   assert.equal(v.beat.kicker, "SCENE ONE");
   assert.deepEqual(v.beat.notes, ["river-lore"]);
@@ -1204,4 +1204,16 @@ test("validate tool: malformed theme shapes are reported, not thrown; speakers c
     });
     assert.ok(!validatePack(dir).warnings.some(w => w.includes(`cast.json ${id}`)), "a speaker in an ending is heard");
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("view.shown is the look on show, and back restores it", () => {
+  const pack = mini([sc("a", { look: "paint", beats: [{ text: "one" }, { text: "two", reveal: true }, { text: "three" }], choices: [grp("c", "plan", [opt("x", { then: [{ text: "t1", look: "ink" }] })])] })]);
+  const g = Stage.create(pack);
+  assert.equal(g.view().shown, "paint");
+  g.next();
+  assert.equal(g.reveal().shown, "ink", "a reveal shows ink");
+  assert.equal(g.next().shown, "paint", "the next paint beat blooms again");
+  g.next();
+  assert.equal(g.choose("x").shown, "ink");
+  assert.equal(g.back().shown, "paint", "back restores the look that was on show");
 });

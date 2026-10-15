@@ -166,7 +166,12 @@ function kitCall(fn, ...args) {
   if (!k || typeof k[fn] !== "function") return undefined;
   try { return k[fn](...args); } catch (e) { console.error("kit." + fn + ":", e); return undefined; }
 }
-function stateOf(v) { return { meters: v.meters, fields: v.fields, tallies: v.tallies, flags: v.flags }; }
+// What a kit needs to rebuild the stage after back, load, Continue or a replay, with no cue to play:
+// the look on show (ink or paint) and whether the current beat's secret is revealed.
+function stateOf(v) {
+  return { meters: v.meters, fields: v.fields, tallies: v.tallies, flags: v.flags,
+    look: v.shown || null, revealed: !!(v.beat && v.beat.reveal && v.beat.revealed) };
+}
 const kitHas = fn => !!(V.kit && typeof V.kit[fn] === "function");
 function kitShow(setId, v, instant) {
   const set = (PACK.sets || {})[setId];

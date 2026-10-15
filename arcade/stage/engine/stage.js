@@ -448,6 +448,7 @@ function create(pack, opts) {
     }
     return {
       node: S.node, scene, beat, group, options, input, roll, ending,
+      shown: S.lookShown || null, // the look the stage shows now (the last ink or bloom), so a kit can restore it
       meters: { ...S.meters }, fields: { ...S.fields }, flags: { ...S.flags }, tallies: clone(S.tallies),
       cues: orderCues(S.cues), canBack: hist.length - 1 > floor, seed: S.seed, met: meta.met.slice(), found: meta.found.slice(),
     };

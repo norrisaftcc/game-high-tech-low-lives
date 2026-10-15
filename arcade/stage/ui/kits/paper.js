@@ -65,6 +65,13 @@ function commit() { // finish a pending swap: drop the old set, show the new one
   pend = null;
 }
 // Bind pull-tabs to the tallies in `state`. `animate` is false when a set is first built, true for update().
+// The witness register and an earned secret, at their end states. Called from update() only: after the cues
+// it matches what they drew, and after back, load or Continue (when no cue plays) it puts them right.
+function restoreStage(state) {
+  if (!state) return;
+  if (state.look) wash.style.opacity = state.look === "paint" ? String(tokens.wash) : "0";
+  if (cur && state.revealed) for (const f of cur.querySelectorAll(".k-flap")) { f.dataset.open = "1"; f.querySelector(".k-under").style.opacity = "1"; }
+}
 function restore(state, animate) {
   if (!cur) return;
   for (const e of cur.querySelectorAll(".k-pulltab")) {
@@ -103,7 +110,7 @@ const kit = {
     else { next.style.opacity = "0"; host.insertBefore(next, wash); pend = { next, old }; }
     restore(o && o.state, false);
   },
-  update(state) { skipNow = false; commit(); restore(state, true); },
+  update(state) { skipNow = false; commit(); restore(state, true); restoreStage(state); },
   cue(c, o) {
     const red = (o && o.reduced) || redNow();
     skipNow = !!(o && o.reduced); // the shell asks for the end state at once (a tap, or reduced motion)

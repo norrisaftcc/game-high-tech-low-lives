@@ -137,7 +137,7 @@ Two themes, `light` and `dark`, each a map of custom-property names (without `--
 
 ```js
 const game = Stage.create(pack, { seed: 42, save: null });
-game.view()            // → { node, scene, beat, group, options, meters, fields, tallies, flags, cues, canBack }; scene.look and beat.look are the effective look
+game.view()            // → { node, scene, beat, group, options, meters, fields, tallies, flags, shown, cues, canBack }; scene.look and beat.look are the effective look; shown is the look the stage shows now (the last ink or bloom)
 game.next()            // advance one beat; at a choice group, does nothing
 game.choose(optKey)    // pick an option in the current group; returns view()
 game.reveal()          // reveal the current beat if it is a reveal
@@ -196,7 +196,7 @@ Stage.check(pack)      // → { errors, warnings }
 StageKit.register("paper", {
   mount(root, { pack, assets, reduced }) {},  // once; root is the stage element
   show(setId, set, { instant, state }) {},    // build or swap the set's layers; state as in update()
-  update(state) {},                           // after every step: { meters, fields, tallies, flags }; restores bound layers (pull-tab) after back, load or save
+  update(state) {},                           // after every step: { meters, fields, tallies, flags, look, revealed }; restores bound layers (pull-tab), the look on show and a revealed secret after back, load or save
   cue(cue, { scene, beat, reduced }) {},      // play one cue; returns a Promise that resolves when it ends (at once if reduced)
   finish() {},                                // jump the active cue to its end state and resolve its Promise now
   tick(t) {},                                 // optional, per frame; returns true while anything moves

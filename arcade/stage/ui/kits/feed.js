@@ -99,7 +99,13 @@ const kit = {
     setClock();
   },
   // Nothing in this stub is bound to state; it keeps the last state so a real kit's rule is visible here.
-  update(state) { skipNow = false; commit(); last = state; setClock(); },
+  // Restores what no cue replays after back, load or Continue: a revealed beat's redactions stay lifted.
+  update(state) {
+    skipNow = false; commit(); last = state; setClock();
+    if (cur && state && state.revealed) for (const b of cur.querySelectorAll(".k-redact")) {
+      b.style.opacity = "0"; if (!/translateY\(-120%\)/.test(b.style.transform)) b.style.transform += " translateY(-120%)";
+    }
+  },
   cue(c, o) {
     const red = (o && o.reduced) || redNow();
     skipNow = !!(o && o.reduced); // the shell asks for the end state at once (a tap, or reduced motion)
