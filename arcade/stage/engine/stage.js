@@ -24,6 +24,8 @@ const MAX_STATES = 1500000;
 const clone = o => JSON.parse(JSON.stringify(o));
 const has = (o, k) => o != null && typeof o === "object" && Object.prototype.hasOwnProperty.call(o, k);
 const isObj = v => v != null && typeof v === "object" && !Array.isArray(v);
+// A collection the checker has already rejected is walked as empty, so one bad shape cannot throw.
+const list = x => (Array.isArray(x) ? x : []);
 const NOOP = Object.freeze({});
 
 // ---- dice (SPEC section 3) ----
@@ -575,7 +577,7 @@ function collectReads(pack) {
   };
   walkConds(pack, go);
   // A group's cost and a roll's add are read too: they decide what can be afforded and which tiers the dice reach.
-  const meterIds = new Set((pack.meters || []).map(m => m.id));
+  const meterIds = new Set(list(pack.meters).map(m => m && m.id));
   for (const sc of (pack.script && pack.script.scenes) || []) for (const g of sc.choices || []) {
     if (g.cost && g.cost.meter) reads.meters.add(g.cost.meter);
     for (const o of g.options || []) {
@@ -741,7 +743,7 @@ function check(pack) {
   if (!str(pack.storageKey) || !/^(fort-stage|htll)\.[a-z0-9.-]+$/.test(pack.storageKey)) err("pack.json", `storageKey must start with "fort-stage." or "htll.", not ${JSON.stringify(pack.storageKey)}`);
   const meterIds = new Set(), badMeters = new Set(), fieldIds = new Set(), tallyVals = new Map();
   if (!Array.isArray(pack.meters)) err("pack.json", "meters must be a list (it may be empty)");
-  for (const m of pack.meters || []) {
+  for (const m of list(pack.meters)) {
     const w = `pack.json meter ${m && m.id}`;
     if (!isObj(m) || !str(m.id) || !ID.test(m.id)) { err("pack.json", `a meter has a bad id: ${JSON.stringify(m)}`); continue; }
     if (meterIds.has(m.id)) err(w, "duplicate id");
@@ -753,7 +755,7 @@ function check(pack) {
     if (m.bad === true) badMeters.add(m.id);
   }
   if (!Array.isArray(pack.fields)) err("pack.json", "fields must be a list (it may be empty)");
-  for (const f of pack.fields || []) {
+  for (const f of list(pack.fields)) {
     if (!isObj(f) || !str(f.id) || !ID.test(f.id)) { err("pack.json", `a field has a bad id: ${JSON.stringify(f)}`); continue; }
     if (fieldIds.has(f.id)) err(`pack.json field ${f.id}`, "duplicate id");
     if (meterIds.has(f.id)) err(`pack.json field ${f.id}`, "a field and a meter share an id");

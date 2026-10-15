@@ -1232,3 +1232,22 @@ test("view.opened holds after a reveal until the set changes, and back and save 
   g.next(); g.reveal(); g.next();
   assert.equal(g.next().opened, false, "a new set starts closed");
 });
+
+test("validate tool: meters or fields of the wrong shape are reported, not thrown", async () => {
+  const { mkdtempSync, cpSync, readFileSync, writeFileSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { validatePack } = await import("../tools/validate.mjs");
+  const root = mkdtempSync(path.join(tmpdir(), "stage-validate-"));
+  try {
+    for (const key of ["meters", "fields"]) {
+      const dir = path.join(root, "test");
+      rmSync(dir, { recursive: true, force: true });
+      cpSync(path.join(packs, "test"), dir, { recursive: true });
+      const file = path.join(dir, "pack.json"), p = JSON.parse(readFileSync(file, "utf8"));
+      p[key] = {};
+      writeFileSync(file, JSON.stringify(p));
+      const r = validatePack(dir);
+      assert.ok(r.errors.some(e => e.includes(`${key} must be a list`)), `${key}: ${JSON.stringify(r.errors)}`);
+    }
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

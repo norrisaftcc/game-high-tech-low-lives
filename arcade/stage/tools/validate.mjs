@@ -56,7 +56,9 @@ export function validatePack(dir) {
   const id = pack.id || basename(dir);
   if (missing && !pack.script) return { id, errors, warnings };
 
-  const checked = Stage.check(pack);
+  let checked;
+  try { checked = Stage.check(pack); }
+  catch (e) { return { id, errors: [...errors, `could not check the pack (a file has the wrong shape): ${e.message}`], warnings }; }
   errors.push(...checked.errors);
   warnings.push(...checked.warnings);
   // The file checks below walk sets, cast and script as if they were well formed: stop at schema errors.
