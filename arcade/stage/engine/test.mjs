@@ -1176,5 +1176,5 @@ test("validate tool: the storage prefix follows the repository layout, not the c
   assert.equal(storagePrefix(p("work", "htll", "arcade", "stage", "packs", "dead-drop")), "htll.");
   assert.equal(storagePrefix(p("src", "game-high-tech-low-lives", "arcade", "stage", "packs", "dead-drop")), "htll.");
   assert.equal(storagePrefix(p("src", "game-high-tech-low-lives", "forks", "fort", "stage", "packs", "magic-module")), "fort-stage.");
-  assert.equal(storagePrefix(path.join(packs, "test")), "fort-stage.");
+  assert.equal(storagePrefix(p("work", "fort", "stage", "packs", "magic-module")), "fort-stage.");
 });
