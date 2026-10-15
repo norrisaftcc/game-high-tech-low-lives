@@ -102,13 +102,22 @@ export function validatePack(dir) {
   for (const sid of Object.keys(pack.sets || {})) if (!usedSets.has(sid)) warn(`sets.json ${sid}`, "is not used by any scene, beat or ending");
   const castUsed = new Set();
   const noteBeats = bs => (bs || []).forEach(b => b && b.speaker && castUsed.add(b.speaker));
-  for (const sc of pack.script?.scenes || []) { noteBeats(sc.beats); for (const g of sc.choices || []) for (const o of g.options || []) noteBeats(o.then); }
+  for (const sc of pack.script?.scenes || []) {
+    noteBeats(sc.beats);
+    for (const g of sc.choices || []) for (const o of g.options || []) {
+      noteBeats(o.then);
+      for (const r of Object.values(o.roll?.results || {})) noteBeats(r && r.then);
+    }
+  }
+  for (const e of Object.values(pack.script?.endings || {})) noteBeats(e && e.beats);
   for (const pid of Object.keys(pack.cast?.people || {})) if (!castUsed.has(pid)) warn(`cast.json ${pid}`, "never speaks");
 
-  // theme.json
-  const th = pack.theme || {};
+  // theme.json. Stage.check does not read the theme, so check each container's shape before walking it.
+  const isMap = x => !!x && typeof x === "object" && !Array.isArray(x);
+  const th = isMap(pack.theme) ? pack.theme : {};
+  if (!isMap(pack.theme)) err("theme.json", "must be an object with light, dark, fonts and mapStyles");
   for (const mode of ["light", "dark"]) {
-    if (!th[mode] || typeof th[mode] !== "object" || !Object.keys(th[mode]).length) { err("theme.json", `${mode} must be a map of custom-property names to colours`); continue; }
+    if (!isMap(th[mode]) || !Object.keys(th[mode]).length) { err("theme.json", `${mode} must be a map of custom-property names to colours`); continue; }
     for (const [k, v] of Object.entries(th[mode])) {
       if (!/^[a-z][a-z0-9-]*$/.test(k)) err("theme.json", `${mode}.${k}: names are lower-case, without the leading --`);
       if (typeof v !== "string" || !v.trim() || /[;{}<]/.test(v)) err("theme.json", `${mode}.${k}: value must be a plain CSS value`);
@@ -120,22 +129,23 @@ export function validatePack(dir) {
     const rows = shellTokens(cssFile);
     if (!rows.length) err("theme.json", "found no token list in the comment header of ui/style.css (the \"TOKENS THE SHELL READS\" block)");
     for (const mode of ["light", "dark"]) {
-      if (!th[mode] || typeof th[mode] !== "object") continue;
+      if (!isMap(th[mode])) continue;
       for (const row of rows) if (!row.some(k => k in th[mode])) err("theme.json", row.length === 1 ? `${mode} does not define "${row[0]}", which the shell reads (see the header of ui/style.css)` : `${mode} defines none of ${row.map(k => `"${k}"`).join(" | ")}, which the shell reads (see the header of ui/style.css)`);
     }
   }
-  if (th.light && th.dark) for (const k of Object.keys(th.light)) if (!(k in th.dark)) err("theme.json", `dark is missing "${k}", which light defines`);
+  if (isMap(th.light) && isMap(th.dark)) for (const k of Object.keys(th.light)) if (!(k in th.dark)) err("theme.json", `dark is missing "${k}", which light defines`);
   const ms = th.mapStyles;
   if (!Array.isArray(ms) || !ms.length || ms.some(m => !["ink", "blueline"].includes(m))) err("theme.json", `mapStyles must be a list drawn from "ink", "blueline"`);
   const fontFiles = new Set(walk(dir, join(dir, "fonts")));
-  for (const f of th.fonts || []) {
+  if (th.fonts != null && !Array.isArray(th.fonts)) err("theme.json", "fonts must be a list");
+  for (const f of Array.isArray(th.fonts) ? th.fonts : []) {
     if (!f || typeof f.family !== "string" || typeof f.file !== "string") { err("theme.json", `a font needs family and file: ${JSON.stringify(f)}`); continue; }
     if (!FONT_TYPES[extname(f.file).toLowerCase()]) err("theme.json", `font ${f.file}: must be woff2, woff, ttf or otf`);
     else if (!fontFiles.has(f.file)) err("theme.json", `font file "${f.file}" does not exist`);
   }
   const fontsOnDisk = [...fontFiles].filter(f => FONT_TYPES[extname(f).toLowerCase()]);
   if (fontsOnDisk.length && ![...fontFiles].some(f => /(licen[cs]e|ofl|copying)/i.test(f))) err("fonts/", "has fonts but no licence file (LICENSE, OFL.txt)");
-  for (const f of fontsOnDisk) if (!(th.fonts || []).some(x => x && x.file === f)) warn(f, "is not named in theme.json fonts");
+  for (const f of fontsOnDisk) if (!(Array.isArray(th.fonts) ? th.fonts : []).some(x => x && x.file === f)) warn(f, "is not named in theme.json fonts");
 
   return { id, errors, warnings };
 }

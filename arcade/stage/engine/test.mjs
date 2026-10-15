@@ -1178,3 +1178,30 @@ test("validate tool: the storage prefix follows the repository layout, not the c
   assert.equal(storagePrefix(p("src", "game-high-tech-low-lives", "forks", "fort", "stage", "packs", "magic-module")), "fort-stage.");
   assert.equal(storagePrefix(p("work", "fort", "stage", "packs", "magic-module")), "fort-stage.");
 });
+
+test("validate tool: malformed theme shapes are reported, not thrown; speakers count in roll results and endings", async () => {
+  const { mkdtempSync, cpSync, readFileSync, writeFileSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { validatePack } = await import("../tools/validate.mjs");
+  const root = mkdtempSync(path.join(tmpdir(), "stage-validate-"));
+  const fresh = () => { const dir = path.join(root, "test"); rmSync(dir, { recursive: true, force: true }); cpSync(path.join(packs, "test"), dir, { recursive: true }); return dir; };
+  const edit = (dir, file, fn) => { const p = path.join(dir, file), j = JSON.parse(readFileSync(p, "utf8")); fn(j); writeFileSync(p, JSON.stringify(j)); };
+  try {
+    for (const [what, fn] of [["dark", t => { t.dark = "#000"; }], ["fonts", t => { t.fonts = {}; }], ["light", t => { t.light = []; }]]) {
+      const dir = fresh(); edit(dir, "theme.json", fn);
+      const r = validatePack(dir);
+      assert.ok(r.errors.some(e => e.includes("theme.json") && e.includes(what)), `${what}: ${JSON.stringify(r.errors)}`);
+    }
+    // A speaker heard only in a roll result's then, or only in an ending, still speaks.
+    const dir = fresh();
+    let id;
+    edit(dir, "cast.json", c => { id = Object.keys(c.people)[0]; });
+    edit(dir, "script.json", s => {
+      const strip = bs => (bs || []).forEach(b => { if (b && b.speaker === id) delete b.speaker; });
+      for (const sc of s.scenes) { strip(sc.beats); for (const g of sc.choices || []) for (const o of g.options || []) { strip(o.then); for (const r of Object.values(o.roll?.results || {})) strip(r.then); } }
+      for (const e of Object.values(s.endings)) strip(e.beats);
+      Object.values(s.endings)[0].beats.push({ text: "Said at the end.", speaker: id });
+    });
+    assert.ok(!validatePack(dir).warnings.some(w => w.includes(`cast.json ${id}`)), "a speaker in an ending is heard");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
