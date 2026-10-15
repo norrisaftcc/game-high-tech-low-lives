@@ -99,11 +99,12 @@ const kit = {
     setClock();
   },
   // Nothing in this stub is bound to state; it keeps the last state so a real kit's rule is visible here.
-  // Restores what no cue replays after back, load or Continue: a revealed beat's redactions stay lifted.
+  // Restores what no cue replays after back, load or Continue: redactions lifted after a reveal in this set.
   update(state) {
     skipNow = false; commit(); last = state; setClock();
-    if (cur && state && state.revealed) for (const b of cur.querySelectorAll(".k-redact")) {
-      b.style.opacity = "0"; if (!/translateY\(-120%\)/.test(b.style.transform)) b.style.transform += " translateY(-120%)";
+    if (cur && state) for (const b of cur.querySelectorAll(".k-redact")) { // lifted after a reveal in this set, down before it
+      const base = b.style.transform.replace(" translateY(-120%)", "");
+      b.style.opacity = state.revealed ? "0" : ""; b.style.transform = state.revealed ? base + " translateY(-120%)" : base;
     }
   },
   cue(c, o) {

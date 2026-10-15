@@ -70,7 +70,9 @@ function commit() { // finish a pending swap: drop the old set, show the new one
 function restoreStage(state) {
   if (!state) return;
   if (state.look) wash.style.opacity = state.look === "paint" ? String(tokens.wash) : "0";
-  if (cur && state.revealed) for (const f of cur.querySelectorAll(".k-flap")) { f.dataset.open = "1"; f.querySelector(".k-under").style.opacity = "1"; }
+  if (cur) for (const f of cur.querySelectorAll(".k-flap")) { // open after a reveal in this set, closed before it
+    f.dataset.open = state.revealed ? "1" : "0"; f.querySelector(".k-under").style.opacity = state.revealed ? "1" : "0";
+  }
 }
 function restore(state, animate) {
   if (!cur) return;

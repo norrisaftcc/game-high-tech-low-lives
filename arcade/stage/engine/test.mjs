@@ -1121,7 +1121,7 @@ test("the views carry what the shell needs", () => {
   let v = g.view();
   assert.equal(v.node, "beat");
   assert.equal(v.seed, 5);
-  assert.deepEqual(Object.keys(v).sort(), ["beat", "canBack", "cues", "ending", "fields", "flags", "found", "group", "input", "met", "meters", "node", "options", "roll", "scene", "seed", "shown", "tallies"].sort());
+  assert.deepEqual(Object.keys(v).sort(), ["beat", "canBack", "cues", "ending", "fields", "flags", "found", "group", "input", "met", "meters", "node", "options", "opened", "roll", "scene", "seed", "shown", "tallies"].sort());
   assert.deepEqual(v.scene, { id: "s1", title: "The Ford at Dusk", place: "Test · the river road", look: "ink", set: "ford", ending: false });
   assert.equal(v.beat.kicker, "SCENE ONE");
   assert.deepEqual(v.beat.notes, ["river-lore"]);
@@ -1216,4 +1216,19 @@ test("view.shown is the look on show, and back restores it", () => {
   g.next();
   assert.equal(g.choose("x").shown, "ink");
   assert.equal(g.back().shown, "paint", "back restores the look that was on show");
+});
+
+test("view.opened holds after a reveal until the set changes, and back and save restore it", () => {
+  const pack = mini([sc("a", { look: "ink", beats: [{ text: "one" }, { text: "two", reveal: true }, { text: "three" }, { text: "four", set: "t" }] })]);
+  const g = Stage.create(pack);
+  assert.equal(g.view().opened, false);
+  g.next();
+  assert.equal(g.reveal().opened, true);
+  assert.equal(g.next().opened, true, "the next beat in the same set keeps it open");
+  const saved = g.save();
+  assert.equal(Stage.create(pack, { save: saved }).view().opened, true, "a saved game restores it");
+  g.back(); g.back();
+  assert.equal(g.view().opened, false, "back to before the reveal closes it");
+  g.next(); g.reveal(); g.next();
+  assert.equal(g.next().opened, false, "a new set starts closed");
 });

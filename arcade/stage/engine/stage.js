@@ -152,7 +152,7 @@ function applyEffects(S, X, list) {
 function newState(X, seed) {
   const S = {
     v: SAVE_VERSION, seed, rng: seed >>> 0, scene: null, ending: null, set: "", look: "", lookShown: "", q: [], node: null, cur: null,
-    revealed: true, rollRes: null, flags: {}, fields: {}, meters: {}, tallies: {}, cues: [],
+    revealed: true, opened: false, rollRes: null, flags: {}, fields: {}, meters: {}, tallies: {}, cues: [],
   };
   for (const m of X.pack.meters || []) S.meters[m.id] = m.start == null ? m.min : m.start;
   for (const f of X.pack.fields || []) S.fields[f.id] = f.default == null ? "" : String(f.default);
@@ -190,7 +190,7 @@ function optionStates(S, group) {
 
 function enterScene(S, X, id, env, first) {
   const sc = X.scenes.get(id);
-  S.scene = id; S.ending = null; S.set = sc.set || ""; S.look = sc.look || ""; S.lookShown = ""; S.rollRes = null;
+  S.scene = id; S.ending = null; S.set = sc.set || ""; S.look = sc.look || ""; S.lookShown = ""; S.opened = false; S.rollRes = null;
   S.q = (sc.beats || []).map((_, i) => `b ${id}:${i}`).concat((sc.choices || []).map(g => `g ${id}:${g.key}`));
   if (!first) S.cues.push({ type: "turn", dir: 1 });
   if (env.scene) env.scene(id);
@@ -203,7 +203,7 @@ function deadEnd(S, env) {
 function enterEnding(S, X, id, env) {
   const e = X.endings[id];
   if (!e) return deadEnd(S, env);
-  S.scene = null; S.ending = id; S.set = e.set || ""; S.look = e.look || ""; S.lookShown = ""; S.rollRes = null;
+  S.scene = null; S.ending = id; S.set = e.set || ""; S.look = e.look || ""; S.lookShown = ""; S.opened = false; S.rollRes = null;
   S.q = (e.beats || []).map((_, i) => `b ending:${id}:${i}`).concat([`f ${id}`]);
   S.cues.push({ type: "turn", dir: 1 });
   if (env.ending) env.ending(id);
@@ -241,7 +241,7 @@ function settle(S, X, env) {
     if (k === "b") {
       const b = X.beats.get(ref);
       if (!b || (b.when && !cond(S, b.when))) continue;
-      if (b.set && b.set !== S.set) { S.set = b.set; S.cues.push({ type: "shift" }); }
+      if (b.set && b.set !== S.set) { S.set = b.set; S.opened = false; S.cues.push({ type: "shift" }); }
       S.node = "beat"; S.cur = head; S.revealed = !b.reveal;
       S.look = b.look || baseLook(S, X); // a beat's look overrides the scene's for that beat
       if (!b.reveal) showLook(S, S.look); // a hidden beat signals when it is revealed
@@ -449,6 +449,7 @@ function create(pack, opts) {
     return {
       node: S.node, scene, beat, group, options, input, roll, ending,
       shown: S.lookShown || null, // the look the stage shows now (the last ink or bloom), so a kit can restore it
+      opened: !!S.opened,         // a secret in the current set has been revealed (its flap or redaction stays open)
       meters: { ...S.meters }, fields: { ...S.fields }, flags: { ...S.flags }, tallies: clone(S.tallies),
       cues: orderCues(S.cues), canBack: hist.length - 1 > floor, seed: S.seed, met: meta.met.slice(), found: meta.found.slice(),
     };
@@ -479,7 +480,7 @@ function create(pack, opts) {
     reveal() {
       S.cues = [];
       if (!hidden()) return view();
-      S.revealed = true;
+      S.revealed = true; S.opened = true; // a secret in this set is open until the set changes
       S.lookShown = "ink"; // a revealed beat always inks, and the ink holds until a beat of another look
       S.cues.push({ type: "ink" });
       meet(X.beats.get(split(S.cur)[1]));

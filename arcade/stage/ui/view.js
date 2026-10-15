@@ -167,10 +167,11 @@ function kitCall(fn, ...args) {
   try { return k[fn](...args); } catch (e) { console.error("kit." + fn + ":", e); return undefined; }
 }
 // What a kit needs to rebuild the stage after back, load, Continue or a replay, with no cue to play:
-// the look on show (ink or paint) and whether the current beat's secret is revealed.
+// the look on show (ink or paint) and whether a secret in the current set is open. Both come from the engine,
+// so they follow back, load and Continue exactly as forward play left them.
 function stateOf(v) {
   return { meters: v.meters, fields: v.fields, tallies: v.tallies, flags: v.flags,
-    look: v.shown || null, revealed: !!(v.beat && v.beat.reveal && v.beat.revealed) };
+    look: v.shown || null, revealed: !!v.opened };
 }
 const kitHas = fn => !!(V.kit && typeof V.kit[fn] === "function");
 function kitShow(setId, v, instant) {
