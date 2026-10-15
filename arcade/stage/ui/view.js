@@ -1118,6 +1118,7 @@ function changeSetting(name, val) {
 }
 // Reduced motion (the system's or Calm) switched on: every cue and animation jumps to its end now.
 function stopAllMotion() {
+  finishTyping(); // the typewriter runs on requestAnimationFrame, not Web Animations: show the whole line now
   skipCues(); kitCall("finish");
   document.getAnimations().forEach(a => { try { a.cancel(); } catch (e) {} });
   clearAuto();
