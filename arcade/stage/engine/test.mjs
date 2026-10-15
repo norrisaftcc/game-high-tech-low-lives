@@ -1150,3 +1150,22 @@ test("the fixtures play from the first beat to the end with only keyboard action
     assert.ok(views.some(v => v.node === "input"));
   }
 });
+
+test("validate tool: schema errors in sets are reported, not thrown", async () => {
+  const { mkdtempSync, cpSync, readFileSync, writeFileSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { validatePack } = await import("../tools/validate.mjs");
+  const root = mkdtempSync(path.join(tmpdir(), "stage-validate-"));
+  try {
+    for (const bad of [null, { kit: "paper", layers: {} }]) {
+      const dir = path.join(root, "test");
+      cpSync(path.join(packs, "test"), dir, { recursive: true });
+      const file = path.join(dir, "sets.json"), sets = JSON.parse(readFileSync(file, "utf8"));
+      sets[Object.keys(sets)[0]] = bad;
+      writeFileSync(file, JSON.stringify(sets));
+      const r = validatePack(dir);
+      assert.ok(r.errors.some(e => e.includes("sets.json")), JSON.stringify(r.errors));
+      rmSync(dir, { recursive: true });
+    }
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

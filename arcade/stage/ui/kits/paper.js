@@ -75,7 +75,8 @@ function restore(state, animate) {
     e.dataset.open = lead ? "1" : "0";
     under.style.opacity = lead ? "1" : "0";
     under.style.transform = lead ? `translateX(${tokens.d4}px)` : "none";
-    if (animate && lead !== was) run(under, [{ transform: lead ? "none" : `translateX(${tokens.d4}px)`, opacity: lead ? 0 : 1 }], tokens.in, tokens.easeOut);
+    // A lone keyframe defaults to offset 1, so mark it as the start: it animates to the element's own style.
+    if (animate && lead !== was) run(under, [{ transform: lead ? "none" : `translateX(${tokens.d4}px)`, opacity: lead ? 0 : 1, offset: 0 }], tokens.in, tokens.easeOut);
   }
 }
 
@@ -129,14 +130,15 @@ const kit = {
       case "ink": {
         const flaps = cur ? cur.querySelectorAll(".k-flap") : [];
         let ps = [];
+        // Every ink is unwitnessed, a reveal too: the warm wash fades (at once in Calm, where run() does nothing).
+        if (wash.style.opacity !== "0") {
+          wash.style.opacity = "0";
+          ps.push(run(wash, [{ opacity: tokens.wash }, { opacity: 0 }], tokens.state, tokens.easeOut));
+        }
         if (o && o.beat && o.beat.reveal) for (const f of flaps) { // a reveal opens the flap
           const u = f.querySelector(".k-under"); f.dataset.open = "1"; u.style.opacity = "1";
           ps.push(run(u, [{ opacity: 0 }, { opacity: 1 }], tokens.ink, tokens.easeOut));
-        } else { // unwitnessed: the warm wash fades
-          wash.style.opacity = "0";
-          ps.push(run(wash, [{ opacity: tokens.wash }, { opacity: 0 }], tokens.state, tokens.easeOut));
-          if (cur) ps.push(run(cur, [{ opacity: 0.7 }, { opacity: 1 }], tokens.ink, tokens.easeOut));
-        }
+        } else if (cur) ps.push(run(cur, [{ opacity: 0.7 }, { opacity: 1 }], tokens.ink, tokens.easeOut));
         return track(Promise.all(ps));
       }
       case "bloom":

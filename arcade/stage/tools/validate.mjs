@@ -55,6 +55,8 @@ export function validatePack(dir) {
   const checked = Stage.check(pack);
   errors.push(...checked.errors);
   warnings.push(...checked.warnings);
+  // The file checks below walk sets, cast and script as if they were well formed: stop at schema errors.
+  if (checked.errors.length) return { id, errors, warnings };
 
   if (pack.id && pack.id !== basename(resolve(dir))) warn("pack.json", `id "${pack.id}" differs from the folder name "${basename(resolve(dir))}"`);
   const prefix = storagePrefix(dir);
