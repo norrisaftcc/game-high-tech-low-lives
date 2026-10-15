@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="ink" viewBox="0 0 800 600"><title>The Algorithm's file</title>
+<rect x="0" y="0" width="800" height="600" class="f1"/>
+<path d="M0 0V600M40 0V600M80 0V600M120 0V600M160 0V600M200 0V600M240 0V600M280 0V600M320 0V600M360 0V600M400 0V600M440 0V600M480 0V600M520 0V600M560 0V600M600 0V600M640 0V600M680 0V600M720 0V600M760 0V600M0 0H800M0 40H800M0 80H800M0 120H800M0 160H800M0 200H800M0 240H800M0 280H800M0 320H800M0 360H800M0 400H800M0 440H800M0 480H800M0 520H800M0 560H800" class="h q1"/>
+<rect x="60" y="330" width="680" height="190" class="s f2"/>
+<rect x="340" y="380" width="120" height="20" class="s f1"/>
+<path d="M60 350L740 350" class="h"/>
+<path d="M130 62L130 42Q130 36 136 36L250 36Q258 36 264 44L276 62Z" class="s f2"/>
+<text x="196" y="54" font-size="13" text-anchor="middle">ARCHIVE</text>
+<rect x="120" y="62" width="560" height="270" rx="10" class="b f1"/>
+<rect x="130" y="72" width="540" height="250" rx="6" class="s" data-band="1"/>
+<rect x="137" y="79" width="526" height="236" rx="4" class="a" data-band="2"/>
+<rect x="144" y="86" width="512" height="222" rx="3" class="a" data-band="3"/>
+<rect x="151" y="93" width="498" height="208" rx="2" class="a" data-band="3"/>
+<rect x="135" y="104" width="160" height="160" class="s f2"/>
+<path d="M135 104l18 0M135 104l0 18" class="b"/>
+<path d="M295 104l-18 0M295 104l0 18" class="b"/>
+<path d="M135 264l18 0M135 264l0 -18" class="b"/>
+<path d="M295 264l-18 0M295 264l0 -18" class="b"/>
+<text x="215" y="288" font-size="12" text-anchor="middle">SUBJECT 1</text>
+<path d="M320 148H650" class="h"/>
+<text x="322" y="143" font-size="9" text-anchor="start">01</text>
+<path d="M320 172H650" class="h"/>
+<text x="322" y="167" font-size="9" text-anchor="start">02</text>
+<path d="M320 196H650" class="h"/>
+<text x="322" y="191" font-size="9" text-anchor="start">03</text>
+<path d="M320 220H650" class="h"/>
+<text x="322" y="215" font-size="9" text-anchor="start">04</text>
+<path d="M330 292v8M333 292v8M338 292v10M343 292v12M347 292v8M351 292v14M357 292v12M363 292v12M366 292v8M371 292v14M376 292v14M382 292v10M386 292v10M390 292v8M394 292v12M398 292v10M403 292v10M409 292v14M414 292v12M419 292v14M423 292v14M429 292v10M435 292v12M441 292v12M447 292v14M452 292v14M458 292v10M463 292v10M468 292v14M473 292v12M479 292v12M483 292v14M488 292v8M493 292v8M497 292v8M500 292v8M505 292v10M508 292v10M513 292v10M517 292v8M523 292v8M526 292v12M531 292v10M535 292v8M538 292v8M541 292v8M544 292v8M549 292v12M553 292v10M557 292v8M563 292v8M567 292v10M570 292v8M575 292v8M580 292v12M586 292v8M591 292v14M594 292v12M600 292v10M606 292v10M609 292v12M612 292v8M618 292v10M624 292v14M629 292v10M634 292v12M639 292v14" class="s"/>
+</svg>

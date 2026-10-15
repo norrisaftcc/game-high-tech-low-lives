@@ -140,7 +140,7 @@ Each entry names what moves in the **Shell** (HUD, text, hint line) and in each 
 - **Sound.** Triangle 520 Hz, 0.12 s, gain .02 (chosen).
 
 ### bloom: witnessed or public
-- **Paper.** A warm wash of `plate-gold` rises to `--m-wash-alpha` over `--m-bloom`, `--m-ease-out`, with a lamplight layer (a radial gradient, static, fading in). The `plate` settles by `--m-tilt` to level.
+- **Paper.** A warm wash of `plate-gold` rises to `--m-wash-alpha` over `--m-bloom`, `--m-ease-out`, with a lamplight layer (a radial gradient, static, fading in to 0.3 × `--m-wash-alpha`, so text under the wash keeps 4.5:1). The `plate` settles by `--m-tilt` to level.
 - **Feed.** The frame comes into focus: a sharp layer fades in over a pre-blurred copy, `--m-bloom`. The `track` box tightens from 1.08 to 1.
 - **Shell.** Tag "Witnessed" fades in over `--m-state`.
 - **End.** The wash and lamplight stay while the beat is up; they fade over `--m-state` when a beat without paint comes into view. **Reduced.** Wash and focus present at once. **Sound.** Triangle 440 Hz, 0.3 s, gain .02 (chosen).
@@ -180,7 +180,7 @@ Each entry names what moves in the **Shell** (HUD, text, hint line) and in each 
 
 ### close: the story stops
 - **Paper.** Both pages rotate to meet over `--m-close`, `--m-ease-in`: the book shuts on its cover plate and the ending title.
-- **Feed.** The frame collapses to a line (`scaleY` to .002) over `--m-close`, then the ending card shows "Feed closed".
+- **Feed.** The frame collapses to a line (`scaleY` to .002) over `--m-close`; the end line and the "Feed closed" caption fade in over the second half of the same cue, so the cue ends within `--m-close`.
 - **Shell.** The deck shows "Endings found n of m". AUTO stops.
 - **End.** A still card: the ending's title and look. **Reduced.** The card at once. **Sound.** Triangle 220 and 164.81 Hz, 0.6 s, gain .04.
 

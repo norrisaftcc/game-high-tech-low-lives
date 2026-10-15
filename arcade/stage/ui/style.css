@@ -19,6 +19,9 @@
      lamp | plate-gold   the Fate ticket, the warm wash
      good, bad           gain and loss labels, roll results
      on-accent           text on an accent button (optional; the default is bg)
+     plate-gold          optional: the paper kit's gold fill (default: lamp)
+     plate-umber         optional: the paper kit's umber fill (default: ink-soft)
+     blueline            optional: the paper kit's Blueline ink (default: accent)
    Type (optional; each is a font-family list). The pack's theme.fonts embeds the files.
      font-body           optional: story text         (default: Georgia, serif)
      font-display        optional: titles, big numbers (default: font-body)
@@ -37,6 +40,8 @@
      <html data-hidden>               present while the page is hidden
      <html data-cue>                  present while a cue plays
      #app[data-phase="title|card|play"], #app[data-node="beat|choice|input|roll|ending"], #app[data-busy="0|1"]
+     #app[data-ending="<id>"] and .panel.ending[data-ending="<id>"]   the id of the ending on show; absent at any other node
+     .ava.ava-none                    the speaker's avatar when the cast entry has no crop: a still disc with a camera-off mark
 */
 
 :root {
@@ -144,7 +149,7 @@ button, input, textarea { font: inherit; color: inherit; }
 .btn.primary, .btn[aria-pressed="true"] { background: var(--st-accent); color: var(--st-on-accent); border-color: var(--st-accent); }
 .btn.primary:hover:not(:disabled), .btn[aria-pressed="true"]:hover:not(:disabled) { filter: brightness(1.08); }
 .btn.icon { padding: 0; }
-.kbd-hint { font-size: .7rem; font-weight: 700; opacity: .75; border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; }
+.kbd-hint { font-size: .7rem; font-weight: 700; border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; }
 @media (max-width: 480px) { .kbd-hint { display: none; } }
 
 .hud {
@@ -240,11 +245,23 @@ button, input, textarea { font: inherit; color: inherit; }
   flex: none; display: block; width: 44px; height: 44px; border-radius: 50%;
   background: var(--st-card) var(--cast-sheet, none) no-repeat; border: 2px solid var(--st-edge);
 }
+.ava.ava-none {
+  position: relative; overflow: hidden; background-color: var(--st-card);
+  background-image: repeating-conic-gradient(var(--st-card) 0% 25%, var(--st-tint1) 0% 50%); background-size: 6px 6px;
+}
+.ava.ava-none::before { /* the camera body */
+  content: ""; position: absolute; left: 25%; top: 34%; width: 50%; height: 32%;
+  border: 2px solid var(--st-ink-soft); border-radius: 3px; background: var(--st-card);
+}
+.ava.ava-none::after { /* the slash across it */
+  content: ""; position: absolute; left: 12%; top: calc(50% - 1px); width: 76%; height: 2px;
+  background: var(--st-ink); transform: rotate(-45deg);
+}
 .who-t { display: flex; flex-direction: column; line-height: 1.2; }
 .who-t b { font-size: .9375rem; }
 .who-t small { font-size: .75rem; color: var(--st-muted); }
 .txt { margin: 0; white-space: pre-wrap; }
-.txt em, .sr-copy em { font-style: italic; font-weight: 600; }
+.txt em, .sr-copy em { font-style: italic; font-weight: 400; } /* only Alegreya 400 italic is embedded */
 .t-rest { opacity: 0; }
 .caret { display: inline-block; width: 0; position: relative; }
 .caret::after { content: ""; position: absolute; left: 0; bottom: .15em; width: .55em; height: 1em; background: var(--st-ink); }

@@ -18,10 +18,15 @@
      - Map style: <html data-map="ink|blueline"> and a window "stage:map" event; the shell also calls setMap(style) if the kit has it.
      - A beat's `screen` lines: the shell calls screen(lines) if the kit has it (and screen([]) when no beat shows one),
        and then keeps a screen-reader copy only. Without it the shell draws the lines in the text panel.
+     - The state a kit gets (show, update): meters, fields, tallies, flags, look (the look on show), revealed (a secret is open) and
+       ended (true when the view is at the final ending node: a kit may draw its closed state after a replay or Continue lands there).
      - Motion: <html data-motion="full|calm">. Calm behaves exactly as prefers-reduced-motion: reduce. A kit that decides for itself
        whether to animate (in show(), update() or tick()) must treat data-motion="calm" like the media query. The `reduced` flag
        the shell passes to mount() and cue() already includes it.
-   Hooks for tests: #app[data-phase], #app[data-node], #app[data-busy]; every control is a labelled button. */
+   Hooks for tests: #app[data-phase], #app[data-node], #app[data-busy]; #app[data-ending="<id>"] and .panel.ending[data-ending="<id>"]
+   while an ending is on show (and absent otherwise); every control is a labelled button.
+   Page parameters: ?seed=N fixes the seed. ?force=fail,success steers the next rolls to those result tiers (the browser test uses it).
+   Either one fixes the run: no Continue. A forced run, like a Verify replay, never writes the save, the found endings or the notes met. */
 (function () {
 "use strict";
 
@@ -109,9 +114,10 @@ const V = {
   settings: null, found: new Set(), extraMet: new Set(), seen: new Set(),
   shown: { meters: {}, high: {}, tallies: {} }, setId: null,
   slide: null, typing: null, cueBusy: false, ctx: null, waiters: new Set(),
-  autoT: null, sheet: null, opener: null, replaying: false, seedPending: 1, seedFixed: false,
+  autoT: null, sheet: null, opener: null, replaying: false, seedPending: 1, seedFixed: false, force: [], forceIgnored: [], starting: false,
   lastFlash: -1e9, sealed: false, rollEl: null, sim: null, simAt: 0, rafId: 0, dragX: 0, dragY: 0, restartT: null,
 };
+const TIERS = ["fail", "tie", "success", "style"]; // the result tiers ?force= accepts
 const SPEED = { slow: 1.6, normal: 1, fast: 0.6 };
 const TYPE_MAX = 4000; // ms: the longest a beat may take to type
 
@@ -171,7 +177,8 @@ function kitCall(fn, ...args) {
 // so they follow back, load and Continue exactly as forward play left them.
 function stateOf(v) {
   return { meters: v.meters, fields: v.fields, tallies: v.tallies, flags: v.flags,
-    look: v.shown || null, revealed: !!v.opened };
+    look: v.shown || null, revealed: !!v.opened,
+    ended: v.node === "ending" }; // the view is at the final ending node: a kit may show its closed state
 }
 const kitHas = fn => !!(V.kit && typeof V.kit[fn] === "function");
 function kitShow(setId, v, instant) {
@@ -329,9 +336,15 @@ const segHtml = (segs, n) => {
 function avatar(id) {
   const c = PACK.cast && PACK.cast.people && PACK.cast.people[id];
   if (!c) return "";
+  const who = `<span class="who-t"><b>${esc(c.name)}</b>${c.role ? `<small>${esc(c.role)}</small>` : ""}</span>`;
+  const fin = v => typeof v === "number" && Number.isFinite(v);
+  // A cast entry with no crop (x, y and r) has no face on the sheet: draw a still placeholder, not the sheet's top-left corner.
+  if (!fin(c.x) || !fin(c.y) || !fin(c.r) || c.r <= 0 || !fin(PACK.cast.w) || !fin(PACK.cast.h)) {
+    return `<div class="who"><span class="ava ava-none" role="img" aria-label="${esc(c.name)}"></span>${who}</div>`;
+  }
   const size = 44, k = size / (2 * c.r);
   const style = `background-size:${PACK.cast.w * k}px ${PACK.cast.h * k}px;background-position:${-(c.x - c.r) * k}px ${-(c.y - c.r) * k}px`;
-  return `<div class="who"><span class="ava" style="${style}" role="img" aria-label="${esc(c.name)}"></span><span class="who-t"><b>${esc(c.name)}</b>${c.role ? `<small>${esc(c.role)}</small>` : ""}</span></div>`;
+  return `<div class="who"><span class="ava" style="${style}" role="img" aria-label="${esc(c.name)}"></span>${who}</div>`;
 }
 function chipsHtml(ids) {
   const list = (ids || []).filter(id => NOTES[id]);
@@ -490,7 +503,7 @@ function inputSlide(v) {
 
 function endingSlide(v) {
   const e = v.ending;
-  const html = slideHtml(`<section class="panel ending" data-look="${esc(e.look || "")}" aria-label="Ending">
+  const html = slideHtml(`<section class="panel ending" data-look="${esc(e.look || "")}" data-ending="${esc(e.id != null ? e.id : "")}" aria-label="Ending">
       <div class="tags"><span class="tag">Ending</span>${lookTag(e.look)}</div>
       <h2 class="end-title" tabindex="-1">${esc(e.title)}</h2>
       <p class="fine" style="margin-top:0">Endings found: ${V.found.size} of ${ENDING_IDS.length}</p>
@@ -645,7 +658,7 @@ async function present(v, o) {
   kitUpdate(v);
   record(v);
   setPlace(v);
-  $("app").dataset.node = v.node || "";
+  setNode(v);
 
   const card = !!v.scene && ((turn && dir > 0) || o.fresh) && !o.noCard;
   if (card) {
@@ -664,7 +677,7 @@ async function present(v, o) {
 function renderNode(v, dir, say, o) {
   say = (say || []).filter(Boolean);
   o = o || {};
-  $("app").dataset.node = v.node || "";
+  setNode(v);
   let built = null, slide;
   if (v.node === "roll") {
     if (V.rollEl && V.rollEl.isConnected && V.slide === V.rollEl) { slide = V.rollEl; V.rollEl = null; }
@@ -689,6 +702,12 @@ function renderNode(v, dir, say, o) {
   if (!(built && built.typing && V.typing)) armAuto();
 }
 
+// #app[data-node] and #app[data-ending] follow the view. The ending id is there for tests and kits; it is absent at any other node.
+function setNode(v) {
+  const app = $("app");
+  app.dataset.node = v.node || "";
+  if (v.node === "ending" && v.ending && v.ending.id != null) app.dataset.ending = v.ending.id; else delete app.dataset.ending;
+}
 function setPlace(v) {
   $("place").textContent = v.scene && v.scene.place ? v.scene.place : "";
   $("brandSub").textContent = `Endings found ${V.found.size} of ${ENDING_IDS.length}`;
@@ -723,8 +742,11 @@ function deckUI() {
   if (V.settings.auto && !off) h += " AUTO is on.";
   hint.textContent = h;
   const seed = v.seed != null ? v.seed : V.seedPending;
-  $("foot").textContent = `Seed ${seed}${V.replaying ? " · replay" : ""} · ?seed=${seed} repeats this run`;
+  $("foot").textContent = `Seed ${seed}${V.replaying ? " · replay" : ""} · ${runUrl(seed)} repeats this run${ignoredNote()}`;
 }
+// The query that repeats this run: the seed, and the forced tiers when ?force= was given.
+const runUrl = seed => `?seed=${seed}${V.force.length ? "&force=" + V.force.join(",") : ""}`;
+const ignoredNote = () => V.forceIgnored.length ? ` · ignored in ?force: ${V.forceIgnored.join(", ")}` : "";
 
 // ---------------------------------------------------------------- film mode
 function clearAuto() {
@@ -813,8 +835,10 @@ function canContinue() {
   if (!s) return false;
   try { const d = JSON.parse(s); return d && d.pack === PACK.id && Array.isArray(d.hist) && d.hist.length > 1; } catch (e) { return false; }
 }
+// A Verify replay and a ?force= run are not the reader's own play: neither writes the save, the found endings or the notes met.
+const volatileRun = () => V.replaying || V.force.length > 0;
 function persist(v) {
-  if (V.replaying) return;
+  if (volatileRun()) return;
   V.rec.found = [...V.found];
   V.rec.met = [...V.extraMet];
   V.rec.settings = V.settings;
@@ -823,7 +847,8 @@ function persist(v) {
 }
 function persistSettings() {
   if (!V.rec) return;
-  V.rec.settings = V.settings; V.rec.found = [...V.found]; V.rec.met = [...V.extraMet];
+  V.rec.settings = V.settings;
+  if (!volatileRun()) { V.rec.found = [...V.found]; V.rec.met = [...V.extraMet]; }
   store.write(V.rec);
 }
 function record(v) {
@@ -834,13 +859,17 @@ function record(v) {
 function newSeed() { return Math.floor(Math.random() * 0x7fffffff) + 1; }
 
 function begin(cont) {
+  // Enter or Space during the opening cues (the title's button keeps focus) must not start the story again.
+  // The flag is set here and cleared when the first beat or card has rendered, when the start fails, or at the title.
+  if (V.starting) return;
+  V.starting = true;
   if (V.sheet) closeSheet(true);
   V.token++; stopTyping(); clearAuto();
   V.replaying = false;
   const seed = V.seedPending;
   let save = null;
   if (cont && canContinue()) save = V.rec.save;
-  try { V.game = Stage.create(PACK, { seed, save }); } catch (e) { console.error(e); announce("This story could not start."); return; }
+  try { V.game = Stage.create(PACK, { seed, save, force: V.force.slice() }); } catch (e) { V.starting = false; console.error(e); announce("This story could not start."); return; }
   V.view = V.game.view();
   V.seen = new Set(); V.sealed = false; V.rollEl = null; V.cueBusy = false;
   V.seedPending = V.view.seed;
@@ -848,7 +877,11 @@ function begin(cont) {
   buildHud();
   $("app").dataset.phase = "play";
   if (save) restore(V.view);
-  else { V.phase = "play"; present(V.view, { dir: 1, fresh: true }); }
+  else {
+    V.phase = "play";
+    Promise.resolve(present(V.view, { dir: 1, fresh: true })).catch(e => console.error(e)).finally(() => { V.starting = false; });
+  }
+  if (save) V.starting = false;
 }
 function restore(v) {
   V.token++; stopTyping(); clearAuto();
@@ -871,9 +904,10 @@ function adopt(game) { // Verify: play a route and land on its end
 function toTitle() {
   if (V.sheet) closeSheet(true);
   V.token++; stopTyping(); clearAuto();
+  V.starting = false;
   V.game = null; V.view = null; V.phase = "title"; V.cueBusy = false; V.sealed = false; V.ctx = null; V.replaying = false;
   root.removeAttribute("data-cue");
-  $("app").dataset.phase = "title"; $("app").dataset.node = "";
+  $("app").dataset.phase = "title"; $("app").dataset.node = ""; delete $("app").dataset.ending;
   V.seedPending = V.seedFixed ? V.seedPending : newSeed();
   buildHud();
   $("place").textContent = "";
@@ -888,7 +922,7 @@ function toTitle() {
   showSlide(sl, 1, true);
   sl.classList.add("done");
   deckUI();
-  $("foot").textContent = `Seed ${V.seedPending}${V.seedFixed ? " (set by ?seed)" : ""}`;
+  $("foot").textContent = `Seed ${V.seedPending}${V.force.length ? " (set by ?seed or ?force)" : V.seedFixed ? " (set by ?seed)" : ""}${ignoredNote()}`;
   const b = sl.querySelector("#contBtn") || sl.querySelector("#beginBtn");
   if (b) b.focus({ preventScroll: true });
   announce(`${PACK.title}. ${PACK.subtitle || ""}`);
@@ -1238,6 +1272,16 @@ function boot() {
   try {
     const q = new URLSearchParams(location.search).get("seed");
     if (q != null && q !== "" && Number.isFinite(Number(q))) { V.seedPending = Math.floor(Number(q)) >>> 0; V.seedFixed = true; }
+    // ?force=fail,success steers the next rolls to those result tiers, in order (the browser test uses it). Like ?seed=, it fixes the run, so Continue is off.
+    const f = new URLSearchParams(location.search).get("force");
+    // Tokens that are not a result tier are dropped and shown in the footer (a console warning would fail the browser test).
+    // The run is fixed only if at least one valid tier is left.
+    if (f != null && f !== "") {
+      const toks = f.split(",").map(x => x.trim()).filter(Boolean);
+      V.force = toks.filter(x => TIERS.includes(x));
+      V.forceIgnored = toks.filter(x => !TIERS.includes(x));
+      if (V.force.length) V.seedFixed = true;
+    }
   } catch (e) {}
   if (PACK.cast && PACK.cast.sheet && ASSETS[PACK.cast.sheet]) root.style.setProperty("--cast-sheet", `url("${ASSETS[PACK.cast.sheet]}")`);
   applySettings();

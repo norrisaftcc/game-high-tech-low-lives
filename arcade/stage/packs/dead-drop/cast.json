@@ -1,0 +1,36 @@
+{
+  "sheet": "art/cast.webp",
+  "w": 960,
+  "h": 320,
+  "people": {
+    "g0": {
+      "name": "g0",
+      "role": "Contact",
+      "x": 800,
+      "y": 160,
+      "r": 150
+    },
+    "ann": {
+      "name": "Ann Sho",
+      "role": "Subject 1",
+      "x": 160,
+      "y": 160,
+      "r": 150,
+      "alt": [
+        {
+          "when": {
+            "field": "identity",
+            "is": "Sable Harker (staff badge)"
+          },
+          "x": 480,
+          "y": 160,
+          "r": 150
+        }
+      ]
+    },
+    "chen": {
+      "name": "Manager Chen",
+      "role": "Subject 2"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="ink" viewBox="0 0 800 600"><title>Chen's table, camera 3</title>
+<rect x="0" y="0" width="800" height="600" class="f1"/>
+<rect x="0" y="0" width="800" height="118" class="f2"/>
+<path d="M0 118L800 118" class="b"/>
+<rect x="560" y="26" width="150" height="70" class="s f1"/>
+<path d="M574 46L670 46" class="h"/>
+<path d="M574 62L644 62" class="h"/>
+<path d="M574 78L678 78" class="h"/>
+<rect x="90" y="26" width="70" height="70" class="s f1"/>
+<circle cx="125" cy="61" r="22" class="h"/>
+<path d="M-74.7 118L-500 600M-15.4 118L-387.5 600M44 118L-275 600M103.3 118L-162.5 600M162.6 118L-50 600M222 118L62.5 600M281.3 118L175 600M340.7 118L287.5 600M400 118L400 600M459.3 118L512.5 600M518.7 118L625 600M578 118L737.5 600M637.4 118L850 600M696.7 118L962.5 600M756 118L1075 600M815.4 118L1187.5 600M874.7 118L1300 600M0 118L800 118M0 145.4L800 145.4M0 201.1L800 201.1M0 277L800 277M0 369.9L800 369.9M0 478L800 478M0 600L800 600" class="h"/>
+<ellipse cx="290" cy="213" rx="39" ry="13.5" class="s f1"/>
+<path d="M248 207Q290 147 332 207" class="s"/>
+<ellipse cx="540" cy="233" rx="39" ry="13.5" class="s f1"/>
+<path d="M498 227Q540 167 582 227" class="s"/>
+<path d="M505 220L575 214" class="h"/>
+<path d="M218 346L221.6 241.6Q225.2 214.6 255.8 207.4L277.4 200.2L302.6 200.2L324.2 207.4Q354.8 214.6 358.4 241.6L362 346Z" class="s f2"/>
+<path d="M266.6 205.6L290 248.8L313.4 205.6" class="s"/>
+<path d="M290 248.8L290 337" class="h"/>
+<rect x="279.2" y="185.8" width="21.6" height="21.6" class="s f1"/>
+<ellipse cx="290" cy="166" rx="25.2" ry="28.8" class="s f1"/>
+<path d="M263 162.4Q261.2 130 290 130Q318.8 130 317 162.4Q290 151.6 263 162.4Z" class="s f3"/>
+<path d="M458 348L461.6 243.6Q465.2 216.6 495.8 209.4L517.4 202.2L542.6 202.2L564.2 209.4Q594.8 216.6 598.4 243.6L602 348Z" class="s f2"/>
+<path d="M506.6 207.6L530 250.8L553.4 207.6" class="s"/>
+<path d="M530 250.8L530 339" class="h"/>
+<rect x="519.2" y="187.8" width="21.6" height="21.6" class="s f1"/>
+<ellipse cx="530" cy="168" rx="25.2" ry="28.8" class="s f1"/>
+<path d="M499.4 198.6Q486.8 132 530 128.4Q573.2 132 560.6 198.6L553.4 187.8Q530 144.6 506.6 187.8Z" class="s f3"/>
+<ellipse cx="410" cy="296" rx="190" ry="62" class="f3 q1"/>
+<ellipse cx="410" cy="288" rx="190" ry="62" class="s f1"/>
+<ellipse cx="410" cy="288" rx="150" ry="46" class="h"/>
+<path d="M330 270L396 262L402 296L336 304Z" class="s f0"/>
+<path d="M336 274L390 267L395 292L341 299Z" class="a"/>
+<ellipse cx="450" cy="296.6" rx="28.6" ry="9.9" class="s f2"/>
+<path d="M430.2 283.4L434.6 296.6Q450 303.2 465.4 296.6L469.8 283.4Z" class="s f1"/>
+<ellipse cx="450" cy="283.4" rx="19.8" ry="7.2" class="s f2"/>
+<ellipse cx="450" cy="283.4" rx="14.3" ry="4.4" class="s f3 q2"/>
+<path d="M468.7 285.6Q483 290 466.5 296.6" class="s"/>
+<ellipse cx="450" cy="284" rx="8" ry="3" class="fa"/>
+<ellipse cx="508" cy="310" rx="26" ry="9" class="s f2"/>
+<path d="M490 298L494 310Q508 316 522 310L526 298Z" class="s f1"/>
+<ellipse cx="508" cy="298" rx="18" ry="6.5" class="s f2"/>
+<ellipse cx="508" cy="298" rx="13" ry="4" class="s f3 q2"/>
+<path d="M525 300Q538 304 523 310" class="s"/>
+<ellipse cx="280" cy="306" rx="26" ry="9" class="s f2"/>
+<path d="M262 294L266 306Q280 312 294 306L298 294Z" class="s f1"/>
+<ellipse cx="280" cy="294" rx="18" ry="6.5" class="s f2"/>
+<ellipse cx="280" cy="294" rx="13" ry="4" class="s f3 q2"/>
+<path d="M297 296Q310 300 295 306" class="s"/>
+</svg>

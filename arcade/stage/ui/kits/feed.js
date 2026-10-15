@@ -1,27 +1,205 @@
-/* STUB kit: feed (the Algorithm's surveillance view). Contract: stage/SPEC.md section 4, stage/MOTION.md.
-   Wave 1 placeholder so the shell can be built and tested. Wave 2 replaces this file.
-   A frame with a channel and a clock, a box on a face, a scan line, a log, bars. Transform and opacity only.
-   Durations come from --m-* tokens. Every cue returns a Promise and resolves at once under reduced motion
-   (the media query, or <html data-motion="calm">).
-   `turn` is a hard cut (no animation); `shift` is a dissolve. Call order: show(), then cue(turn|shift), then update(state).
-   finish() jumps the active cue to its end state and resolves its Promise now. */
+/* Kit: feed (the Algorithm's surveillance view). Contract: stage/SPEC.md section 4, stage/MOTION.md.
+   One camera frame with a channel and a clock, boxes on faces, a scan line, a log, redaction bars and framed plates.
+
+   How the picture is laid out
+   - The frame's art is drawn in a "cam": a box with the art's own aspect. Its scale is cover (like object-fit: cover) unless
+     the x span of what must be seen (every track and plate in the cam, with half their widths, and any log or redaction bar
+     placed in the cam) is wider than the stage; then it scales down until the span fits, and the ground colour fills what the
+     art no longer covers. The cam is centred on that span (on frame.focus[0] when there is none) and anchored so that the
+     art's focus line (frame.focus[1], default y 0.30) sits 30 percent down the stage. The text panel covers the lower stage
+     on a phone, so a set keeps what matters in the top third of its art.
+   - Tracks live in the cam (x, y, w are fractions of the art), so a box stays on its face at every size. Logs, redaction bars,
+     plates and the frame chrome (channel, clock, rule) live in stage space. A layer takes "space": "cam" or "stage" to override.
+     A box (track or plate) is never made taller than the room above and below its centre; a plate in the stage space is w of
+     the stage's shorter side wide.
+   - Art is SVG, injected inline so it reads the theme. An svg with class="ink" on its root styles itself with the classes below
+     (s, h, b, a, m, f0 to f3, fk, fa, fl, q0, q1, q2); any other svg keeps the colours it carries. The kit removes script,
+     foreignObject, every on* attribute and every href that does not start with #. A raster file is an <img>.
+
+   Layer properties (all optional unless marked; x, y, w, h are fractions)
+     frame   art (path), channel, view, time ("06:47:12"), status (a centred chip, "NO SIGNAL"), static (noise over the art),
+             file (the art carries data-band borders for the exposure bands), focus [x, y] (the art point to anchor), aspect
+     track   cast (id), x, y, w; label (text) or bind (a field) with labels (field value to text); conf (a number, false to
+             hide) or confs (field value to number, for a bound track; wins over the formula) and otherwise 26 + 12 x exposure;
+             face false (no portrait, a bare box); labelAt "below"; tiltOn "roll"
+             (the box tilts by --m-tilt toward the first other track when a roll fails or ties)
+             A person with no x, y and r in cast.json draws as a staticky VIDEO FEED DISABLED box. A person's `alt` list
+             ({ when: { field, is }, x, y, r }) swaps the crop while the field matches.
+     log     lines (strings, or { t, red: true } for a line under a bar), on (the cues that print a line: seal, roll, cost,
+             gain, tear, ink), x or right, y, w (a limit), max (rows kept, default 8), modLabel (the roll's modifier name),
+             keep (the beat's screen lines stay)
+     redact  text (the caption under the bar), x, y, w, h, space, opensOn "reveal" | "none", over "track" (the bar covers
+             that track's name field)
+     plate   cast (id) or art, x, y, w, space, desat "exposure"
+     scan    nothing: one layer of ambient sweep and the roll pass
+
+   What each cue does (end states are the elements' own styles; animation runs from a start keyframe, with fill: backwards)
+     turn   hard cut: new set, new channel, clock set from the scene's place line, log prints again, boxes lock in at 1.12.
+     shift  crossfade over --m-cross; the clock holds.
+     ink    focus goes soft, boxes dim, a redaction lifts when the beat is a reveal.
+     bloom  focus comes up (sharp layer over a pre-blurred copy); boxes tighten from 1.08.
+     seal   boxes go solid, the frame rule goes firm, the label reads LOCKED.
+     roll   one scan pass; the dice cells fill left to right; the log prints the roll; a flagged box tilts toward the subject.
+     cost, gain, tear, close as MOTION.md section 3.
+   update(state) restores every state-bound visual in both directions: focus (look), boxes (exposure), labels (identity),
+   redactions (revealed), the file border and plate (exposure bands). It does this in update() only, so forward cues still animate.
+   Nothing here is animated except transform and opacity. Timings come from --m-* tokens; colours from --st-* tokens.
+   Under reduced motion (the media query, or <html data-motion="calm">) no animate() is called and the end state shows at once.
+   The clock counts on a one-second timer (cleared when hidden, reduced or closed); tick() returns false: nothing moves per frame. */
 (function () {
+
 "use strict";
-let skipNow = false, host, assets = {}, cast = null, active = new Set(), cur = null, pend = null, tokens = {}, secs = 0, act = null, last = null;
+// Art is ours, but it is inlined, so clean it the same way in both kits: no script, no foreign HTML, no links, no
+// handlers, no href that leaves the file, and no SMIL element that could set one.
+function cleanSvg(root) {
+  root.querySelectorAll("script,foreignObject").forEach(n => n.remove());
+  root.querySelectorAll("set,animate,animateTransform,animateMotion").forEach(n => {
+    const a = (n.getAttribute("attributeName") || "").toLowerCase();
+    if (a === "href" || a === "xlink:href" || a.startsWith("on")) n.remove();
+  });
+  root.querySelectorAll("a").forEach(a => a.replaceWith(...a.childNodes));
+  for (const n of [root, ...root.querySelectorAll("*")]) for (const at of [...n.attributes]) {
+    const nm = (at.localName || at.name).toLowerCase();
+    if (nm.startsWith("on") || (nm === "href" && !/^#/.test(at.value))) n.removeAttribute(at.name);
+  }
+  return root;
+}
 const docEl = document.documentElement;
 const redNow = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) || docEl.getAttribute("data-motion") === "calm";
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const ms = (cs, n, d) => { const x = parseFloat(cs.getPropertyValue(n)); return Number.isFinite(x) ? x : d; };
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const pct = f => (f * 100).toFixed(3) + "%";
+const MINUS = "−", FOCAL = 0.30;
 
-function run(elm, frames, dur, ease) {
+const CSS = `
+.k-set{position:absolute;inset:0;overflow:hidden;background:var(--st-bg);color:var(--st-ink);font-family:var(--st-font-mono)}
+.k-camwrap{position:absolute;overflow:visible}
+.k-cam{position:absolute;inset:0}
+.k-art,.k-soft{position:absolute;inset:0}
+.k-soft{filter:blur(3px);transform:scale(1.03)}
+.k-art svg,.k-soft svg,.k-art img,.k-soft img{display:block;width:100%;height:100%}
+.k-sharp{opacity:0}
+.k-in-focus .k-sharp{opacity:1}
+.k-lines{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,var(--k-line-ink,transparent) 2px,var(--k-line-ink,transparent) 3px)}
+.k-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,transparent 55%,var(--k-vig,transparent) 100%)}
+.k-noise{position:absolute;inset:0;pointer-events:none;background:var(--st-ink-soft);opacity:.5;-webkit-mask-image:var(--k-noise);mask-image:var(--k-noise);-webkit-mask-size:96px 96px;mask-size:96px 96px}
+.k-static-art{position:absolute;inset:0;background:var(--st-panel);opacity:.55;pointer-events:none}
+
+:where(.k-art svg.ink *,.k-soft svg.ink *){vector-effect:non-scaling-stroke;fill:none;stroke:none}
+.k-art .s,.k-soft .s{stroke:var(--st-ink-soft);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.k-art .h,.k-soft .h{stroke:var(--st-line);stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
+.k-art .b,.k-soft .b{stroke:var(--st-ink);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.k-art .a,.k-soft .a{stroke:var(--st-accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.k-art .m,.k-soft .m{stroke:var(--st-muted);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
+.k-art .f0,.k-soft .f0{fill:var(--st-bg)}
+.k-art .f1,.k-soft .f1{fill:var(--st-panel)}
+.k-art .f2,.k-soft .f2{fill:var(--st-card)}
+.k-art .f3,.k-soft .f3{fill:var(--st-line)}
+.k-art .fk,.k-soft .fk{fill:var(--st-ink-soft)}
+.k-art .fa,.k-soft .fa{fill:var(--st-accent)}
+.k-art .fl,.k-soft .fl{fill:var(--st-lamp)}
+.k-art .q0,.k-soft .q0{opacity:.18}
+.k-art .q1,.k-soft .q1{opacity:.35}
+.k-art .q2,.k-soft .q2{opacity:.6}
+.k-art text,.k-soft text{fill:var(--st-ink-soft);stroke:none;font-family:var(--st-font-mono);font-weight:700;letter-spacing:.08em}
+.k-art text.ta,.k-soft text.ta{fill:var(--st-accent)}
+
+.k-chrome{position:absolute;inset:0;pointer-events:none;z-index:2}
+.k-rule{position:absolute;left:6px;right:6px;top:28px;bottom:6px;border:1px solid var(--st-line)}
+.k-locked .k-rule{border:2px solid var(--st-ink-soft)}
+.k-br{position:absolute;width:14px;height:14px;border:2px solid var(--st-ink-soft)}
+.k-br.tl{left:6px;top:28px;border-right:0;border-bottom:0}.k-br.tr{right:6px;top:28px;border-left:0;border-bottom:0}
+.k-br.bl{left:6px;bottom:6px;border-right:0;border-top:0}.k-br.br{right:6px;bottom:6px;border-left:0;border-top:0}
+.k-chip{position:absolute;top:34px;font:700 .75rem/1.4 var(--st-font-mono);letter-spacing:.06em;color:var(--st-ink);background:var(--st-scrim);padding:0 6px;white-space:nowrap}
+.k-chip.l{left:12px}.k-chip.r{right:12px}
+.k-chip .dot{display:inline-block;width:.5em;height:.5em;border-radius:50%;background:var(--st-accent);margin-right:.4em;vertical-align:.05em}
+.k-status{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:700 .875rem/1.4 var(--st-font-mono);letter-spacing:.14em;color:var(--st-ink);background:var(--st-scrim);padding:2px 10px;border:1px solid var(--st-edge)}
+
+.k-track{position:absolute;aspect-ratio:1/1;transform:translate(-50%,-50%)}
+.k-tbox{position:absolute;inset:0;border:2px dashed var(--st-accent);background:var(--st-card);transform:scale(var(--k-s,1))}
+.k-locked .k-tbox,.k-track.is-locked .k-tbox{border-style:solid}
+.k-tface{position:absolute;inset:0;background-repeat:no-repeat;background-image:var(--k-sheet);opacity:var(--k-fo,1)}
+.k-track.is-off .k-tbox{background:var(--st-card)}
+.k-track.is-bare .k-tbox{background:transparent}
+.k-tnoise{position:absolute;inset:0;background:var(--st-ink-soft);opacity:.5;-webkit-mask-image:var(--k-noise);mask-image:var(--k-noise);-webkit-mask-size:96px 96px;mask-size:96px 96px}
+.k-tcam{position:absolute;left:50%;top:50%;width:46%;height:46%;transform:translate(-50%,-50%)}
+.k-tcam svg{display:block;width:100%;height:100%;fill:none;stroke:var(--st-ink);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.k-tlabel{position:absolute;font:700 .75rem/1.35 var(--st-font-mono);letter-spacing:.04em;color:var(--st-ink);background:var(--st-scrim);padding:1px 6px;text-transform:uppercase}
+.k-tname{display:block;position:relative;overflow:hidden}
+.k-tname .k-rbar{position:absolute;inset:0}
+.k-tconf{display:block;color:var(--st-accent)}
+
+.k-log:empty{display:none}
+.k-log{position:absolute;font:.75rem/1.5 var(--st-font-mono);letter-spacing:.03em;color:var(--st-ink);background:var(--st-scrim);padding:4px 8px;border-left:2px solid var(--st-accent);overflow:hidden}
+.k-ln{position:relative;white-space:pre-wrap;overflow-wrap:anywhere}
+.k-ln.k-dice{display:flex;gap:4px;margin:2px 0}
+.k-cell{flex:1 1 0;text-align:center;border:1px solid var(--st-edge);font-weight:700}
+.k-cover{position:absolute;background:var(--st-panel);z-index:1}
+.k-ln.k-red>.k-rbar{position:absolute;inset:0}
+.k-rbar{background:var(--st-ink-soft);color:var(--st-bg);display:flex;align-items:center;justify-content:center;font:700 .625rem/1.4 var(--st-font-mono);letter-spacing:.02em;overflow:hidden;text-transform:uppercase}
+
+.k-redact{position:absolute;transform:translate(-50%,-50%)}
+.k-rcap{display:block;font:700 .8125rem/1.5 var(--st-font-mono);letter-spacing:.08em;text-align:center;color:var(--st-ink);background:var(--st-scrim);padding:2px 8px}
+.k-redact .k-rbar{position:absolute;inset:0}
+.k-redact.is-open .k-rbar,.k-ln.is-open .k-rbar,.k-tname.is-open .k-rbar{opacity:0;transform:translateY(-120%)}
+
+.k-plate{position:absolute;transform:translate(-50%,-50%);aspect-ratio:1/1;border:2px solid var(--st-edge);background:var(--st-card);overflow:hidden}
+.k-plate .k-pface,.k-plate .k-psoft{position:absolute;inset:0;background-repeat:no-repeat;background-image:var(--k-sheet)}
+.k-plate .k-psoft{filter:blur(3px);transform:scale(1.05)}
+.k-plate .k-pface{opacity:0}
+.k-plate.in-focus .k-pface{opacity:1}
+.k-plate .k-pface svg,.k-plate .k-psoft svg,.k-plate img{display:block;width:100%;height:100%}
+
+.k-scanbox{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.k-sweep{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(to bottom,var(--st-accent) 0,var(--st-accent) 2px,transparent 2px)}
+.k-pass{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(to bottom,var(--st-accent) 0,var(--st-accent) 2px,transparent 2px)}
+.k-idle{animation:k-drift var(--m-idle) var(--m-ease-inout) infinite alternate}
+.k-sweep.on{animation:k-sweep var(--m-scan) var(--m-ease-linear) infinite}
+@keyframes k-drift{to{transform:scale(var(--m-idle-scale))}}
+@keyframes k-sweep{from{transform:translateY(0);opacity:.15}to{transform:translateY(100%);opacity:.15}}
+html[data-cue] .k-idle,html[data-cue] .k-sweep.on,html[data-hidden] .k-idle,html[data-hidden] .k-sweep.on{animation-play-state:paused}
+.k-stop .k-sweep.on{animation:none;opacity:0}
+.k-stop .k-idle{animation:none}
+
+.k-band{position:absolute;left:0;right:0;overflow:hidden;z-index:2;pointer-events:none}
+.k-end{position:absolute;inset:0;pointer-events:none;z-index:5}
+.k-endline{position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:var(--st-ink-soft);opacity:0}
+.k-closed .k-endline{opacity:1}
+.k-endcap{position:absolute;left:50%;top:50%;transform:translate(-50%,-150%);font:700 .75rem/1.4 var(--st-font-mono);letter-spacing:.14em;color:var(--st-ink);background:var(--st-scrim);padding:0 8px;opacity:0;white-space:nowrap}
+.k-closed .k-endcap{opacity:1}
+.k-file [data-band]{display:none}
+.k-file[data-b="1"] [data-band="1"],.k-file[data-b="2"] [data-band="1"],.k-file[data-b="2"] [data-band="2"],.k-file[data-b="3"] [data-band="1"],.k-file[data-b="3"] [data-band="2"],.k-file[data-b="3"] [data-band="3"]{display:inline}
+.k-card-chan{margin-top:6px;font:700 .75rem/1.4 var(--st-font-mono);letter-spacing:.14em;color:var(--st-muted);text-align:center;text-transform:uppercase}
+@supports (background: color-mix(in srgb, red 50%, blue)){
+  .k-set{--k-line-ink:color-mix(in srgb,var(--st-ink) 5%,transparent);--k-vig:color-mix(in srgb,var(--st-bg) 70%,transparent)}
+}
+`;
+
+// ---------------------------------------------------------------- state
+let host, assets = {}, pack = null, cast = null, tk = {}, meterDefs = {}, styleEl = null, ro = null, endEl = null;
+let cur = null;            // the newest set: after show() and before its swap it is not yet on screen
+let pend = null;           // { next, old } between show() and the turn or shift cue that swaps them
+let act = null, active = new Set(), skipNow = false;
+let S = { meters: {}, fields: {}, tallies: {}, flags: {}, look: "", revealed: false }; // the last state update() saw
+let focusOn = false;       // the look on show: true is paint (sharp), false is ink (soft)
+let locked = false, closed = false, closedFresh = false;
+let cueSeq = 0, stoppedSeq = -1;
+const clock = { base: 0, acc: 0 };
+let timer = 0, mq = null, mo = null;
+const svgCache = new Map();
+
+// ---------------------------------------------------------------- helpers
+// A cue animation: from a start keyframe to the element's own style. Nothing runs under reduced motion.
+function run(elm, frames, dur, ease, extra) {
   if (redNow() || skipNow || !elm) return Promise.resolve();
-  const a = elm.animate(frames, { duration: dur, easing: ease, fill: "backwards" });
+  const a = elm.animate(frames, Object.assign({ duration: dur, easing: ease, fill: "backwards" }, extra || {}));
   active.add(a);
   const done = () => active.delete(a);
   a.onfinish = done; a.oncancel = done;
   return a.finished.then(done, done);
 }
-// The active cue: its Promise settles when the animation ends or when finish() is called, whichever comes first.
+// The active cue: its Promise settles on the natural end or on finish(), whichever comes first.
 function track(p, end) {
   return new Promise(res => {
     const a = act = { end, res };
@@ -29,140 +207,750 @@ function track(p, end) {
     Promise.resolve(p).then(fin, fin);
   });
 }
-const stamp = n => { const s = n % 60, m = Math.floor(n / 60) % 60, h = 7 + Math.floor(n / 3600); return [h, m, s].map(x => String(x).padStart(2, "0")).join(":"); };
-function layerEl(l) {
-  const e = document.createElement("div");
-  e.className = "k-layer k-" + l.prim; e.dataset.prim = l.prim;
-  const abs = "position:absolute;";
-  const at = `left:${(l.x == null ? 0.5 : l.x) * 100}%;top:${(l.y == null ? 0.5 : l.y) * 100}%;width:${(l.w == null ? 0.3 : l.w) * 100}%;transform:translate(-50%,-50%)`;
-  switch (l.prim) {
-    case "frame":
-      e.style.cssText = abs + "inset:0;border:2px dashed var(--st-edge)";
-      e.innerHTML = (l.art ? `<img alt="" draggable="false" src="${assets[l.art] || ""}" style="width:100%;height:100%;object-fit:cover;display:block">` : "") +
-        `<span class="k-ch" style="${abs}left:8px;top:30px;font:700 .75rem ui-monospace,monospace;color:var(--st-ink);background:var(--st-scrim);padding:0 6px">${esc(l.channel || "CH 1")}</span>` +
-        `<span class="k-clock" style="${abs}right:8px;top:30px;font:700 .75rem ui-monospace,monospace;color:var(--st-ink);background:var(--st-scrim);padding:0 6px">${stamp(0)}</span>`;
-      break;
-    case "track": {
-      e.style.cssText = abs + at + ";aspect-ratio:1;border:2px dashed var(--st-accent)";
-      const p = cast && cast.people && l.cast && cast.people[l.cast];
-      e.innerHTML = `<span style="${abs}left:0;bottom:100%;font:700 .75rem ui-monospace,monospace;color:var(--st-ink);background:var(--st-scrim);padding:0 4px;white-space:nowrap">${esc(l.label || (p && p.name) || "SUBJECT")} 0.${p ? 91 : 80}</span>`;
-      break;
+const dead = seq => seq !== cueSeq || stoppedSeq === seq;
+const stamp = n => { const t = ((Math.floor(n) % 86400) + 86400) % 86400; return [Math.floor(t / 3600), Math.floor(t / 60) % 60, t % 60].map(x => String(x).padStart(2, "0")).join(":"); };
+const parseTime = s => { const m = /(\d\d):(\d\d)(?::(\d\d))?/.exec(s || ""); return m ? (+m[1]) * 3600 + (+m[2]) * 60 + (+(m[3] || 0)) : null; };
+const layersOf = set => (set && set.layers) || [];
+const meterLabel = id => String((meterDefs[id] && meterDefs[id].label) || id).toUpperCase();
+const signed = n => (n < 0 ? MINUS : "+") + Math.abs(n);
+const faceChar = (dice, f) => (/dF$/i.test(dice) ? (f > 0 ? "+" : f < 0 ? MINUS : "0") : String(f));
+// The set a cue should draw on. show() runs before a step's cues, so a seal, roll, cost, gain or tear (which come
+// before the turn or shift) belongs to the set still on screen, not to the new one waiting underneath.
+const visible = () => (pend && pend.old ? pend.old : cur);
+function div(cls, css) { const e = document.createElement("div"); if (cls) e.className = cls; if (css) e.style.cssText = css; return e; }
+
+function mulberry(a) { return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+// One 96 px tile of static, as an alpha mask. The colour comes from the element's own background (a theme token).
+function makeNoise() {
+  try {
+    const c = document.createElement("canvas"); c.width = c.height = 96;
+    const g = c.getContext("2d"), im = g.createImageData(96, 96), r = mulberry(1977);
+    for (let i = 0; i < im.data.length; i += 4) { im.data[i] = im.data[i + 1] = im.data[i + 2] = 0; im.data[i + 3] = r() < 0.5 ? 0 : 80 + Math.floor(r() * 175); }
+    g.putImageData(im, 0, 0);
+    return `url("${c.toDataURL("image/png")}")`;
+  } catch (e) { return "none"; }
+}
+
+// ---------------------------------------------------------------- art
+function decodeSvg(uri) {
+  const i = uri.indexOf(","), b = atob(uri.slice(i + 1)), u = new Uint8Array(b.length);
+  for (let k = 0; k < b.length; k++) u[k] = b.charCodeAt(k);
+  return new TextDecoder("utf-8").decode(u);
+}
+// The art at `path` as a node, or null. SVG goes in inline so it can read the theme tokens.
+function artNode(path) {
+  const uri = path && assets[path];
+  if (!uri) return null;
+  if (/^data:image\/svg/.test(uri)) {
+    if (!svgCache.has(path)) {
+      let root = null;
+      try {
+        const d = new DOMParser().parseFromString(decodeSvg(uri), "image/svg+xml");
+        if (!d.querySelector("parsererror")) {
+          root = d.documentElement;
+          cleanSvg(root);
+          root.removeAttribute("width"); root.removeAttribute("height");
+          root.setAttribute("preserveAspectRatio", "xMidYMid slice");
+          root.setAttribute("aria-hidden", "true"); root.setAttribute("focusable", "false");
+        }
+      } catch (e) { root = null; }
+      svgCache.set(path, root);
     }
-    case "scan":
-      e.style.cssText = abs + "left:0;right:0;top:0;height:2px;opacity:0;background:var(--st-accent)";
-      break;
-    case "log":
-      e.style.cssText = abs + "left:8px;bottom:8px;font:.75rem/1.5 ui-monospace,monospace;color:var(--st-ink);background:var(--st-scrim);padding:4px 8px;max-width:60%";
-      e.innerHTML = (l.lines || []).map(t => `<div>${esc(t)}</div>`).join("");
-      break;
-    case "redact":
-      e.style.cssText = abs + at + ";height:2.2em;background:var(--st-ink);color:var(--st-bg);display:grid;place-items:center;font:700 .75rem ui-monospace,monospace";
-      e.textContent = "REDACTED";
-      break;
-    default: // plate
-      e.style.cssText = abs + at;
-      e.innerHTML = l.art ? `<img alt="" draggable="false" src="${assets[l.art] || ""}" style="width:100%;display:block;border:2px solid var(--st-edge)">` : "";
+    const r = svgCache.get(path);
+    return r ? document.importNode(r, true) : null;
   }
+  const im = document.createElement("img");
+  im.alt = ""; im.draggable = false; im.src = uri;
+  return im;
+}
+function aspectOf(node, layer) {
+  if (layer && layer.aspect > 0) return layer.aspect;
+  const vb = node && node.getAttribute && node.getAttribute("viewBox");
+  if (vb) { const p = vb.split(/[ ,]+/).map(Number); if (p.length === 4 && p[2] > 0 && p[3] > 0) return p[2] / p[3]; }
+  return 4 / 3;
+}
+
+// ---------------------------------------------------------------- cast
+const personOf = id => (cast && cast.people && cast.people[id]) || null;
+const hasCrop = p => !!p && [p.x, p.y, p.r].every(Number.isFinite);
+// The crop for a person now. An `alt` entry whose condition holds on a field replaces the base crop (Ann shows as Sable on the badge).
+function cropFor(p, st) {
+  if (!p) return null;
+  for (const a of (Array.isArray(p.alt) ? p.alt : [])) {
+    const w = a.when || {};
+    if (w.field && String(((st || S).fields || {})[w.field] || "") === String(w.is) && [a.x, a.y, a.r].every(Number.isFinite)) return a;
+  }
+  return hasCrop(p) ? p : null;
+}
+function cropStyle(el, c) {
+  if (!c || !cast || !cast.w || !cast.h) return;
+  const d = 2 * c.r, px = (c.x - c.r) / (cast.w - d), py = (c.y - c.r) / (cast.h - d);
+  el.style.backgroundSize = `${(cast.w / d) * 100}% ${(cast.h / d) * 100}%`;
+  el.style.backgroundPosition = `${Number.isFinite(px) ? px * 100 : 0}% ${Number.isFinite(py) ? py * 100 : 0}%`;
+}
+
+// ---------------------------------------------------------------- building a set
+const CAMERA_OFF = `<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="14" width="26" height="20" rx="3"/><path d="M32 22l10-6v16l-10-6"/><path d="M6 40L42 8"/></svg>`;
+
+function buildSet(id, set, st) {
+  const K = { id, set, el: div("k-set"), tracks: [], logs: [], redacts: [], scans: [], plates: [], frame: null, aspect: 4 / 3, focus: [0.5, FOCAL], time: null, file: false, screenOn: false, st: st || S, expo: 0 };
+  K.el.dataset.set = id;
+  const layers = layersOf(set);
+  const fl = layers.find(l => l.prim === "frame") || null;
+  K.frame = fl;
+  K.wrap = div("k-camwrap"); K.cam = div("k-cam k-idle");
+  K.wrap.appendChild(K.cam); K.el.appendChild(K.wrap);
+  K.art = div("k-art k-sharp"); K.soft = div("k-soft");
+  const a1 = fl ? artNode(fl.art) : null;
+  if (a1) { K.art.appendChild(a1); const a2 = artNode(fl.art); if (a2) K.soft.appendChild(a2); }
+  K.aspect = aspectOf(a1, fl);
+  if (fl && Array.isArray(fl.focus)) K.focus = [Number(fl.focus[0]) || 0.5, Number(fl.focus[1]) || FOCAL];
+  if (fl && fl.time) K.time = parseTime(fl.time);
+  K.cam.appendChild(K.soft); K.cam.appendChild(K.art);
+  if (fl && fl.static) { K.cam.appendChild(div("k-static-art")); K.cam.appendChild(div("k-noise")); }
+  K.cam.appendChild(div("k-lines")); K.cam.appendChild(div("k-vig"));
+  if (fl && fl.file) { K.file = true; K.cam.classList.add("k-file"); }
+
+  // the chrome: rule, brackets, channel chip, clock, status
+  const ch = div("k-chrome");
+  ch.innerHTML = `<div class="k-rule"></div><i class="k-br tl"></i><i class="k-br tr"></i><i class="k-br bl"></i><i class="k-br br"></i>`;
+  const chip = document.createElement("span"); chip.className = "k-chip l";
+  chip.innerHTML = `<i class="dot"></i>${esc([fl && fl.channel, fl && fl.view].filter(Boolean).join(" · ") || "CH 1")}`;
+  const clk = document.createElement("span"); clk.className = "k-chip r"; clk.setAttribute("aria-hidden", "true");
+  ch.appendChild(chip); ch.appendChild(clk);
+  if (fl && fl.status) { const t = document.createElement("span"); t.className = "k-status"; t.textContent = fl.status; ch.appendChild(t); }
+  K.chrome = ch; K.rule = ch.firstChild; K.clockEl = clk;
+  K.el.appendChild(ch);
+
+  let z = 3;
+  for (const l of layers) {
+    if (l.prim === "frame") continue;
+    const inCam = (l.space || (l.prim === "track" ? "cam" : "stage")) === "cam";
+    let e = null;
+    if (l.prim === "track") e = buildTrack(K, l);
+    else if (l.prim === "log") e = buildLog(K, l);
+    else if (l.prim === "redact") e = buildRedact(K, l);
+    else if (l.prim === "scan") e = buildScan(K, l);
+    else if (l.prim === "plate") e = buildPlate(K, l);
+    if (!e) continue;
+    e.dataset.prim = l.prim; e.style.zIndex = String(z++);
+    (inCam ? K.cam : K.el).appendChild(e);
+  }
+  // a redaction bar that sits over a track's name goes inside that track's name field
+  for (const r of K.redacts) if (r.layer.over === "track") {
+    const t = K.tracks.find(x => !r.layer.cast || x.layer.cast === r.layer.cast) || K.tracks[0];
+    if (!t) continue;
+    r.el.remove(); r.el = null; r.over = t; r.bar = makeBar(); t.name.appendChild(r.bar);
+  }
+  return K;
+}
+function makeBar() { const b = document.createElement("i"); b.className = "k-rbar"; b.textContent = "Redacted"; return b; }
+const frac = (v, d) => (v == null ? d : v);
+
+function buildTrack(K, l) {
+  const e = div("k-track");
+  e.style.left = pct(frac(l.x, 0.5)); e.style.top = pct(frac(l.y, 0.3)); e.style.width = pct(frac(l.w, 0.12));
+  const box = div("k-tbox"), label = div("k-tlabel");
+  const p = personOf(l.cast), off = l.face !== false && !cropFor(p, K.st);
+  let face = null;
+  if (l.face === false) e.classList.add("is-bare");
+  if (l.face !== false && !off) { face = div("k-tface"); box.appendChild(face); }
+  if (off) {
+    e.classList.add("is-off");
+    box.appendChild(div("k-tnoise"));
+    const ic = div("k-tcam"); ic.innerHTML = CAMERA_OFF; box.appendChild(ic);
+  }
+  const name = document.createElement("span"); name.className = "k-tname";
+  const tn = document.createElement("span"); tn.className = "k-tn"; name.appendChild(tn);
+  const conf = document.createElement("span"); conf.className = "k-tconf";
+  label.appendChild(name); label.appendChild(conf);
+  e.appendChild(box); e.appendChild(label);
+  K.tracks.push({ layer: l, el: e, box, face, name, tn, conf, label, off, tilt: 0, scale: 1 });
   return e;
 }
-function buildSet(id, set) {
-  const s = document.createElement("div");
-  s.className = "k-set"; s.dataset.set = id; s.style.cssText = "position:absolute;inset:0;overflow:hidden";
-  (set.layers || []).forEach(l => { const e = layerEl(l); e._layer = l; s.appendChild(e); });
-  return s;
+function buildLog(K, l) {
+  const e = div("k-log"); e.setAttribute("aria-hidden", "true");
+  if (l.x != null || l.y != null || l.w != null || l.right != null) {
+    if (l.right != null) e.style.right = pct(l.right); else e.style.left = pct(frac(l.x, 0.02));
+    e.style.top = pct(frac(l.y, 0.16));
+    e.style.maxWidth = pct(l.w != null ? l.w : 0.62); // w is a limit: the box is as wide as its longest line
+  } else { e.style.right = "12px"; e.style.top = "58px"; e.style.maxWidth = "62%"; }
+  const L = { layer: l, el: e, model: (l.lines || []).map(x => (typeof x === "string" ? { t: x } : Object.assign({}, x))), on: new Set(l.on || []), max: l.max || 8 };
+  K.logs.push(L);
+  renderLog(L);
+  return e;
 }
+function renderLog(L, lines) {
+  L.el.innerHTML = "";
+  for (const x of lines || L.model) L.el.appendChild(lineEl(x));
+}
+function lineEl(x) {
+  const e = div("k-ln");
+  if (x.cells) { e.classList.add("k-dice"); e.innerHTML = x.cells.map(c => `<span class="k-cell">${esc(c)}</span>`).join(""); return e; }
+  const t = document.createElement("span"); t.textContent = x.t; e.appendChild(t);
+  if (x.red) { e.classList.add("k-red"); e.appendChild(makeBar()); if (x.open) e.classList.add("is-open"); }
+  return e;
+}
+function buildRedact(K, l) {
+  const e = div("k-redact");
+  e.style.left = pct(frac(l.x, 0.5)); e.style.top = pct(frac(l.y, 0.5)); e.style.width = pct(frac(l.w, 0.5));
+  if (l.h != null) e.style.height = pct(l.h);
+  e.setAttribute("role", "img"); e.setAttribute("aria-label", "Redacted");
+  const cap = document.createElement("span"); cap.className = "k-rcap"; cap.textContent = l.text || " "; e.appendChild(cap);
+  const bar = makeBar(); e.appendChild(bar);
+  K.redacts.push({ layer: l, el: e, bar, opens: l.opensOn === "reveal", over: null });
+  return e;
+}
+function buildScan(K, l) {
+  const e = div("k-scanbox"); e.setAttribute("aria-hidden", "true");
+  const sw = div("k-sweep on"), ps = div("k-pass");
+  e.appendChild(sw); e.appendChild(ps);
+  K.scans.push({ layer: l, el: e, sweep: sw, pass: ps });
+  return e;
+}
+function buildPlate(K, l) {
+  const e = div("k-plate");
+  e.style.left = pct(frac(l.x, 0.5)); e.style.top = pct(frac(l.y, 0.5)); e.style.width = pct(frac(l.w, 0.3));
+  const sharp = div("k-pface"), soft = div("k-psoft");
+  const p = personOf(l.cast);
+  if (l.cast) {
+    const c = cropFor(p, K.st);
+    if (c) { cropStyle(sharp, c); cropStyle(soft, c); }
+    e.setAttribute("role", "img"); e.setAttribute("aria-label", (p && p.name) || l.cast);
+  } else if (l.art) {
+    const a = artNode(l.art), b = artNode(l.art);
+    if (a) sharp.appendChild(a);
+    if (b) soft.appendChild(b);
+    sharp.style.backgroundImage = soft.style.backgroundImage = "none";
+  }
+  e.appendChild(soft); e.appendChild(sharp);
+  K.plates.push({ layer: l, el: e, sharp, soft });
+  return e;
+}
+
+// ---------------------------------------------------------------- layout
+const PAD = 30;    // the shell's place line covers the top of the stage; the art starts below it
+const EDGE = 10;   // the room kept between what must be seen and the stage edge
+const spaceOf = l => l.space || (l.prim === "track" ? "cam" : "stage");
+// The x range (fractions of the art) that must stay on screen: every track and plate in the cam, with half their widths,
+// and any log or redaction bar placed in the cam. Null when the set has none.
+function spanOf(K) {
+  let lo = Infinity, hi = -Infinity;
+  const add = (a, b) => { lo = Math.min(lo, a); hi = Math.max(hi, b); };
+  for (const T of K.tracks) { const x = frac(T.layer.x, 0.5), w = frac(T.layer.w, 0.12); add(x - w / 2, x + w / 2); }
+  for (const P of K.plates) if (spaceOf(P.layer) === "cam") { const x = frac(P.layer.x, 0.5), w = frac(P.layer.w, 0.3); add(x - w / 2, x + w / 2); }
+  for (const R of K.redacts) if (spaceOf(R.layer) === "cam" && !R.over) { const x = frac(R.layer.x, 0.5), w = frac(R.layer.w, 0.5); add(x - w / 2, x + w / 2); }
+  for (const L of K.logs) if (spaceOf(L.layer) === "cam") {
+    const w = L.layer.w != null ? L.layer.w : 0.62;
+    if (L.layer.right != null) add(1 - L.layer.right - w, 1 - L.layer.right); else add(frac(L.layer.x, 0.02), frac(L.layer.x, 0.02) + w);
+  }
+  return hi > lo ? [lo, hi] : null;
+}
+// The art is drawn in a cam of its own aspect. The scale is cover (like object-fit) unless the span that must be seen is
+// wider than the stage; then the cam shrinks until the span fits, and the ground colour shows where the art ends. The cam
+// is centred on the span (on the focus point when there is none) and sits so that the focus line is FOCAL down the stage.
+function layout(K) {
+  if (!K || !host) return;
+  const W = host.clientWidth || 360, H = host.clientHeight || 392, Hs = Math.max(1, H - PAD), a = K.aspect;
+  const sp = spanOf(K);
+  let cw = Math.max(W, Hs * a), cx = K.focus[0];
+  if (sp) {
+    cx = (sp[0] + sp[1]) / 2;
+    const room = Math.max(1, W - 2 * EDGE);
+    if ((sp[1] - sp[0]) * cw > room) cw = room / (sp[1] - sp[0]);
+  }
+  const ch = cw / a;
+  const left = cw >= W ? clamp(W * 0.5 - cw * cx, W - cw, 0) : (W - cw) / 2;
+  const top = PAD + clamp(Hs * FOCAL - ch * K.focus[1], Math.min(0, Hs - ch), 0);
+  Object.assign(K.wrap.style, { left: left + "px", top: top + "px", width: cw + "px", height: ch + "px" });
+  K.geo = { W, H, cw, ch, left, top };
+  // A square box (a track, or a plate) is never taller than the room above and below its centre. A track or a plate in
+  // the cam is w of the cam wide; a plate in the stage is w of the stage's shorter side wide.
+  const fit = (el, cy, want) => {
+    const side = 2 * Math.min(cy - (PAD + 6), H - 6 - cy);
+    el.style.width = (side > 0 && side < want ? side : want) + "px";
+  };
+  for (const T of K.tracks) fit(T.el, top + frac(T.layer.y, 0.3) * ch, frac(T.layer.w, 0.12) * cw);
+  for (const P of K.plates) {
+    const l = P.layer;
+    if (spaceOf(l) === "cam") fit(P.el, top + frac(l.y, 0.5) * ch, frac(l.w, 0.3) * cw);
+    else fit(P.el, frac(l.y, 0.5) * H, frac(l.w, 0.3) * Math.min(W, H));
+  }
+  placeLabels(K);
+}
+// Labels sit above their boxes, inside the stage, each within the band between its neighbours so they never overlap.
+// A label that would run up into the channel chips goes below its box instead.
+function placeLabels(K) {
+  const g = K.geo; if (!g || !K.tracks.length) return;
+  const cxOf = T => g.left + frac(T.layer.x, 0.5) * g.cw;
+  const order = [...K.tracks].sort((a, b) => cxOf(a) - cxOf(b));
+  order.forEach((T, i) => {
+    const l = T.layer, bw = T.el.offsetWidth || frac(l.w, 0.12) * g.cw, cx = cxOf(T);
+    const bandL = i > 0 ? (cxOf(order[i - 1]) + cx) / 2 + 2 : 12, bandR = i < order.length - 1 ? (cx + cxOf(order[i + 1])) / 2 - 2 : g.W - 12;
+    const lw = Math.max(96, Math.min(230, bandR - bandL, g.W - 24));
+    const want = clamp(cx - lw / 2, bandL, Math.max(bandL, bandR - lw));
+    T.label.style.width = lw + "px";
+    T.label.style.left = (want - (cx - bw / 2)) + "px";
+    const boxTop = g.top + frac(l.y, 0.3) * g.ch - bw / 2, below = l.labelAt === "below" || boxTop - 6 - T.label.offsetHeight < 54;
+    if (below) { T.label.style.top = "100%"; T.label.style.bottom = "auto"; T.label.style.marginTop = "6px"; T.label.style.marginBottom = ""; }
+    else { T.label.style.bottom = "100%"; T.label.style.top = "auto"; T.label.style.marginBottom = "6px"; T.label.style.marginTop = ""; }
+  });
+}
+
+// ---------------------------------------------------------------- state-bound looks (the end states)
+// Confidence, in order: a number on the layer (conf); the layer's confs table, keyed by the bound field's value (the script
+// prints those numbers, so they win); then 26 + 12 x exposure, capped at 99 (exposure 1, the start, reads 38).
+const confOf = (K, T) => {
+  const l = T.layer;
+  if (typeof l.conf === "number") return l.conf;
+  if (l.bind && l.confs && typeof l.confs === "object") {
+    const v = String((K.st.fields || {})[l.bind] || "");
+    if (Object.prototype.hasOwnProperty.call(l.confs, v) && Number.isFinite(Number(l.confs[v]))) return clamp(Number(l.confs[v]), 0, 99);
+  }
+  if (meterDefs.exposure) return clamp(26 + 12 * (K.expo || 0), 0, 99);
+  return 90;
+};
+const tightOf = conf => 1 + 0.12 * (1 - conf / 100); // a low-confidence box is loose; at 99 it is tight
+function labelOf(K, T) {
+  const l = T.layer;
+  if (l.bind) {
+    const v = String((K.st.fields || {})[l.bind] || ""), m = l.labels || {};
+    if (Object.prototype.hasOwnProperty.call(m, v)) return m[v];
+    if (v) return v.replace(/\s*\(.*\)\s*$/, "");
+    return Object.prototype.hasOwnProperty.call(m, "") ? m[""] : "SUBJECT";
+  }
+  if (l.label) return l.label;
+  const p = personOf(l.cast);
+  return String((p && p.name) || "SUBJECT");
+}
+function applyTrack(K, T) {
+  const l = T.layer, conf = confOf(K, T), p = personOf(l.cast);
+  let name = labelOf(K, T);
+  if (T.off && !/VIDEO FEED DISABLED/i.test(name)) name += " · VIDEO FEED DISABLED";
+  T.tn.textContent = name;
+  const showConf = l.conf !== false;
+  T.conf.textContent = showConf ? `CONF ${Math.round(conf)}%${locked ? " · LOCKED" : ""}` : (locked ? "LOCKED" : "");
+  T.conf.hidden = !showConf && !locked;
+  T.scale = tightOf(conf);
+  T.box.style.setProperty("--k-s", String(T.scale));
+  T.box.style.opacity = focusOn ? "" : "0.55";
+  T.box.style.transform = T.tilt ? `scale(${T.scale}) rotate(${T.tilt}deg)` : "";
+  if (T.face) { cropStyle(T.face, cropFor(p, K.st)); T.face.style.setProperty("--k-fo", String(0.5 + 0.5 * conf / 100)); }
+  T.el.classList.toggle("is-locked", locked);
+  T.el.setAttribute("role", "img");
+  T.el.setAttribute("aria-label", `${name}${showConf ? ", confidence " + Math.round(conf) + " percent" : ""}`);
+  if (K.geo) placeLabels(K);
+}
+function applyFocus(K) {
+  K.cam.classList.toggle("k-in-focus", focusOn);
+  for (const P of K.plates) P.el.classList.toggle("in-focus", focusOn);
+}
+function applyReveal(K, open) {
+  for (const r of K.redacts) (r.over ? r.over.name : r.el).classList.toggle("is-open", !!(r.opens && open));
+  for (const L of K.logs) { for (const x of L.model) if (x.red) x.open = open; for (const e of L.el.querySelectorAll(".k-red")) e.classList.toggle("is-open", open); }
+}
+const band = e => (e <= 1 ? 1 : e <= 3 ? 2 : 3);
+function applyBands(K) {
+  const b = band(K.expo || 0);
+  if (K.file) K.cam.dataset.b = String(b);
+  for (const P of K.plates) if (P.layer.desat === "exposure") P.el.style.filter = `grayscale(${b === 1 ? 1 : b === 2 ? 0.5 : 0})`;
+}
+// Put every state-bound visual at its end state for state `st`.
+function applyAll(K, st) {
+  K.st = st || K.st || S;
+  K.expo = K.st.meters && K.st.meters.exposure != null ? K.st.meters.exposure : 0;
+  applyFocus(K);
+  for (const T of K.tracks) applyTrack(K, T);
+  applyReveal(K, !!K.st.revealed);
+  applyBands(K);
+  K.el.classList.toggle("k-locked", locked);
+  K.chrome.classList.toggle("k-locked", locked);
+  K.el.classList.toggle("k-stop", closed);
+  setClock(K);
+}
+
+// ---------------------------------------------------------------- the clock
+function setClock(K) {
+  if (!K || !K.clockEl) return;
+  const t = stamp(clock.base + Math.floor(clock.acc / 1000));
+  if (K.clockEl.textContent !== t) K.clockEl.textContent = t;
+}
+// A new scene: the clock starts at the set's time, with the hour and minute of the scene's place line when it has one.
+function resetClock(K, scene) {
+  let base = K && K.time != null ? K.time : clock.base;
+  const m = scene && scene.place ? /(\d\d):(\d\d)\s*$/.exec(scene.place) : null;
+  if (m) base = (+m[1]) * 3600 + (+m[2]) * 60 + (K && K.time != null ? K.time % 60 : 0);
+  clock.base = base; clock.acc = 0;
+}
+// The clock counts whole seconds on a one-second timer, not on the frame loop. It runs only while the feed is open, the page
+// is visible and motion is on; any other time the timer is cleared (and syncTimer() restarts it when that changes).
+function unhook() {
+  stopTimer();
+  document.removeEventListener("visibilitychange", syncTimer);
+  if (mq) { try { mq.removeEventListener("change", syncTimer); } catch (e) {} mq = null; }
+  if (mo) { try { mo.disconnect(); } catch (e) {} mo = null; }
+}
+const clockWanted = () => !!cur && !closed && !document.hidden && !redNow();
+function stopTimer() { if (timer) { clearInterval(timer); timer = 0; } }
+function syncTimer() {
+  if (!clockWanted()) { stopTimer(); return; }
+  if (timer) return;
+  timer = setInterval(() => {
+    if (!clockWanted()) { stopTimer(); return; }
+    clock.acc += 1000;
+    setClock(cur);
+  }, 1000);
+}
+function restartSweeps(K) {
+  for (const s of K.scans) { s.sweep.style.animation = "none"; void s.sweep.offsetWidth; s.sweep.style.animation = ""; }
+}
+
+// ---------------------------------------------------------------- the log
+const logFor = (K, cue) => (K && K.logs.find(L => L.on.has(cue))) || null;
+// Add one entry (a line, or a list of rows) and return the new elements, or null when a screen is showing over the log.
+function addEntry(L, K, entry) {
+  const items = Array.isArray(entry) ? entry : [entry];
+  for (const x of items) L.model.push(x);
+  while (L.model.length > L.max) L.model.shift();
+  if (K.screenOn) return null;
+  renderLog(L);
+  return [...L.el.children].slice(-items.length);
+}
+function printLine(K, cue, text) {
+  const L = logFor(K, cue);
+  const els = L ? addEntry(L, K, { t: text }) : null;
+  return els ? run(els[0], [{ opacity: 0, offset: 0 }], tk.state, tk.easeOut) : Promise.resolve();
+}
+
+// ---------------------------------------------------------------- swapping sets
 function commit() {
   if (!pend) return;
-  if (pend.old && pend.old.parentNode) pend.old.remove();
-  pend.next.style.opacity = "";
-  pend = null;
+  const p = pend; pend = null;
+  if (p.old && p.old.el.parentNode) p.old.el.remove();
+  p.next.el.style.opacity = "";
+  cur = p.next;
 }
-function setClock() { if (cur) for (const c of cur.querySelectorAll(".k-clock")) c.textContent = stamp(secs); }
 
 const kit = {
   mount(root, o) {
-    host = root; assets = o.assets || {}; cast = o.pack && o.pack.cast;
-    const cs = getComputedStyle(document.documentElement);
-    tokens = { cross: ms(cs, "--m-cross", 650), ink: ms(cs, "--m-ink", 800), bloom: ms(cs, "--m-bloom", 700), roll: ms(cs, "--m-roll", 900),
-      tear: ms(cs, "--m-tear", 500), close: ms(cs, "--m-close", 1200), state: ms(cs, "--m-state", 250), d3: ms(cs, "--m-d3", 16),
-      easeOut: cs.getPropertyValue("--m-ease-out").trim() || "ease-out", easeIn: cs.getPropertyValue("--m-ease-in").trim() || "ease-in",
-      easeLinear: cs.getPropertyValue("--m-ease-linear").trim() || "linear" };
-    host.style.background = "var(--st-tint1)";
+    host = root; assets = (o && o.assets) || {}; pack = (o && o.pack) || {}; cast = pack.cast || null;
+    meterDefs = {}; for (const m of pack.meters || []) meterDefs[m.id] = m;
+    const cs = getComputedStyle(docEl), tok = n => cs.getPropertyValue(n).trim();
+    tk = { cross: ms(cs, "--m-cross", 650), ink: ms(cs, "--m-ink", 800), bloom: ms(cs, "--m-bloom", 700), roll: ms(cs, "--m-roll", 900),
+      tear: ms(cs, "--m-tear", 500), close: ms(cs, "--m-close", 1200), state: ms(cs, "--m-state", 250), seal: ms(cs, "--m-seal", 300),
+      stagger: ms(cs, "--m-stagger", 80), d3: ms(cs, "--m-d3", 16), max: ms(cs, "--m-layers-max", 3),
+      tilt: parseFloat(tok("--m-tilt")) || 3,
+      easeOut: tok("--m-ease-out") || "ease-out", easeIn: tok("--m-ease-in") || "ease-in", easeLinear: tok("--m-ease-linear") || "linear" };
+    // log lines that print in turn start far enough apart that no more than --m-layers-max are fading at once
+    tk.step = Math.max(tk.stagger, Math.ceil(tk.state / Math.max(1, tk.max)) + 1);
+    if (!styleEl) { styleEl = document.createElement("style"); styleEl.setAttribute("data-kit", "feed"); styleEl.textContent = CSS; document.head.appendChild(styleEl); }
+    host.style.background = "var(--st-bg)";
+    host.style.setProperty("--k-noise", makeNoise());
+    if (cast && cast.sheet && assets[cast.sheet]) host.style.setProperty("--k-sheet", `url("${assets[cast.sheet]}")`);
+    endEl = div("k-end"); endEl.innerHTML = `<i class="k-endline"></i><span class="k-endcap">FEED CLOSED</span>`; endEl.setAttribute("aria-hidden", "true");
+    host.appendChild(endEl);
+    const relayout = () => { layout(cur); if (pend) { layout(pend.next); layout(pend.old); } };
+    if (window.ResizeObserver) { ro = new ResizeObserver(relayout); ro.observe(host); } else window.addEventListener("resize", relayout);
+    // the clock timer follows the page: hidden, reduced motion and Calm stop it
+    unhook();
+    document.addEventListener("visibilitychange", syncTimer);
+    try { mq = window.matchMedia("(prefers-reduced-motion: reduce)"); mq.addEventListener("change", syncTimer); } catch (e) { mq = null; }
+    try { mo = new MutationObserver(syncTimer); mo.observe(docEl, { attributes: true, attributeFilter: ["data-motion"] }); } catch (e) { mo = null; }
+    syncTimer();
   },
+
   show(id, set, o) {
     commit();
-    const next = buildSet(id, set), old = cur;
-    cur = next;
-    if (o && o.instant) { if (old) old.remove(); host.appendChild(next); }
-    else { next.style.opacity = "0"; host.appendChild(next); pend = { next, old }; }
-    last = o && o.state;
-    setClock();
-  },
-  // Nothing in this stub is bound to state; it keeps the last state so a real kit's rule is visible here.
-  // Restores what no cue replays after back, load or Continue: redactions lifted after a reveal in this set.
-  update(state) {
-    skipNow = false; commit(); last = state; setClock();
-    if (cur && state) for (const b of cur.querySelectorAll(".k-redact")) { // lifted after a reveal in this set, down before it
-      const base = b.style.transform.replace(" translateY(-120%)", "");
-      b.style.opacity = state.revealed ? "0" : ""; b.style.transform = state.revealed ? base + " translateY(-120%)" : base;
+    const st = (o && o.state) || S;
+    const next = buildSet(id, set, st), old = cur;
+    host.insertBefore(next.el, endEl);
+    if (o && o.instant) {
+      // back, load, Continue, a new game: nothing animates, so the set takes the state it is shown with
+      if (st.look) focusOn = st.look === "paint";
+      locked = false; closed = false; closedFresh = false; endEl.classList.remove("k-closed");
+      if (old) old.el.remove();
+      cur = next; pend = null;
+      next.el.style.transform = "";
+      applyAll(next, st); layout(next); resetClock(next, null); setClock(next);
+    } else {
+      applyAll(next, st); layout(next);
+      next.el.style.opacity = "0";
+      cur = next; pend = old ? { next, old } : null;
+      if (!old) next.el.style.opacity = "";
     }
+    syncTimer();
   },
+
+  update(state) {
+    skipNow = false;
+    commit();
+    if (state) S = Object.assign({}, state);
+    if (!cur) return;
+    if (closedFresh) closedFresh = false; else closed = false; // the update that follows a close keeps it; any later one (Back, load) opens it
+    if (S.look) focusOn = S.look === "paint";
+    applyAll(cur, S);
+    cur.el.style.transform = closed ? "scaleY(.002)" : "";
+    endEl.classList.toggle("k-closed", closed);
+    syncTimer();
+  },
+
   cue(c, o) {
     const red = (o && o.reduced) || redNow();
-    skipNow = !!(o && o.reduced); // the shell asks for the end state at once (a tap, or reduced motion)
+    skipNow = !!(o && o.reduced);
+    const seq = ++cueSeq;
+    let p;
     switch (c.type) {
-      case "turn": // a hard cut: swap in one frame, the clock jumps
-        secs += 94; commit(); setClock();
-        return Promise.resolve();
-      case "shift": {
-        if (!pend) return Promise.resolve();
-        const p = pend; p.next.style.opacity = "";
-        if (red || !p.old) { commit(); return Promise.resolve(); }
-        const a = run(p.next, [{ opacity: 0 }, { opacity: 1 }], tokens.cross, tokens.easeOut);
-        run(p.old, [{ opacity: 1 }, { opacity: 0 }], tokens.cross, tokens.easeOut);
-        p.old.style.opacity = "0";
-        return track(a, commit);
-      }
-      case "ink": { // a redaction lifts
-        const bars = cur ? [...cur.querySelectorAll(".k-redact")] : [];
-        if (!(o && o.beat && o.beat.reveal)) return Promise.resolve();
-        bars.forEach(b => { b.style.opacity = "0"; b.style.transform += " translateY(-120%)"; });
-        return track(Promise.all(bars.map(b => run(b, [{ opacity: 1, transform: b.style.transform.replace(" translateY(-120%)", "") }, { opacity: 0, transform: b.style.transform }], tokens.ink, tokens.easeOut))));
-      }
-      case "bloom": // the frame comes into focus
-        return cur ? track(run(cur, [{ opacity: 0.7 }, { opacity: 1 }], tokens.bloom, tokens.easeOut)) : Promise.resolve();
-      case "roll": {
-        const s = cur && cur.querySelector(".k-scan");
-        if (!s) return Promise.resolve();
-        return track(run(s, [{ opacity: 0.15, transform: "translateY(0)" }, { opacity: 0.15, transform: `translateY(${host.clientHeight}px)` }], tokens.roll, tokens.easeLinear));
-      }
-      case "tear": // the signal slips once
-        return cur ? track(run(cur, [{ transform: `translateX(${tokens.d3}px)` }, { transform: "none" }], tokens.tear, tokens.easeOut)) : Promise.resolve();
-      case "seal": {
-        const t = cur && cur.querySelector(".k-track");
-        if (t) { t.style.borderStyle = "solid"; }
-        return Promise.resolve();
-      }
-      case "close":
-        if (!cur) return Promise.resolve();
-        cur.style.transform = "scaleY(.02)";
-        return track(run(cur, [{ transform: "none" }, { transform: "scaleY(.02)" }], tokens.close, tokens.easeIn));
-      default:
-        return Promise.resolve(); // cost, gain, tally: the shell shows these
+      case "turn": p = cueTurn(o, red, seq); break;
+      case "shift": p = cueShift(red); break;
+      case "ink": p = cueInk(o, red); break;
+      case "bloom": p = cueBloom(red); break;
+      case "seal": p = cueSeal(red); break;
+      case "roll": p = cueRoll(c, red); break;
+      case "cost": case "gain": p = cueMeter(c, red); break;
+      case "tear": p = cueTear(red); break;
+      case "close": p = cueClose(red); break;
+      default: p = Promise.resolve(); // tally: this kit has none
     }
+    syncTimer();
+    return p;
   },
+
   // A tap during a cue: every animation jumps to its end, a pending swap completes, and the cue's Promise resolves now.
   finish() {
+    stoppedSeq = cueSeq;
     const a = act; act = null;
     for (const x of [...active]) { try { x.finish(); } catch (e) {} }
     active.clear();
     commit();
     if (a) { try { a.end && a.end(); } catch (e) {} a.res(); }
   },
-  card(scene) {
-    return `<div class="scene-card"><p class="card-place">${scene.ending ? "Feed closed" : esc(scene.place || "")}</p><h2 class="card-title">${esc(scene.title)}</h2><div class="card-rule"></div></div>`;
+
+  // The beat's screen lines, drawn in the set's log. The log's own lines come back when the next beat has none.
+  // A log with "keep" leaves the last screen up (the ledger holds the ending's lines).
+  screen(lines) {
+    const K = cur;
+    if (!K) return;
+    const has = Array.isArray(lines) && lines.length > 0;
+    let L = K.logs[0];
+    if (has && !L) { // a set with no log gets a plain one for the screen
+      const e = buildLog(K, { prim: "log", lines: [], x: 0.02, y: 0.16, w: 0.6 });
+      e.style.zIndex = "9"; K.el.appendChild(e); L = K.logs[K.logs.length - 1]; L.auto = true;
+    }
+    if (!L) return;
+    if (has) {
+      const key = lines.join("\n");
+      if (K.screenOn && K.screenKey === key) return;
+      K.screenOn = true; K.screenKey = key;
+      renderLog(L, lines.map(t => ({ t })));
+      if (L.layer.keep) L.model = lines.map(t => ({ t }));
+      run(L.el, [{ opacity: 0, offset: 0 }], tk.state, tk.easeOut);
+    } else if (K.screenOn) {
+      K.screenOn = false; K.screenKey = "";
+      if (L.auto) { L.el.remove(); K.logs.splice(K.logs.indexOf(L), 1); }
+      else renderLog(L);
+    }
   },
-  destroy() { if (host) host.innerHTML = ""; active.clear(); cur = pend = act = last = null; },
+
+  // Ambient: nothing here moves per frame. The drift and the sweep are CSS animations (paused while a cue plays and while the
+  // page is hidden, absent under reduced motion and when the feed is closed); the clock counts on its own one-second timer.
+  // So tick() only makes sure the timer is right (the shell calls it once on a cue, also when hidden or reduced) and returns
+  // false, which lets the shell stop its frame loop.
+  tick() {
+    syncTimer();
+    return false;
+  },
+
+  card(scene) {
+    const sc = scene || {};
+    const set = sc.set && pack && pack.sets && pack.sets[sc.set];
+    const f = layersOf(set).find(l => l.prim === "frame");
+    const chan = f ? [f.channel, f.view].filter(Boolean).join(" · ") : "";
+    return `<div class="scene-card"><p class="card-place">${sc.ending ? "Feed closed" : esc(sc.place || "")}</p><h2 class="card-title">${esc(sc.title || "")}</h2><div class="card-rule"></div>${chan && !sc.ending ? `<p class="k-card-chan">${esc(chan)}</p>` : ""}</div>`;
+  },
+
+  destroy() {
+    if (ro) { try { ro.disconnect(); } catch (e) {} ro = null; }
+    unhook();
+    if (host) host.innerHTML = "";
+    if (styleEl && styleEl.parentNode) styleEl.remove();
+    styleEl = null; endEl = null; active.clear(); cur = pend = act = null;
+  },
 };
+
+// ---------------------------------------------------------------- the cues
+// turn: a hard cut. The new set is in place in one frame, soft, with a new channel and time. The boxes lock in (1.12 to 1),
+// then the log prints a line at a time. The look cue that follows sets focus (bloom) or leaves it soft (ink).
+function cueTurn(o, red, seq) {
+  const K = cur;
+  if (!K) return Promise.resolve();
+  const p = pend; pend = null;
+  if (p && p.old && p.old.el.parentNode) p.old.el.remove();
+  K.el.style.opacity = ""; K.el.style.transform = "";
+  closed = false; closedFresh = false; locked = false; endEl.classList.remove("k-closed");
+  for (const T of K.tracks) T.tilt = 0;
+  focusOn = false;
+  resetClock(K, o && o.scene);
+  applyAll(K); restartSweeps(K);
+  if (red) return Promise.resolve();
+  return track(playTurn(K, seq));
+}
+async function playTurn(K, seq) {
+  await Promise.all(K.tracks.map(T => run(T.box, [{ transform: `scale(${T.scale * 1.12})`, offset: 0 }], tk.state, tk.easeOut)));
+  if (dead(seq)) return;
+  const L = K.logs[0];
+  if (L && !K.screenOn) await Promise.all([...L.el.children].map((ln, i) => run(ln, [{ opacity: 0, offset: 0 }], tk.state, tk.easeOut, { delay: i * tk.step })));
+}
+
+// shift: the old layers fade out and the new fade in together. The clock holds; only the channel changes.
+function cueShift(red) {
+  if (!pend) return Promise.resolve();
+  const p = pend; p.next.el.style.opacity = "";
+  if (locked || focusOn) applyAll(p.next, p.next.st);
+  if (red || !p.old) { commit(); return Promise.resolve(); }
+  const a = run(p.next.el, [{ opacity: 0, offset: 0 }], tk.cross, tk.easeOut);
+  run(p.old.el, [{ opacity: 1, offset: 0 }, { opacity: 0, offset: 1 }], tk.cross, tk.easeOut);
+  p.old.el.style.opacity = "0";
+  return track(a, commit);
+}
+
+// ink: unwitnessed. The frame goes out of focus and the boxes dim. A reveal also lifts the redaction.
+function cueInk(o, red) {
+  const K = cur; if (!K) return Promise.resolve();
+  const reveal = !!(o && o.beat && o.beat.reveal);
+  focusOn = false;
+  K.cam.classList.remove("k-in-focus");
+  for (const P of K.plates) P.el.classList.remove("in-focus");
+  for (const T of K.tracks) T.box.style.opacity = "0.55";
+  const ps = [];
+  if (!red) {
+    ps.push(run(K.art, [{ opacity: 1, offset: 0 }], tk.ink, tk.easeOut));
+    for (const T of K.tracks) ps.push(run(T.box, [{ opacity: 1, offset: 0 }], tk.ink, tk.easeOut));
+    for (const P of K.plates) ps.push(run(P.sharp, [{ opacity: 1, offset: 0 }], tk.ink, tk.easeOut));
+  }
+  if (reveal) {
+    K.st = Object.assign({}, K.st, { revealed: true });
+    for (const r of K.redacts) if (r.opens) {
+      (r.over ? r.over.name : r.el).classList.add("is-open");
+      if (!red) ps.push(run(r.bar, [{ opacity: 1, transform: "none", offset: 0 }], tk.ink, tk.easeOut));
+    }
+    const L = logFor(K, "ink");
+    if (L) addEntry(L, K, { t: "REDACTION LIFTED" });
+  }
+  return track(Promise.all(ps));
+}
+
+// bloom: witnessed. A sharp layer fades in over the pre-blurred copy; the boxes tighten from 1.08 to 1.
+function cueBloom(red) {
+  const K = cur; if (!K) return Promise.resolve();
+  focusOn = true;
+  K.cam.classList.add("k-in-focus");
+  for (const P of K.plates) P.el.classList.add("in-focus");
+  for (const T of K.tracks) T.box.style.opacity = "";
+  if (red) return Promise.resolve();
+  const ps = [run(K.art, [{ opacity: 0, offset: 0 }], tk.bloom, tk.easeOut)];
+  for (const T of K.tracks) ps.push(run(T.box, [{ opacity: 0.55, transform: `scale(${T.scale * 1.08})`, offset: 0 }], tk.bloom, tk.easeOut));
+  for (const P of K.plates) ps.push(run(P.sharp, [{ opacity: 0, offset: 0 }], tk.bloom, tk.easeOut));
+  return track(Promise.all(ps));
+}
+
+// seal: the choice is final. Boxes go solid (a lock-on settle), the rule goes firm at once, the label reads LOCKED.
+function cueSeal(red) {
+  const K = visible(); if (!K) return Promise.resolve();
+  locked = true;
+  K.el.classList.add("k-locked"); K.chrome.classList.add("k-locked");
+  for (const T of K.tracks) applyTrack(K, T);
+  const ps = [];
+  if (!red) {
+    for (const T of K.tracks) ps.push(run(T.box, [{ transform: `scale(${T.scale * 1.06})`, offset: 0 }], tk.seal, tk.easeOut));
+  }
+  ps.push(printLine(K, "seal", "INPUT LOCKED"));
+  return track(Promise.all(ps));
+}
+
+// roll: one scan pass. The dice cells fill left to right. The log prints the roll. A flagged box tilts toward the subject.
+function cueRoll(c, red) {
+  const K = visible(); if (!K) return Promise.resolve();
+  const faces = Array.isArray(c.faces) ? c.faces : [];
+  const lab = ((K.logs.find(L => L.layer.modLabel) || { layer: {} }).layer.modLabel) || "MOD";
+  const L = logFor(K, "roll");
+  const els = L ? addEntry(L, K, [{ cells: faces.map(f => faceChar(c.dice || "", f)) },
+    { t: `${lab} ${signed(c.add || 0)} = ${c.total} VS ${c.vs}` }, { t: `TIER: ${String(c.used || c.result || "").toUpperCase()}` }]) : null;
+  const ps = [];
+  const bad = c.used === "fail" || c.used === "tie";
+  const subj = K.tracks.find(T => T.layer.tiltOn !== "roll");
+  for (const T of K.tracks) if (T.layer.tiltOn === "roll" && bad) {
+    const dir = subj && subj.layer.x != null && T.layer.x != null && subj.layer.x < T.layer.x ? -1 : 1;
+    T.tilt = dir * tk.tilt;
+    T.box.style.transform = `scale(${T.scale}) rotate(${T.tilt}deg)`;
+    ps.push(run(T.box, [{ transform: `scale(${T.scale})`, offset: 0 }], tk.roll, tk.easeOut));
+  }
+  if (!red && !skipNow) {
+    const sc = K.scans[0];
+    if (sc) ps.push(run(sc.pass, [{ opacity: 0.35, transform: "translateY(0)", offset: 0 }, { opacity: 0.35, transform: "translateY(100%)", offset: 1 }], tk.roll, tk.easeLinear));
+    if (els && els.length) {
+      // one cover over the three rows slides off to the right in n steps, so each cell changes once, left to right
+      const first = els[0], last = els[els.length - 1], cov = document.createElement("i");
+      cov.className = "k-cover";
+      cov.style.cssText = `left:0;right:0;top:${first.offsetTop}px;height:${last.offsetTop + last.offsetHeight - first.offsetTop}px;transform:translateX(100%)`;
+      L.el.appendChild(cov);
+      const a = run(cov, [{ transform: "translateX(0)", offset: 0 }], tk.roll, `steps(${Math.max(1, faces.length)}, end)`);
+      ps.push(a.then(() => cov.remove(), () => cov.remove()));
+    }
+  }
+  return track(Promise.all(ps), () => { for (const e of host.querySelectorAll(".k-cover")) e.remove(); });
+}
+
+// cost and gain: one new line in the log. A change to the exposure meter retightens every bound box.
+function cueMeter(c, red) {
+  const K = visible(); if (!K) return Promise.resolve();
+  const def = meterDefs[c.meter] || {};
+  const d = ((c.type === "gain") !== !!def.bad ? 1 : -1) * (c.n || 0); // the way the meter's value moved
+  const ps = [];
+  if (c.meter === "exposure") {
+    const before = K.tracks.map(T => T.scale);
+    K.expo = (K.expo || 0) + d;
+    K.tracks.forEach((T, i) => {
+      applyTrack(K, T);
+      if (typeof T.layer.conf !== "number" && Math.abs(before[i] - T.scale) > 1e-4) ps.push(run(T.box, [{ transform: `scale(${before[i]})`, offset: 0 }], tk.state, tk.easeOut));
+    });
+    applyBands(K);
+  }
+  ps.push(printLine(K, c.type, `${meterLabel(c.meter)} ${signed(d)}`));
+  return track(Promise.all(ps));
+}
+
+// tear: one band of the frame slips sideways and returns; the boxes drop out under it for that moment.
+function cueTear(red) {
+  const K = visible(); if (!K) return Promise.resolve();
+  const ps = [printLine(K, "tear", "PLAYER AUTHORITY: 1 FP SPENT")];
+  const art = K.geo && !red && !skipNow ? artNode(K.frame && K.frame.art) : null;
+  if (!art) return track(Promise.all(ps));
+  const g = K.geo, top = Math.round(g.H * 0.2), h = Math.round(g.H * 0.14);
+  const bandEl = div("k-band", `top:${top}px;height:${h}px`);
+  const inner = div("", `position:absolute;left:${g.left}px;top:${g.top - top}px;width:${g.cw}px;height:${g.ch}px`);
+  const holder = div(focusOn ? "k-art" : "k-soft"); holder.appendChild(art); inner.appendChild(holder);
+  bandEl.appendChild(inner); K.el.appendChild(bandEl);
+  ps.push(run(inner, [{ transform: "translateX(0)", offset: 0 }, { transform: `translateX(${tk.d3}px)`, offset: 0.35 }, { transform: "translateX(0)", offset: 1 }], tk.tear, tk.easeOut)
+    .then(() => bandEl.remove(), () => bandEl.remove()));
+  return track(Promise.all(ps), () => bandEl.remove());
+}
+
+// close: the frame collapses to a line, and the line is labelled. The line and its caption fade in while the frame collapses,
+// all in one Promise.all, so the cue ends with the collapse (--m-close) and a tap on it reaches every animation.
+function cueClose(red) {
+  const K = cur; if (!K) return Promise.resolve();
+  closed = true; closedFresh = true;
+  K.el.classList.add("k-stop");
+  K.el.style.transform = "scaleY(.002)"; // the end states are the elements' own styles
+  endEl.classList.add("k-closed");
+  if (red) return Promise.resolve();
+  const line = endEl.querySelector(".k-endline"), cap = endEl.querySelector(".k-endcap");
+  return track(Promise.all([
+    run(K.el, [{ transform: "none", offset: 0 }], tk.close, tk.easeIn),
+    run(line, [{ opacity: 0, offset: 0 }, { opacity: 0, offset: 0.55 }], tk.close, tk.easeOut),
+    run(cap, [{ opacity: 0, offset: 0 }, { opacity: 0, offset: 0.4 }], tk.close, tk.easeOut),
+  ]));
+}
+
 window.StageKit.register("feed", kit);
 })();

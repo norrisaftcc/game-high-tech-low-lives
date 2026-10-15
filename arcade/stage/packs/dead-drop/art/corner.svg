@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="ink" viewBox="0 0 800 600"><title>The corner table, camera 3</title>
+<rect x="0" y="0" width="800" height="600" class="f1"/>
+<rect x="0" y="0" width="800" height="126" class="f2"/>
+<rect x="90" y="14" width="620" height="100" class="b f0"/>
+<rect x="98" y="22" width="604" height="84" class="s f1"/>
+<path d="M98 70L702 70" class="h"/>
+<rect x="98" y="70" width="604" height="36" class="f3 q1"/>
+<path d="M99.9 76l7 0M100.2 86l9 0M98.7 96l6 0M113.5 76l7 0M110 86l9 0M112.5 96l6 0M125.6 76l7 0M122.5 86l9 0M124.8 96l6 0M136.5 76l7 0M134.2 86l9 0M135.9 96l6 0M148.8 76l7 0M148.7 86l9 0M149.6 96l6 0M158.6 76l7 0M159.4 86l9 0M158.6 96l6 0M172 76l7 0M175.5 86l9 0M173 96l6 0M185.1 76l7 0M184.3 86l9 0M185.7 96l6 0M194.4 76l7 0M195.7 86l9 0M197.4 96l6 0M208.9 76l7 0M208.5 86l9 0M206.4 96l6 0M219.1 76l7 0M219.3 86l9 0M219.4 96l6 0M233.2 76l7 0M231.2 86l9 0M234.4 96l6 0M245.5 76l7 0M242.3 86l9 0M243.9 96l6 0M256 76l7 0M254.1 86l9 0M256.1 96l6 0M269.6 76l7 0M266.7 86l9 0M269 96l6 0M278.5 76l7 0M281.5 86l9 0M282.5 96l6 0M290.8 76l7 0M290 86l9 0M290.4 96l6 0M304.2 76l7 0M302.1 86l9 0M302.4 96l6 0M316 76l7 0M319.5 86l9 0M316.1 96l6 0M327.6 76l7 0M329.8 86l9 0M326.5 96l6 0M340.3 76l7 0M339 86l9 0M341 96l6 0M353.8 76l7 0M350.3 86l9 0M352.8 96l6 0M364.4 76l7 0M362.9 86l9 0M363.3 96l6 0M378 76l7 0M380 86l9 0M374.6 96l6 0M388.8 76l7 0M391.7 86l9 0M387.2 96l6 0M400.4 76l7 0M398.3 86l9 0M399.8 96l6 0M412.7 76l7 0M413.5 86l9 0M413.9 96l6 0M422.3 76l7 0M424.1 86l9 0M426.3 96l6 0M436.3 76l7 0M436.7 86l9 0M436 96l6 0M449.9 76l7 0M449.4 86l9 0M446.1 96l6 0M461.2 76l7 0M460 86l9 0M460.2 96l6 0M470.9 76l7 0M472.7 86l9 0M471.6 96l6 0M482.4 76l7 0M485.8 86l9 0M482.5 96l6 0M497.1 76l7 0M494.2 86l9 0M497.9 96l6 0M509.2 76l7 0M509 86l9 0M509.5 96l6 0M519 76l7 0M522.4 86l9 0M520.1 96l6 0M530.9 76l7 0M535.8 86l9 0M532 96l6 0M543.5 76l7 0M547.2 86l9 0M543.8 96l6 0M556.7 76l7 0M555 86l9 0M558.2 96l6 0M567 76l7 0M566.3 86l9 0M570.9 96l6 0M578.7 76l7 0M583.7 86l9 0M582.9 96l6 0M592.4 76l7 0M590.1 86l9 0M590.3 96l6 0M602.8 76l7 0M604.3 86l9 0M605.1 96l6 0M617.9 76l7 0M616.1 86l9 0M614.7 96l6 0M628.2 76l7 0M626.8 86l9 0M626.4 96l6 0M640.2 76l7 0M642.2 86l9 0M638.3 96l6 0M651.8 76l7 0M654.2 86l9 0M653.8 96l6 0M663.5 76l7 0M667.3 86l9 0M662.8 96l6 0M676.9 76l7 0M678.6 86l9 0M678.4 96l6 0M688 76l7 0M686.6 86l9 0M686.2 96l6 0M700.1 76l7 0M699 86l9 0M701.1 96l6 0" class="h q2"/>
+<path d="M200 22L200 106" class="s"/>
+<path d="M300 22L300 106" class="s"/>
+<path d="M400 22L400 106" class="s"/>
+<path d="M500 22L500 106" class="s"/>
+<path d="M600 22L600 106" class="s"/>
+<circle cx="160" cy="64" r="2.4" class="fa"/>
+<circle cx="170" cy="62" r="2.4" class="fa"/>
+<circle cx="340" cy="66" r="2.4" class="fa"/>
+<circle cx="352" cy="64" r="2.4" class="fa"/>
+<circle cx="540" cy="63" r="2.4" class="fa"/>
+<circle cx="553" cy="61" r="2.4" class="fa"/>
+<path d="M150 70L190 70L184 76L156 76Z" class="s f2"/>
+<path d="M330 70L372 70L366 77L336 77Z" class="s f2"/>
+<path d="M530 70L574 70L568 77L536 77Z" class="s f2"/>
+<path d="M250 22L330 22L300 70L230 70Z" class="fl q0"/>
+<path d="M192 124L512 124L512 232L192 232Z" class="s f2"/>
+<path d="M272 124L272 232" class="s"/>
+<path d="M352 124L352 232" class="s"/>
+<path d="M432 124L432 232" class="s"/>
+<path d="M206 138L258 138" class="h"/>
+<path d="M206 224L258 224" class="h"/>
+<path d="M286 138L338 138" class="h"/>
+<path d="M286 224L338 224" class="h"/>
+<path d="M366 138L418 138" class="h"/>
+<path d="M366 224L418 224" class="h"/>
+<path d="M446 138L498 138" class="h"/>
+<path d="M446 224L498 224" class="h"/>
+<path d="M163.2 340L166.6 240.2Q170.1 214.4 199.3 207.6L220 200.7L244 200.7L264.7 207.6Q293.9 214.4 297.4 240.2L300.8 340Z" class="s f2"/>
+<path d="M209.6 205.8L232 247.1L254.4 205.8" class="s"/>
+<path d="M232 247.1L232 331.4" class="h"/>
+<rect x="221.7" y="186.9" width="20.6" height="20.6" class="s f1"/>
+<ellipse cx="232" cy="168" rx="24.1" ry="27.5" class="s f1"/>
+<path d="M202.8 197.2Q190.7 133.6 232 130.2Q273.3 133.6 261.2 197.2L254.4 186.9Q232 145.6 209.6 186.9Z" class="s f3"/>
+<path d="M170 238L534 238L552 296L152 296Z" class="s f1"/>
+<path d="M170 246L534 246" class="h"/>
+<ellipse cx="232" cy="271.4" rx="23.4" ry="8.1" class="s f2"/>
+<path d="M215.8 260.6L219.4 271.4Q232 276.8 244.6 271.4L248.2 260.6Z" class="s f1"/>
+<ellipse cx="232" cy="260.6" rx="16.2" ry="5.9" class="s f2"/>
+<ellipse cx="232" cy="260.6" rx="11.7" ry="3.6" class="s f3 q2"/>
+<path d="M247.3 262.4Q259 266 245.5 271.4" class="s"/>
+<ellipse cx="472" cy="271.4" rx="23.4" ry="8.1" class="s f2"/>
+<path d="M455.8 260.6L459.4 271.4Q472 276.8 484.6 271.4L488.2 260.6Z" class="s f1"/>
+<ellipse cx="472" cy="260.6" rx="16.2" ry="5.9" class="s f2"/>
+<ellipse cx="472" cy="260.6" rx="11.7" ry="3.6" class="s f3 q2"/>
+<path d="M487.3 262.4Q499 266 485.5 271.4" class="s"/>
+<path d="M455 252L499 270" class="a"/>
+<circle cx="454" cy="251" r="2.4" class="fa"/>
+<rect x="556" y="114" width="130" height="16" class="f3 q1"/>
+<path d="M544 312L546.8 230.8Q549.6 209.8 573.4 204.2L590.2 198.6L609.8 198.6L626.6 204.2Q650.4 209.8 653.2 230.8L656 312Z" class="s f2"/>
+<path d="M581.8 202.8L600 236.4L618.2 202.8" class="s"/>
+<path d="M600 236.4L600 305" class="h"/>
+<rect x="591.6" y="187.4" width="16.8" height="16.8" class="s f1"/>
+<ellipse cx="600" cy="172" rx="19.6" ry="22.4" class="s f1"/>
+<path d="M579 169.2Q577.6 144 600 144Q622.4 144 621 169.2Q600 160.8 579 169.2Z" class="s f3"/>
+<path d="M600 285L600 315" class="s"/>
+<ellipse cx="600" cy="315" rx="24.8" ry="8" class="s f1"/>
+<ellipse cx="600" cy="270" rx="62" ry="23" class="s f3 q1"/>
+<ellipse cx="600" cy="262" rx="62" ry="23" class="s f1"/>
+<ellipse cx="600" cy="262" rx="49.6" ry="18.4" class="h"/>
+<path d="M578 244L624 240L628 262L582 266Z" class="s f0"/>
+<path d="M583 247L620 244L623 259L586 262Z" class="a"/>
+<ellipse cx="600" cy="252" rx="84" ry="28" class="fl q0"/>
+<path d="M250 476L250 546" class="s"/>
+<ellipse cx="250" cy="546" rx="28" ry="9.1" class="s f1"/>
+<ellipse cx="250" cy="458" rx="70" ry="26" class="s f3 q1"/>
+<ellipse cx="250" cy="450" rx="70" ry="26" class="s f1"/>
+<ellipse cx="250" cy="450" rx="56" ry="20.8" class="h"/>
+<ellipse cx="170" cy="457" rx="23.4" ry="8.1" class="s f1"/>
+<path d="M144.8 453.4Q170 417.4 195.2 453.4" class="s"/>
+<ellipse cx="330" cy="457" rx="23.4" ry="8.1" class="s f1"/>
+<path d="M304.8 453.4Q330 417.4 355.2 453.4" class="s"/>
+<path d="M560 496L560 566" class="s"/>
+<ellipse cx="560" cy="566" rx="28" ry="9.1" class="s f1"/>
+<ellipse cx="560" cy="478" rx="70" ry="26" class="s f3 q1"/>
+<ellipse cx="560" cy="470" rx="70" ry="26" class="s f1"/>
+<ellipse cx="560" cy="470" rx="56" ry="20.8" class="h"/>
+<ellipse cx="480" cy="477" rx="23.4" ry="8.1" class="s f1"/>
+<path d="M454.8 473.4Q480 437.4 505.2 473.4" class="s"/>
+<ellipse cx="640" cy="477" rx="23.4" ry="8.1" class="s f1"/>
+<path d="M614.8 473.4Q640 437.4 665.2 473.4" class="s"/>
+</svg>

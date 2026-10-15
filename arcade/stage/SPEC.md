@@ -129,7 +129,7 @@ Two themes, `light` and `dark`, each a map of custom-property names (without `--
 
 ### cast.json
 
-`{ "sheet": "art/cast.jpg", "w": 1200, "h": 660, "people": { "chen": { "name": "Manager Chen", "role": "…", "x": 400, "y": 220, "r": 90 } } }`. Portraits are crops of the one sheet by background position, as in Neon On-Call. A person with no `x`, `y` and `r` has no portrait: the paper kit draws an ink silhouette, and the feed kit draws a staticky outline labelled **VIDEO FEED DISABLED**. `cast.json` may then omit `sheet` if no person has a crop.
+`{ "sheet": "art/cast.jpg", "w": 1200, "h": 660, "people": { "chen": { "name": "Manager Chen", "role": "…", "x": 400, "y": 220, "r": 90 } } }`. Portraits are crops of the one sheet by background position, as in Neon On-Call. A person with no `x`, `y` and `r` has no portrait: the paper kit draws an ink silhouette, and the feed kit draws a staticky outline labelled **VIDEO FEED DISABLED**. `cast.json` may then omit `sheet` if no person has a crop. The shell's speaker disc shows a plain placeholder for such a person. A person may carry `alt`: a list of `{ when: { field, is }, x, y, r }` crops, used while that card field holds that value (the Dead Drop shows Ann as Sable Harker while she wears the staff badge).
 
 ## 3. The engine
 
@@ -196,7 +196,7 @@ Stage.check(pack)      // → { errors, warnings }
 StageKit.register("paper", {
   mount(root, { pack, assets, reduced }) {},  // once; root is the stage element
   show(setId, set, { instant, state }) {},    // build or swap the set's layers; state as in update()
-  update(state) {},                           // after every step: { meters, fields, tallies, flags, look, revealed } (look = view.shown, revealed = view.opened); restores bound layers (pull-tab), the look on show and a revealed secret after back, load or save
+  update(state) {},                           // after every step: { meters, fields, tallies, flags, look, revealed, ended } (look = view.shown, revealed = view.opened, ended = the view is at an ending's final node); restores bound layers (pull-tab), the look on show and a revealed secret after back, load or save
   cue(cue, { scene, beat, reduced }) {},      // play one cue; returns a Promise that resolves when it ends (at once if reduced)
   finish() {},                                // jump the active cue to its end state and resolve its Promise now
   tick(t) {},                                 // optional, per frame; returns true while anything moves
@@ -211,7 +211,11 @@ Optional hooks: `setMap(style)` (the reader changed the map style) and `screen(l
 
 **Performance.** Animate only `transform` and `opacity` in CSS. Canvas at device pixel ratio 2 or less. Stop the frame loop when the page is hidden and when no layer is moving.
 
-**Storage.** `localStorage` under `storageKey`, in try/catch: progress, endings found, settings. Bad or missing data is ignored. The page works when storage throws.
+**Storage.** `localStorage` under `storageKey`, in try/catch: progress, endings found, settings. Bad or missing data is ignored. The page works when storage throws. A run started with `?seed=` or `?force=` is fixed: Continue is off, and a `?force=` run saves nothing.
+
+**What survives Back and Continue.** The engine's state, and with it everything `update(state)` carries: meters, fields, tallies, flags, the look on show, an opened secret, the ending. Moment cues (`roll`, `seal`, `tear`, `cost`, `gain`) are not restored as motion or marks; their results stay in the HUD, the card and the text. A kit may keep more, but must not show a moment's mark on a state that never had it.
+
+**DOM hooks for tests.** `#app` carries `data-phase`, `data-node`, `data-busy` and, at an ending, `data-ending="<id>"`.
 
 **Network.** None. No external scripts, styles, fonts or images. Fonts and art are inlined by the build.
 
@@ -224,4 +228,4 @@ Optional hooks: `setMap(style)` (the reader changed the map style) and `screen(l
 | `node stage/tools/sim.mjs stage/packs/<id>` | Every ending reached; no unreachable scene, beat or note |
 | `node stage/tools/build.mjs stage/packs/<id>` for every pack, then `node stage/test.mjs` | `PASS` |
 
-`test.mjs` checks, for every built pack: no network reference; the pack's forbidden-name list (the OSR pack uses `intro/test.mjs`'s list); every route from `Stage.simulate(pack).routes` played by keyboard (`Stage.replay` forces the roll tiers), so every ending is reached, while path counts are checked in simulation; reduced motion leaves no running animation (`document.getAnimations()`); no horizontal scroll at 360 and 1280 px; works with `localStorage` throwing; no console errors; the Verify sheet's counts match `sim.mjs`; the commentary toggle hides the track; every ⓘ chip opens its note; light and dark both pass 4.5:1 for text (sampled from the computed tokens).
+`test.mjs` checks, for every built pack: no network reference; the pack's forbidden-name list (the OSR pack uses `intro/test.mjs`'s list); every route from `Stage.simulate(pack).routes` played by keyboard, its roll tiers forced by the page's `?force=` parameter (a comma list of result tiers, in order, passed to `Stage.create` as `force`; like `?seed=`, it turns Continue off), so every ending is reached, while path counts are checked in simulation; reduced motion leaves no running animation (`document.getAnimations()`); no horizontal scroll at 360 and 1280 px; works with `localStorage` throwing; no console errors; the Verify sheet's counts match `sim.mjs`; the commentary toggle hides the track; every ⓘ chip opens its note; light and dark both pass 4.5:1 for text (sampled from the computed tokens).
