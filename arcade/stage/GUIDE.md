@@ -227,6 +227,70 @@ A kit is a module that draws the stage layer behind the text. It registers itsel
 | `redact` | Bars that lift on `reveal` | `ink` |
 | `plate` | A framed image | `bloom`, `ink` |
 
+### Layer properties each kit reads
+
+SPEC §4 names the primitives. Each kit reads more properties than that table lists. These are the ones the shipped kits read; `validate` checks only `art/` paths, so a misspelt property is silently ignored.
+
+**Paper kit**
+
+| Property | Prim | Meaning | Used in `magic-module` |
+|---|---|---|---|
+| `art2`, `art3`, `art4`, `art5` | tunnel | More planes, far to near. `art` is the farthest. 1 to 5 planes in all, all with one viewBox. | terminal (art to art4), breaths (art to art3), wall (art to art4), milestone (art to art5) |
+| `screen` `{x,y,w,h}` | plate | Fractions of the plate (the art box inside the frame) where `beat.screen` lines are printed, in the shell's mono font. Without it, screen lines appear in a free box near the top of the book. | glass |
+| `range` `[min,max]` | volvelle | Faces round the rim, default `[2,12]`. On `roll` the wheel stops with the total at the top. | plinth `[2,12]` |
+| `center` | volvelle | The face at the top at rest. Default is the middle of `range`. | not used (default 7) |
+| `meter` | ticket | The meter id whose points are drawn as boxes. Default `fate`. A hole is punched for each point left, and `tear` splits the ticket. | wall `fate` |
+| `x`, `y`, `w` (meaning) | all | SPEC says "fractions of the stage". In the paper kit they are fractions of the book box: a square of side min(stage width, stage height), centred on the stage, at the stage's full height. `x`, `y` are the centre. `w` is the width; the height follows the art's aspect. Defaults: x and y 0.5, w 0.5 (volvelle 0.3, ticket 0.2). | all |
+| `spread` (art optional) | spread | `art` fills the whole stage (the art is sliced to fit). A spread with no `art` draws only the gutter. | terminal and glass have none |
+| `flap` `art` and `under` | flap | `art` is a lid covering the whole layer box. `under` is the same box, behind the lid. On `reveal` the lid turns up to `--m-flap` degrees and the under sheet's `.d` contour draws on. The under sheet cannot be larger than the lid. | all flaps |
+| `pulltab` `art` and `under` | pulltab | `art` is the front card. `under` is the second sheet, same size, tucked behind it. It slides out `--m-d4` to the right when the tally leads, so the layer's right edge plus 32 px plus the 16 px tab must stay inside the stage. A tap on the tab pulls it fully over. `update()` folds it back when the tally no longer leads. | chamber, pen-autumn, glass, plinth |
+| `look` | plate | `paint` blooms (wash and lamp, settles by `--m-tilt`). `ink` draws the `.d` contour. | cover, pen-stone, muster-pen, milestone (paint); glass, breaths (ink) |
+| Art vocabulary | all SVG art | SVG is inlined. Strokes and fills use currentColor, which is ink, or Blueline blue in the Blueline map. Fill classes: `fi` ink, `fp` paper, `f1` tint-1, `f2` tint-2, `fg` plate-gold, `fu` plate-umber, `fs` rule grey. Stroke classes: `sg`, `su`, `ss`. One `path.d` with `pathLength="1"` is the contour the ink cue draws, and it must be the only stroke of that contour (shapes beneath it use stroke="none"). Text fills with `--k-text`. | all art |
+| Text on a layer | all SVG art | Text must sit on a `fp` paper fill, never directly on gold, umber or a tint. A label on a flap or pull-tab must be at least 10 px at 360x640: the SVG font-size in user units times (layer w x book side / viewBox width) is at least 10. | all art |
+| Tokens read | kit | `--k-text` (new, kit-local): ink in the ink map; in Blueline, a mix of 12% Blueline and 88% `--st-ink`. `--plate-gold`, `--plate-umber`, `--blueline` (pack names, with fallbacks) are used as before. | theme.json |
+
+**Feed kit**
+
+The feed kit's layer properties. SPEC section 4 names only the primitives (frame, track, scan, log, redact, plate), so none of these properties appear there. "dd" means The Dead Drop uses it. Coordinates x, y, w, h are fractions.
+
+| Prim | Property | Meaning | dd |
+|---|---|---|---|
+| any | `space` | "cam" (fractions of the art) or "stage" (fractions of the stage). Defaults: track is cam; log, redact, plate and scan are stage | yes (ledger log and plate, phone redact, former cup redact) |
+| frame | `art` | Path of the art. SVG is inlined and sanitised (script, foreignObject, on* attributes and any href not starting with # are removed). Anything else is an img | yes |
+| frame | `channel`, `view` | The top-left chip: "CH 3 · FLOOR" | yes |
+| frame | `time` | Clock start "HH:MM:SS". The scene's place line overrides hours and minutes and keeps these seconds | yes |
+| frame | `status` | A centred chip such as "NO SIGNAL" | yes (blind) |
+| frame | `static` | Noise over the art | yes (blind) |
+| frame | `file` | The art carries data-band borders that show by exposure band | yes (ledger) |
+| frame | `focus` [x, y] | The art point to anchor. y sits 30% down the stage; x is used only when the set has no tracks, plates or cam-space logs or redactions | yes (ledger [.5,.22]) |
+| frame | `aspect` | Overrides the art's aspect | no |
+| track | `cast`, `x`, `y`, `w` | The person, and the box centre and width as fractions of the art (the box is square) | yes |
+| track | `label` or `bind` + `labels` | A fixed label, or a field plus a map from its value to text; a value not in the map falls back to the value with any "(...)" removed | yes |
+| track | `conf` | A number sets the confidence; false hides it | yes |
+| track | `confs` | NEW. Map from the bound field's value to a confidence. Wins over the formula, which is 26 + 12 x exposure capped at 99. An empty-string key covers an empty field | yes |
+| track | `face: false` | No portrait, a bare box | yes (far) |
+| track | `labelAt: "below"` | The label sits under the box. A label that would reach the chips goes below anyway | yes (corner Chen) |
+| track | `tiltOn: "roll"` | The box tilts by --m-tilt toward the first other track when a roll fails or ties | yes (corner Chen) |
+| log | `lines` | Strings, or { t, red } for a line under a bar | yes |
+| log | `on` | The cues that print a line: seal, roll, cost, gain, tear, ink | yes |
+| log | `x` or `right`, `y`, `w` | Position as fractions of the space; w is a limit | yes |
+| log | `max` | Rows kept (default 8). This is the rolling window of the log | yes (corner 3) |
+| log | `modLabel` | The roll's modifier name ("CODE +3 = ...") | yes (corner) |
+| log | `keep` | The beat's screen lines stay in the log | yes (ledger) |
+| redact | `text`, `x`, `y`, `w`, `h` | Caption under the bar, and the bar's centre and size | yes |
+| redact | `opensOn` | "reveal" or "none": whether the bar lifts on a reveal | yes |
+| redact | `over: "track"` + `cast` | The bar covers that track's name field | yes (counter) |
+| plate | `cast` or `art`, `x`, `y`, `w` | A framed portrait or art. In the stage, w is a fraction of the stage's shorter side. In the cam, it is a fraction of the art | yes |
+| plate | `desat: "exposure"` | Greyscale by exposure band | yes (ledger) |
+| scan | none | Ambient sweep and the roll pass | yes |
+
+Layout rules the kit applies (behaviour, not properties):
+- Cover scale, unless the x span of the tracks, cam plates, cam redactions and cam logs, with half their widths, does not fit in the stage width minus 20 px. Then the cam scales down to fit, centred on the span, and the ground colour fills.
+- Any square box is capped to 2 x the smaller of the room above its centre (down to 36 px) and below it (down to 6 px).
+- The art's pan comes from the focus line (30% down the stage); there is no pan on phones, where the art height equals or is under the stage.
+- Cast `alt` entries ({ when: { field, is }, x, y, r }) swap the crop, as SPEC section 3 already says.
+- The clock counts on a one-second timer, not per frame. tick() returns false.
+
 ### A SET BRIEF for the kit agent
 
 The script author writes it, one per set, before any art is drawn. It goes at the end of `NOTES.md`.
