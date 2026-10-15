@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>{{title}}</title>
+<!-- @style -->
+</head>
+<body>
+<noscript><p style="margin:16px">This story needs JavaScript. It runs from this one file and uses no network.</p></noscript>
+
+<div class="app" id="app" data-phase="title" data-node="" data-busy="0">
+  <header class="bar" id="bar">
+    <div class="brand">
+      <h1 class="brand-name" id="brandName">{{title}}</h1>
+      <p class="brand-sub" id="brandSub"></p>
+    </div>
+    <button type="button" class="btn" id="autoBtn" aria-pressed="false" aria-label="Film mode: STEP. Press to switch to AUTO" title="AUTO plays the beats like a film. It stops at every choice, roll, input and reveal. STEP waits for you. Key: A">STEP</button>
+    <button type="button" class="btn icon" id="setBtn" aria-label="Settings" title="Settings">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M6.7 17.3l-2.1 2.1"/></svg>
+    </button>
+    <button type="button" class="btn icon" id="helpBtn" aria-label="Help" title="Help (H or ?)"><span aria-hidden="true">?</span></button>
+  </header>
+
+  <section class="hud" id="hud" aria-label="Meters and card">
+    <div class="meters" id="meters"></div>
+    <div class="hud-tools">
+      <p class="tallies" id="tallies"></p>
+      <button type="button" class="btn" id="notesBtn" aria-label="Notes" title="Notes (N)"><span aria-hidden="true">&#9432;</span><span class="lbl" aria-hidden="true">Notes</span><span class="count" id="notesCount"></span></button>
+      <button type="button" class="btn" id="cardBtn" aria-label="Card" title="Card (C)">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h6M7 14h10"/></svg><span class="lbl" aria-hidden="true">Card</span></button>
+    </div>
+  </section>
+
+  <main class="stage" id="stage" aria-label="Story">
+    <div class="kit" id="kit"></div>
+    <p class="place" id="place"></p>
+    <div class="slides" id="slides"></div>
+    <div class="edge" id="edge" aria-hidden="true"></div>
+    <p class="cuetag" id="cuetag" hidden></p>
+  </main>
+
+  <footer class="deck" id="deck">
+    <div class="autobar" aria-hidden="true"><i id="autoFill"></i></div>
+    <div class="deck-row">
+      <button type="button" class="btn" id="backBtn" title="Back (Left arrow)"><span aria-hidden="true">&larr;</span> Back</button>
+      <p class="hint" id="hint"></p>
+      <button type="button" class="btn primary" id="nextBtn" title="Next (Right arrow, Space or Enter)">Next <span aria-hidden="true">&rarr;</span></button>
+    </div>
+    <p class="foot" id="foot"></p>
+  </footer>
+</div>
+
+<div class="sr-only" id="live" aria-live="polite" aria-atomic="true"></div>
+
+<div class="sheet" id="sheet-help" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-help-t">
+  <div class="sheet-panel">
+    <div class="sheet-hd"><h2 id="sheet-help-t">Help</h2><button type="button" class="btn" data-close>Close <span class="kbd-hint">Esc</span></button></div>
+    <div class="sheet-body" id="body-help"></div>
+  </div>
+</div>
+<div class="sheet" id="sheet-notes" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-notes-t">
+  <div class="sheet-panel">
+    <div class="sheet-hd"><h2 id="sheet-notes-t">Notes</h2><button type="button" class="btn" data-close>Close <span class="kbd-hint">Esc</span></button></div>
+    <div class="sheet-body" id="body-notes"></div>
+  </div>
+</div>
+<div class="sheet" id="sheet-card" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-card-t">
+  <div class="sheet-panel">
+    <div class="sheet-hd"><h2 id="sheet-card-t">Card</h2><button type="button" class="btn" data-close>Close <span class="kbd-hint">Esc</span></button></div>
+    <div class="sheet-body" id="body-card"></div>
+  </div>
+</div>
+<div class="sheet" id="sheet-verify" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-verify-t">
+  <div class="sheet-panel">
+    <div class="sheet-hd"><h2 id="sheet-verify-t">Verify</h2><button type="button" class="btn" data-close>Close <span class="kbd-hint">Esc</span></button></div>
+    <div class="sheet-body" id="body-verify"></div>
+  </div>
+</div>
+<div class="sheet" id="sheet-settings" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-settings-t">
+  <div class="sheet-panel">
+    <div class="sheet-hd"><h2 id="sheet-settings-t">Settings</h2><button type="button" class="btn" data-close>Close <span class="kbd-hint">Esc</span></button></div>
+    <div class="sheet-body" id="body-settings"></div>
+  </div>
+</div>
+
+<!-- The kit registry. Kits call StageKit.register(name, kit) when their script runs, so it must exist first. -->
+<script>
+window.StageKit = window.StageKit || { kits: {}, register: function (name, kit) { this.kits[name] = kit; } };
+</script>
+<!-- @pack -->
+<!-- @engine -->
+<!-- @kit -->
+<!-- @view -->
+</body>
+</html>

@@ -1,0 +1,92 @@
+{
+  "door": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "channel": "CH 1"
+      }
+    ]
+  },
+  "floor": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "channel": "CH 3"
+      }
+    ]
+  },
+  "cup": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "channel": "CH 3"
+      }
+    ]
+  },
+  "counter": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "channel": "CH 2"
+      }
+    ]
+  },
+  "corner": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "channel": "CH 3"
+      }
+    ]
+  },
+  "blind": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "channel": "CH 2"
+      }
+    ]
+  },
+  "chen": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "channel": "CH 3"
+      }
+    ]
+  },
+  "far": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "channel": "CH 4"
+      }
+    ]
+  },
+  "phone": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "channel": "PHONE"
+      }
+    ]
+  },
+  "ledger": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "channel": "ARCHIVE"
+      }
+    ]
+  }
+}

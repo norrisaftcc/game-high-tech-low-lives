@@ -1,0 +1,94 @@
+{
+  "ford": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "art": "art/ford.svg",
+        "channel": "CH 4"
+      },
+      {
+        "prim": "scan"
+      }
+    ]
+  },
+  "lamp": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "art": "art/lamp.svg",
+        "channel": "CH 4"
+      },
+      {
+        "prim": "redact",
+        "x": 0.5,
+        "y": 0.4,
+        "w": 0.4,
+        "opensOn": "reveal"
+      }
+    ]
+  },
+  "stones": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "art": "art/stones.svg",
+        "channel": "CH 5"
+      },
+      {
+        "prim": "track",
+        "cast": "wick",
+        "label": "WICK",
+        "x": 0.3,
+        "y": 0.6
+      }
+    ]
+  },
+  "bank": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "art": "art/bank.svg",
+        "channel": "CH 6"
+      },
+      {
+        "prim": "log",
+        "lines": [
+          "MOTION: LOW",
+          "HEAT: FALLING",
+          "SUBJECT: STILL"
+        ]
+      }
+    ]
+  },
+  "door": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "art": "art/door.svg",
+        "channel": "CH 7"
+      },
+      {
+        "prim": "plate",
+        "art": "art/plate.svg",
+        "x": 0.5,
+        "y": 0.82,
+        "w": 0.5
+      }
+    ]
+  },
+  "road": {
+    "kit": "feed",
+    "layers": [
+      {
+        "prim": "frame",
+        "art": "art/road.svg",
+        "channel": "CH 9"
+      }
+    ]
+  }
+}

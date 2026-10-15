@@ -1,0 +1,648 @@
+{
+  "scenes": [
+    {
+      "id": "s1",
+      "title": "The Ford at Dusk",
+      "place": "Test · the river road",
+      "look": "ink",
+      "set": "ford",
+      "beats": [
+        {
+          "kicker": "SCENE ONE",
+          "text": "The ford is wide and slow. A lamp burns on the far bank. The air smells of wet stone.",
+          "notes": [
+            "river-lore"
+          ],
+          "comment": "alg-frame"
+        },
+        {
+          "speaker": "wick",
+          "text": "Keep to the stones. The water is deeper than it looks."
+        },
+        {
+          "set": "lamp",
+          "text": "You look closer. The lamp is not a flame. It is a glass bulb with a slow glow inside.",
+          "notes": [
+            "lens"
+          ]
+        },
+        {
+          "reveal": true,
+          "text": "Under the glass, a small wheel turns. It has turned for a very long time.",
+          "comment": "alg-redact"
+        },
+        {
+          "screen": [
+            "WARD 3: LIT",
+            "FORD: OPEN",
+            "COUNT: 41,207"
+          ],
+          "text": "A plate beside the lamp shows three lines."
+        }
+      ],
+      "choices": [
+        {
+          "key": "lens1",
+          "ask": "What do you see in the lamp?",
+          "gate": "plan",
+          "options": [
+            {
+              "key": "a",
+              "label": "A hymn",
+              "sub": "Lens: hymn",
+              "effects": [
+                {
+                  "tally": "lens",
+                  "add": "hymn"
+                }
+              ]
+            },
+            {
+              "key": "b",
+              "label": "A machine",
+              "sub": "Lens: machine",
+              "effects": [
+                {
+                  "tally": "lens",
+                  "add": "machine"
+                }
+              ],
+              "then": [
+                {
+                  "text": "You count the wheel's turns. It is a clock, and a patient one.",
+                  "look": "paint"
+                }
+              ]
+            }
+          ],
+          "notes": [
+            "lens"
+          ]
+        },
+        {
+          "key": "intro",
+          "ask": "What do you say to the ferryman?",
+          "gate": "plan",
+          "options": [
+            {
+              "key": "a",
+              "label": "Give your name",
+              "sub": "Writes your public fact",
+              "effects": [
+                {
+                  "flag": "named"
+                }
+              ],
+              "input": {
+                "field": "public",
+                "prompt": "Name one thing the ferrymen know about you.",
+                "max": 80
+              }
+            },
+            {
+              "key": "b",
+              "label": "Say nothing",
+              "sub": "Keeps your counsel",
+              "effects": [
+                {
+                  "flag": "silent"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "next": "s2"
+    },
+    {
+      "id": "s2",
+      "title": "The Stones",
+      "place": "Test · mid-river",
+      "look": "paint",
+      "set": "stones",
+      "beats": [
+        {
+          "kicker": "SCENE TWO",
+          "text": "The stones are wet and round. Wick goes first and does not look back.",
+          "notes": [
+            "gate",
+            "guide-4df"
+          ],
+          "comment": "handler-gate"
+        },
+        {
+          "when": {
+            "flag": "silent"
+          },
+          "text": "Nobody asks your name. The river is loud enough."
+        },
+        {
+          "when": {
+            "not": {
+              "flag": "silent"
+            }
+          },
+          "text": "Wick says your name once, to the water, as if to keep it safe."
+        },
+        {
+          "when": {
+            "tally": "lens",
+            "top": "machine"
+          },
+          "text": "The wheel on the far bank ticks. You step in time with it."
+        },
+        {
+          "when": {
+            "tally": "lens",
+            "top": "hymn"
+          },
+          "text": "The lamp hums one low note. You step in time with it."
+        },
+        {
+          "when": {
+            "tally": "lens",
+            "value": "hymn",
+            "lte": 0
+          },
+          "text": "You have not heard the lamp hum, so you cross by the river's own sound."
+        }
+      ],
+      "choices": [
+        {
+          "key": "cross",
+          "ask": "How do you cross?",
+          "gate": "exec",
+          "options": [
+            {
+              "key": "a",
+              "label": "Walk the stones",
+              "sub": "4dF + Lamp, need 2",
+              "effects": [
+                {
+                  "set": {
+                    "road": "stones"
+                  }
+                }
+              ],
+              "roll": {
+                "dice": "4dF",
+                "add": "lamp",
+                "vs": 2,
+                "results": {
+                  "fail": {
+                    "effects": [
+                      {
+                        "meter": "lamp",
+                        "add": -1
+                      },
+                      {
+                        "flag": "wet"
+                      }
+                    ],
+                    "then": [
+                      {
+                        "text": "A stone turns. You go in to the knee. The lamp oil sloshes."
+                      }
+                    ]
+                  },
+                  "tie": {
+                    "effects": [
+                      {
+                        "meter": "lamp",
+                        "add": -1
+                      }
+                    ],
+                    "then": [
+                      {
+                        "text": "You cross, but the lamp tips and loses some oil."
+                      }
+                    ]
+                  },
+                  "success": {
+                    "effects": [
+                      {
+                        "meter": "fate",
+                        "add": 1
+                      }
+                    ],
+                    "then": [
+                      {
+                        "text": "Each stone holds. Wick nods once, and the river lets you be."
+                      }
+                    ]
+                  },
+                  "style": {
+                    "effects": [
+                      {
+                        "meter": "fate",
+                        "add": 1
+                      },
+                      {
+                        "meter": "lamp",
+                        "add": 1
+                      }
+                    ],
+                    "then": [
+                      {
+                        "text": "You cross like water. Wick laughs, and tops up your lamp from a flask."
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "key": "b",
+              "label": "Wade straight across",
+              "sub": "Lamp -1. Skips the bank.",
+              "effects": [
+                {
+                  "meter": "lamp",
+                  "add": -1
+                },
+                {
+                  "set": {
+                    "road": "water"
+                  }
+                }
+              ],
+              "then": [
+                {
+                  "text": "The cold takes your breath. You are across fast."
+                }
+              ],
+              "to": "s4"
+            }
+          ],
+          "notes": [
+            "gate"
+          ]
+        }
+      ],
+      "route": [
+        {
+          "when": {
+            "flag": "wet"
+          },
+          "to": "s3"
+        },
+        {
+          "to": "s4"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "title": "The Cold Bank",
+      "place": "Test · the near bank",
+      "look": "ink",
+      "set": "bank",
+      "beats": [
+        {
+          "text": "You sit on the bank. Your coat drips. The far lamp is a small gold point."
+        },
+        {
+          "speaker": "wick",
+          "text": "A fire would help. A fire costs luck.",
+          "notes": [
+            "fate-rule"
+          ],
+          "comment": "handler-fate"
+        }
+      ],
+      "choices": [
+        {
+          "key": "fire",
+          "ask": "Spend a Fate point?",
+          "gate": "fate",
+          "cost": {
+            "meter": "fate",
+            "n": 1
+          },
+          "options": [
+            {
+              "key": "a",
+              "label": "Strike the flint",
+              "sub": "Fate -1. You get warm.",
+              "effects": [
+                {
+                  "flag": "warm"
+                }
+              ],
+              "then": [
+                {
+                  "text": "The spark takes. The wood is wet, but it burns."
+                }
+              ]
+            },
+            {
+              "key": "b",
+              "label": "Call the ferrymen",
+              "sub": "Fate -1. Help comes.",
+              "effects": [
+                {
+                  "flag": "called"
+                }
+              ],
+              "then": [
+                {
+                  "text": "Two ferrymen come down the bank with a lantern and a cart."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "take",
+          "ask": "What do you carry on?",
+          "gate": "plan",
+          "options": [
+            {
+              "key": "a",
+              "label": "The dry rope",
+              "sub": "Needs a fire",
+              "when": {
+                "any": [
+                  {
+                    "flag": "warm"
+                  },
+                  {
+                    "meter": "lamp",
+                    "gte": 4
+                  }
+                ]
+              },
+              "effects": [
+                {
+                  "meter": "lamp",
+                  "add": 1
+                }
+              ]
+            },
+            {
+              "key": "b",
+              "label": "The ferrymen's cart",
+              "sub": "Needs help",
+              "lock": {
+                "flag": "called"
+              },
+              "hint": "The ferrymen must be called first.",
+              "effects": [
+                {
+                  "flag": "cart"
+                }
+              ]
+            },
+            {
+              "key": "c",
+              "label": "Only the lamp",
+              "sub": "Travel light"
+            }
+          ]
+        }
+      ],
+      "next": "s4"
+    },
+    {
+      "id": "s4",
+      "title": "The Keeper's Door",
+      "place": "Test · the far bank",
+      "look": "paint",
+      "set": "door",
+      "beats": [
+        {
+          "kicker": "SCENE FOUR",
+          "text": "The keeper's house is dark. A brass plate on the door has a slot and a line of small writing.",
+          "comment": "alg-roll"
+        },
+        {
+          "when": {
+            "meter": "lamp",
+            "lte": 1
+          },
+          "text": "Your lamp is almost dry. You shield it with your hand."
+        },
+        {
+          "when": {
+            "all": [
+              {
+                "flag": "warm"
+              },
+              {
+                "field": "road",
+                "is": "stones"
+              }
+            ]
+          },
+          "text": "You are warm, and you crossed on the stones. You stand straight."
+        },
+        {
+          "when": {
+            "field": "road",
+            "is": "water"
+          },
+          "text": "Water runs from your sleeves onto the step."
+        },
+        {
+          "when": {
+            "flag": "cart"
+          },
+          "text": "The cart rattles behind you."
+        },
+        {
+          "text": "The plate has a slot. It waits for a word.",
+          "comment": "alg-input"
+        }
+      ],
+      "choices": [
+        {
+          "key": "secret",
+          "ask": "Will you tell the keeper a secret?",
+          "gate": "plan",
+          "options": [
+            {
+              "key": "a",
+              "label": "Whisper one",
+              "sub": "Writes your secret fact",
+              "input": {
+                "field": "secret",
+                "prompt": "Whisper one thing no one else knows.",
+                "max": 80
+              }
+            },
+            {
+              "key": "b",
+              "label": "Keep it",
+              "sub": "Nothing is written"
+            }
+          ]
+        },
+        {
+          "key": "knock",
+          "ask": "How do you ask to be let in?",
+          "gate": "exec",
+          "options": [
+            {
+              "key": "a",
+              "label": "Knock the old way",
+              "sub": "4dF + Fate, need 1",
+              "roll": {
+                "dice": "4dF",
+                "add": "fate",
+                "vs": 1,
+                "results": {
+                  "fail": {
+                    "effects": [
+                      {
+                        "flag": "shut"
+                      }
+                    ],
+                    "then": [
+                      {
+                        "text": "The knock goes into the wood and dies there."
+                      }
+                    ]
+                  },
+                  "tie": {
+                    "effects": [
+                      {
+                        "flag": "open"
+                      },
+                      {
+                        "meter": "lamp",
+                        "add": -1
+                      }
+                    ],
+                    "then": [
+                      {
+                        "text": "The door opens a hand's width. The wind takes some of your oil."
+                      }
+                    ]
+                  },
+                  "success": {
+                    "effects": [
+                      {
+                        "flag": "open"
+                      }
+                    ],
+                    "then": [
+                      {
+                        "text": "A bolt slides back on the other side."
+                      }
+                    ]
+                  },
+                  "style": {
+                    "effects": [
+                      {
+                        "flag": "open"
+                      },
+                      {
+                        "meter": "fate",
+                        "add": 1
+                      }
+                    ],
+                    "then": [
+                      {
+                        "text": "The door swings wide before you finish knocking."
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "key": "b",
+              "label": "Wait for dawn",
+              "sub": "Lamp -1. The door stays shut.",
+              "effects": [
+                {
+                  "meter": "lamp",
+                  "add": -1
+                },
+                {
+                  "flag": "shut"
+                }
+              ]
+            }
+          ],
+          "comment": "alg-roll"
+        }
+      ],
+      "route": [
+        {
+          "when": {
+            "flag": "open"
+          },
+          "to": "s5"
+        },
+        {
+          "to": "s6"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "title": "The Door Opens",
+      "place": "Test · the keeper's house",
+      "look": "paint",
+      "set": "door",
+      "beats": [
+        {
+          "speaker": "keeper",
+          "text": "Come in. You are the third to cross this month, and the first to bring a light."
+        }
+      ],
+      "ending": "bright"
+    },
+    {
+      "id": "s6",
+      "title": "The Door Stays Shut",
+      "place": "Test · the keeper's step",
+      "look": "ink",
+      "set": "door",
+      "beats": [
+        {
+          "text": "Nobody answers. You sit on the step and wait for the grey of morning."
+        }
+      ],
+      "ending": "dim"
+    }
+  ],
+  "endings": {
+    "bright": {
+      "title": "The Lamp Is Lit",
+      "look": "paint",
+      "set": "road",
+      "beats": [
+        {
+          "text": "The keeper trims your lamp and lights it from her own. It burns steady."
+        },
+        {
+          "when": {
+            "flag": "named"
+          },
+          "text": "She says your name back to you, as if she had known it all along."
+        },
+        {
+          "text": "You take the road with a light you can trust."
+        }
+      ]
+    },
+    "dim": {
+      "title": "The Lamp Goes Out",
+      "look": "ink",
+      "set": "road",
+      "beats": [
+        {
+          "text": "The oil runs low. The wick gutters. The road goes on, and so do you."
+        },
+        {
+          "when": {
+            "flag": "shut"
+          },
+          "text": "Behind you, the keeper's window stays dark."
+        }
+      ]
+    }
+  }
+}

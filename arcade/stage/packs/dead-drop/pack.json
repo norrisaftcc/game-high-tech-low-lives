@@ -1,0 +1,93 @@
+{
+  "id": "dead-drop",
+  "title": "The Dead Drop",
+  "subtitle": "Shodann at the Harborview drop, seen through the Algorithm's feed",
+  "kit": "feed",
+  "resolver": "fate4df",
+  "start": "arrive",
+  "storageKey": "htll.stage.dead-drop",
+  "meters": [
+    {
+      "id": "fate",
+      "label": "Fate",
+      "min": 0,
+      "max": 5,
+      "start": 3,
+      "hud": true
+    },
+    {
+      "id": "exposure",
+      "label": "Exposure",
+      "min": 0,
+      "max": 6,
+      "start": 1,
+      "hud": true,
+      "bad": true
+    },
+    {
+      "id": "nerves",
+      "label": "Nerves",
+      "min": 0,
+      "max": 4,
+      "start": 0,
+      "hud": true,
+      "bad": true
+    },
+    {
+      "id": "systems",
+      "label": "Systems",
+      "min": 0,
+      "max": 5,
+      "start": 0,
+      "hud": true,
+      "bad": true
+    },
+    {
+      "id": "meat",
+      "label": "Meat",
+      "min": 0,
+      "max": 3,
+      "start": 0,
+      "hud": false,
+      "bad": true
+    },
+    {
+      "id": "code",
+      "label": "Code",
+      "min": 0,
+      "max": 3,
+      "start": 3,
+      "hud": false
+    }
+  ],
+  "fields": [
+    {
+      "id": "identity",
+      "label": "Identity shown",
+      "side": "front"
+    },
+    {
+      "id": "chenKnows",
+      "label": "What Chen knows",
+      "side": "front"
+    },
+    {
+      "id": "drop",
+      "label": "The drop",
+      "side": "front"
+    },
+    {
+      "id": "learned",
+      "label": "What you learned",
+      "side": "back"
+    }
+  ],
+  "tallies": {},
+  "commentary": {
+    "label": "What the Algorithm logs",
+    "kinds": [
+      "algorithm",
+      "handler"
+    ]
+  }
+}

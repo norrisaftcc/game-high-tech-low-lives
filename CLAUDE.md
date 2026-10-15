@@ -137,3 +137,7 @@ Different agents excel at different tasks:
 - **kevin-github-algorithm**: Ensure issues/PRs follow standards and link properly
 - **product-architect-advisor**: Strategic decisions about content organization
 - **test-engineer**: Verify mechanics calculations, stress track logic
+
+## Shared agent guidance
+
+@AGENTS.md

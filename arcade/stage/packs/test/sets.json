@@ -1,0 +1,103 @@
+{
+  "ford": {
+    "kit": "paper",
+    "layers": [
+      {
+        "prim": "spread",
+        "art": "art/ford.svg"
+      },
+      {
+        "prim": "pulltab",
+        "art": "art/hymn.svg",
+        "under": "art/machine.svg",
+        "tally": "lens",
+        "value": "machine",
+        "x": 0.28,
+        "y": 0.62,
+        "w": 0.34
+      }
+    ]
+  },
+  "lamp": {
+    "kit": "paper",
+    "layers": [
+      {
+        "prim": "spread",
+        "art": "art/ford.svg"
+      },
+      {
+        "prim": "flap",
+        "art": "art/lamp-glass.svg",
+        "under": "art/lamp-wheel.svg",
+        "x": 0.74,
+        "y": 0.42,
+        "w": 0.26,
+        "opensOn": "reveal"
+      }
+    ]
+  },
+  "stones": {
+    "kit": "paper",
+    "layers": [
+      {
+        "prim": "spread",
+        "art": "art/stones.svg"
+      },
+      {
+        "prim": "volvelle",
+        "art": "art/wheel.svg",
+        "x": 0.8,
+        "y": 0.2,
+        "w": 0.2
+      }
+    ]
+  },
+  "bank": {
+    "kit": "paper",
+    "layers": [
+      {
+        "prim": "spread",
+        "art": "art/bank.svg"
+      },
+      {
+        "prim": "ticket",
+        "art": "art/ticket.svg",
+        "x": 0.8,
+        "y": 0.12,
+        "w": 0.24
+      }
+    ]
+  },
+  "door": {
+    "kit": "paper",
+    "layers": [
+      {
+        "prim": "spread",
+        "art": "art/door.svg"
+      },
+      {
+        "prim": "parallel",
+        "art": "art/step.svg",
+        "x": 0.5,
+        "y": 0.86,
+        "w": 0.5
+      }
+    ]
+  },
+  "road": {
+    "kit": "paper",
+    "layers": [
+      {
+        "prim": "spread",
+        "art": "art/road.svg"
+      },
+      {
+        "prim": "vfold",
+        "art": "art/reeds.svg",
+        "x": 0.15,
+        "y": 0.7,
+        "w": 0.3
+      }
+    ]
+  }
+}
