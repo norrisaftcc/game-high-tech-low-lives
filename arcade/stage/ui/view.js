@@ -68,6 +68,8 @@ const COMMENTARY = PACK.commentary || null;
 const MAP_STYLES = ((PACK.theme && PACK.theme.mapStyles) || []).slice();
 const sceneById = {}; SCRIPT.scenes.forEach(s => { sceneById[s.id] = s; });
 const meterLabel = id => { const m = METERS.find(x => x.id === id); return m ? m.label : id; };
+// The signed change a cost or gain cue made. A bad meter (stress, exposure) rises on a cost and falls on a gain.
+const cueDelta = c => { const m = METERS.find(x => x.id === c.meter); return ((c.type === "cost") === !!(m && m.bad) ? 1 : -1) * c.n; };
 const fieldLabel = id => { const f = FIELDS.find(x => x.id === id); return f ? f.label : id; };
 const KIND_NAMES = { rule: "Rules", dm: "How the module DMs", lore: "The world", handler: "Handler", algorithm: "Algorithm", guide: "Guide" };
 const ASK_MAP = { ink: "Unwitnessed", paint: "Witnessed" };
@@ -277,15 +279,15 @@ function flashEdge() {
   $("edge").animate(fr, { duration: M.flash, easing: M.easeOut });
   return true;
 }
-function showDelta(id, n, kind) {
+function showDelta(id, d, kind) {
   const node = document.querySelector(`.meter[data-meter="${CSS.escape(id)}"]`);
   if (!node) return;
-  const d = node.querySelector(".m-delta");
-  d.textContent = `${sgn(kind === "cost" ? -n : n)} ${meterLabel(id)}`;
-  d.className = "m-delta " + (kind === "cost" ? "neg" : "pos");
-  d.hidden = false;
-  if (!isReduced()) d.animate([{ opacity: 0, transform: `translateY(${kind === "cost" ? M.d1 : -M.d1}px)` }, { opacity: 1, transform: "none" }], { duration: M.state, easing: M.easeOut });
-  clearTimeout(d._t); d._t = setTimeout(() => { d.hidden = true; }, M.hold);
+  const lab = node.querySelector(".m-delta");
+  lab.textContent = `${sgn(d)} ${meterLabel(id)}`;
+  lab.className = "m-delta " + (kind === "cost" ? "neg" : "pos");
+  lab.hidden = false;
+  if (!isReduced()) lab.animate([{ opacity: 0, transform: `translateY(${d < 0 ? M.d1 : -M.d1}px)` }, { opacity: 1, transform: "none" }], { duration: M.state, easing: M.easeOut });
+  clearTimeout(lab._t); lab._t = setTimeout(() => { lab.hidden = true; }, M.hold);
   if (kind === "cost" && flashEdge() && !isReduced()) node.querySelector(".m-flash").animate([{ opacity: M.flashAlpha }, { opacity: 0 }], { duration: M.flash, easing: M.easeOut });
 }
 function showCueTag(text) {
@@ -563,10 +565,10 @@ async function playCue(c, ctx) {
     }
     case "cost":
     case "gain": {
-      const cur = V.shown.meters[c.meter];
-      if (cur != null) setMeter(c.meter, c.type === "cost" ? cur - c.n : cur + c.n);
-      showDelta(c.meter, c.n, c.type);
-      ctx.say.push(`${meterLabel(c.meter)}, ${c.type === "cost" ? "minus" : "plus"} ${c.n}`);
+      const cur = V.shown.meters[c.meter], d = cueDelta(c);
+      if (cur != null) setMeter(c.meter, cur + d);
+      showDelta(c.meter, d, c.type); // the sign is the number's; cost or gain is the colour
+      ctx.say.push(`${meterLabel(c.meter)}, ${d < 0 ? "minus" : "plus"} ${Math.abs(d)}`);
       shell = wait(c.type === "cost" ? M.flash : M.state);
       break;
     }

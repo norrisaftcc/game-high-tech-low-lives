@@ -4,7 +4,7 @@
 // define the tokens the shell reads (the list in the comment header of ui/style.css).
 import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { join, resolve, basename, extname, dirname } from "node:path";
+import { join, resolve, basename, extname, dirname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadPack, walk, ART_TYPES, FONT_TYPES } from "./load.mjs";
 
@@ -14,8 +14,12 @@ const here = dirname(fileURLToPath(import.meta.url));
 export const FIXTURES = ["test", "test-feed"];
 export const REQUIRED = ["pack.json", "script.json", "notes.json", "sets.json", "theme.json", "NOTES.md"];
 
-// "htll." for a pack under game-high-tech-low-lives, else "fort-stage.".
-export const storagePrefix = dir => (resolve(dir).includes("game-high-tech-low-lives") ? "htll." : "fort-stage.");
+// "htll." for a pack in HTLL's layout (arcade/stage/packs/<id>), else "fort-stage." (stage/packs/<id>).
+// The layout, not the checkout's folder name, decides: a clone may be named anything.
+export const storagePrefix = dir => {
+  const parts = resolve(dir).split(sep);
+  return parts.slice(-4, -1).join("/") === "arcade/stage/packs" ? "htll." : "fort-stage.";
+};
 
 // The colour tokens the shell reads, parsed from the comment header of ui/style.css.
 // The header has a "TOKENS THE SHELL READS" block whose "Colour." rows look like

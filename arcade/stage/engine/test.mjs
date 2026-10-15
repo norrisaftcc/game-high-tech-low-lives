@@ -1169,3 +1169,12 @@ test("validate tool: schema errors in sets are reported, not thrown", async () =
     }
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+test("validate tool: the storage prefix follows the repository layout, not the checkout's name", async () => {
+  const { storagePrefix } = await import("../tools/validate.mjs");
+  const p = (...xs) => path.join(path.sep, ...xs);
+  assert.equal(storagePrefix(p("work", "htll", "arcade", "stage", "packs", "dead-drop")), "htll.");
+  assert.equal(storagePrefix(p("src", "game-high-tech-low-lives", "arcade", "stage", "packs", "dead-drop")), "htll.");
+  assert.equal(storagePrefix(p("src", "game-high-tech-low-lives", "forks", "fort", "stage", "packs", "magic-module")), "fort-stage.");
+  assert.equal(storagePrefix(path.join(packs, "test")), "fort-stage.");
+});
