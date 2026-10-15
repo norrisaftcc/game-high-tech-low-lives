@@ -4,7 +4,42 @@
     "layers": [
       {
         "prim": "frame",
-        "channel": "CH 1"
+        "art": "art/door.svg",
+        "channel": "CH 1",
+        "view": "DOOR",
+        "time": "06:47:12"
+      },
+      {
+        "prim": "track",
+        "cast": "ann",
+        "bind": "identity",
+        "labels": {
+          "": "SUBJECT 1 · UNRESOLVED",
+          "Unnamed (cash)": "SUBJECT 1 · UNRESOLVED",
+          "Ann Sho (student card)": "ANN SHO",
+          "Sable Harker (staff badge)": "SABLE HARKER"
+        },
+        "x": 0.4,
+        "y": 0.29,
+        "w": 0.12
+      },
+      {
+        "prim": "scan"
+      },
+      {
+        "prim": "log",
+        "lines": [
+          "CH 1 MOTION",
+          "FACE 38 PCT",
+          "NAME NOT HELD"
+        ],
+        "on": [
+          "cost",
+          "gain"
+        ],
+        "right": 0.03,
+        "y": 0.2,
+        "w": 0.4
       }
     ]
   },
@@ -13,7 +48,36 @@
     "layers": [
       {
         "prim": "frame",
-        "channel": "CH 3"
+        "art": "art/floor.svg",
+        "channel": "CH 3",
+        "view": "FLOOR",
+        "time": "06:47:40"
+      },
+      {
+        "prim": "track",
+        "cast": "chen",
+        "label": "SUBJECT 2 · CHEN, M. · VIDEO FEED DISABLED",
+        "x": 0.64,
+        "y": 0.3,
+        "w": 0.11,
+        "conf": 97
+      },
+      {
+        "prim": "track",
+        "cast": "ann",
+        "bind": "identity",
+        "labels": {
+          "": "SUBJECT 1 · UNRESOLVED",
+          "Unnamed (cash)": "SUBJECT 1 · UNRESOLVED",
+          "Ann Sho (student card)": "ANN SHO",
+          "Sable Harker (staff badge)": "SABLE HARKER"
+        },
+        "x": 0.2,
+        "y": 0.33,
+        "w": 0.07
+      },
+      {
+        "prim": "scan"
       }
     ]
   },
@@ -22,7 +86,34 @@
     "layers": [
       {
         "prim": "frame",
-        "channel": "CH 3"
+        "art": "art/cup.svg",
+        "channel": "CH 3",
+        "view": "CUP",
+        "time": "06:47:58"
+      },
+      {
+        "prim": "scan"
+      },
+      {
+        "prim": "log",
+        "lines": [
+          "CUP: 1",
+          "STIRRER: ACROSS RIM",
+          "MEANING: NOT HELD"
+        ],
+        "on": [],
+        "right": 0.03,
+        "y": 0.2,
+        "w": 0.46
+      },
+      {
+        "prim": "redact",
+        "text": "CONE MAP / CHEN RHYTHM",
+        "x": 0.5,
+        "y": 0.5,
+        "w": 0.62,
+        "opensOn": "reveal",
+        "space": "cam"
       }
     ]
   },
@@ -31,7 +122,45 @@
     "layers": [
       {
         "prim": "frame",
-        "channel": "CH 2"
+        "art": "art/counter.svg",
+        "channel": "CH 2",
+        "view": "COUNTER",
+        "time": "06:49:03"
+      },
+      {
+        "prim": "track",
+        "cast": "ann",
+        "bind": "identity",
+        "labels": {
+          "": "SUBJECT 1 · UNRESOLVED",
+          "Unnamed (cash)": "SUBJECT 1 · UNRESOLVED",
+          "Ann Sho (student card)": "ANN SHO",
+          "Sable Harker (staff badge)": "SABLE HARKER"
+        },
+        "x": 0.42,
+        "y": 0.29,
+        "w": 0.12
+      },
+      {
+        "prim": "redact",
+        "over": "track",
+        "cast": "ann",
+        "opensOn": "reveal"
+      },
+      {
+        "prim": "log",
+        "lines": [
+          "PAYMENT 12 YEN",
+          "READER: CARD / BADGE / NONE"
+        ],
+        "on": [
+          "cost",
+          "gain",
+          "seal"
+        ],
+        "right": 0.03,
+        "y": 0.2,
+        "w": 0.4
       }
     ]
   },
@@ -40,7 +169,52 @@
     "layers": [
       {
         "prim": "frame",
-        "channel": "CH 3"
+        "art": "art/corner.svg",
+        "channel": "CH 3",
+        "view": "CORNER",
+        "time": "06:51:20"
+      },
+      {
+        "prim": "track",
+        "cast": "ann",
+        "bind": "identity",
+        "labels": {
+          "": "SUBJECT 1 · UNRESOLVED",
+          "Unnamed (cash)": "SUBJECT 1 · UNRESOLVED",
+          "Ann Sho (student card)": "ANN SHO",
+          "Sable Harker (staff badge)": "SABLE HARKER"
+        },
+        "x": 0.29,
+        "y": 0.31,
+        "w": 0.12
+      },
+      {
+        "prim": "track",
+        "cast": "chen",
+        "label": "SUBJECT 2 · CHEN, M. · VIDEO FEED DISABLED",
+        "x": 0.75,
+        "y": 0.31,
+        "w": 0.09,
+        "conf": 97,
+        "tiltOn": "roll"
+      },
+      {
+        "prim": "scan"
+      },
+      {
+        "prim": "log",
+        "lines": [],
+        "on": [
+          "roll",
+          "cost",
+          "gain",
+          "tear",
+          "seal"
+        ],
+        "modLabel": "CODE",
+        "x": 0.02,
+        "y": 0.5,
+        "w": 0.5
       }
     ]
   },
@@ -49,7 +223,24 @@
     "layers": [
       {
         "prim": "frame",
-        "channel": "CH 2"
+        "art": "art/blind.svg",
+        "channel": "CH 2",
+        "view": "SEAT 9",
+        "time": "06:51:32",
+        "static": true,
+        "status": "NO SIGNAL"
+      },
+      {
+        "prim": "log",
+        "lines": [
+          "SEAT 9: NOT COVERED",
+          "GAP: 9 S",
+          "REASON: NOT HELD"
+        ],
+        "on": [],
+        "right": 0.03,
+        "y": 0.2,
+        "w": 0.5
       }
     ]
   },
@@ -58,7 +249,46 @@
     "layers": [
       {
         "prim": "frame",
-        "channel": "CH 3"
+        "art": "art/chen.svg",
+        "channel": "CH 3",
+        "view": "CHEN'S TABLE",
+        "time": "06:50:05"
+      },
+      {
+        "prim": "track",
+        "cast": "chen",
+        "label": "SUBJECT 2 · CHEN, M. · VIDEO FEED DISABLED",
+        "x": 0.36,
+        "y": 0.3,
+        "w": 0.12,
+        "conf": 99
+      },
+      {
+        "prim": "track",
+        "cast": "ann",
+        "bind": "identity",
+        "labels": {
+          "": "SUBJECT 1 · UNRESOLVED",
+          "Unnamed (cash)": "SUBJECT 1 · UNRESOLVED",
+          "Ann Sho (student card)": "ANN SHO",
+          "Sable Harker (staff badge)": "SABLE HARKER"
+        },
+        "x": 0.66,
+        "y": 0.3,
+        "w": 0.12,
+        "conf": 99
+      },
+      {
+        "prim": "log",
+        "lines": [
+          "FACES IN FRAME: 2",
+          "DURATION 20 MIN",
+          "EVENT: NONE"
+        ],
+        "on": [],
+        "right": 0.03,
+        "y": 0.8,
+        "w": 0.5
       }
     ]
   },
@@ -67,7 +297,31 @@
     "layers": [
       {
         "prim": "frame",
-        "channel": "CH 4"
+        "art": "art/far.svg",
+        "channel": "CH 4",
+        "view": "FAR SIDE",
+        "time": "06:50:22"
+      },
+      {
+        "prim": "track",
+        "cast": "ann",
+        "label": "SUBJECT 1 · BACK OF HEAD",
+        "x": 0.46,
+        "y": 0.3,
+        "w": 0.12,
+        "conf": 22,
+        "face": false
+      },
+      {
+        "prim": "log",
+        "lines": [
+          "CUP CH 3: CLEARED 07:09",
+          "EVENT: NONE"
+        ],
+        "on": [],
+        "right": 0.03,
+        "y": 0.8,
+        "w": 0.5
       }
     ]
   },
@@ -76,7 +330,27 @@
     "layers": [
       {
         "prim": "frame",
-        "channel": "PHONE"
+        "art": "art/phone.svg",
+        "channel": "PHONE",
+        "view": "CH 2 TABLE 9",
+        "time": "07:09:41"
+      },
+      {
+        "prim": "redact",
+        "text": "",
+        "x": 0.36,
+        "y": 0.31,
+        "w": 0.125,
+        "space": "cam",
+        "opensOn": "none",
+        "h": 0.4
+      },
+      {
+        "prim": "plate",
+        "cast": "g0",
+        "x": 0.74,
+        "y": 0.27,
+        "w": 0.3
       }
     ]
   },
@@ -85,7 +359,33 @@
     "layers": [
       {
         "prim": "frame",
-        "channel": "ARCHIVE"
+        "art": "art/ledger.svg",
+        "channel": "ARCHIVE",
+        "view": "FILE",
+        "time": "07:20:00",
+        "file": true
+      },
+      {
+        "prim": "plate",
+        "cast": "ann",
+        "space": "cam",
+        "x": 0.269,
+        "y": 0.307,
+        "w": 0.2,
+        "desat": "exposure"
+      },
+      {
+        "prim": "log",
+        "lines": [],
+        "on": [],
+        "keep": true,
+        "space": "cam",
+        "x": 0.41,
+        "y": 0.24,
+        "w": 0.4
+      },
+      {
+        "prim": "scan"
       }
     ]
   }

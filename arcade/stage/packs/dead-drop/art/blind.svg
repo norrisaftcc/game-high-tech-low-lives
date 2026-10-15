@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="ink" viewBox="0 0 800 600"><title>Seat 9, camera 2, no signal</title>
+<rect x="0" y="0" width="800" height="600" class="f1"/>
+<rect x="0" y="0" width="800" height="150" class="f2"/>
+<path d="M0 50L800 50" class="h q2"/>
+<path d="M0 100L800 100" class="h q2"/>
+<rect x="110" y="70" width="250" height="190" class="m f2"/>
+<rect x="110" y="70" width="250" height="28" class="m f3 q1"/>
+<rect x="142" y="190" width="56" height="26" class="m f1"/>
+<rect x="161" y="216" width="18" height="12" class="m f1"/>
+<rect x="272" y="190" width="56" height="26" class="m f1"/>
+<rect x="291" y="216" width="18" height="12" class="m f1"/>
+<circle cx="134" cy="120" r="12" class="m f1"/>
+<circle cx="336" cy="120" r="12" class="m f1"/>
+<rect x="100" y="260" width="270" height="16" class="m f3 q1"/>
+<ellipse cx="520" cy="250" rx="52" ry="20" class="m f2"/>
+<path d="M520 270L520 330" class="m"/>
+<ellipse cx="520" cy="332" rx="26" ry="8" class="m f1"/>
+<ellipse cx="470" cy="170" rx="66" ry="24" class="m f2"/>
+<ellipse cx="470" cy="170" rx="50" ry="17" class="m"/>
+<ellipse cx="480" cy="160.8" rx="20.8" ry="7.2" class="s f2"/>
+<path d="M465.6 151.2L468.8 160.8Q480 165.6 491.2 160.8L494.4 151.2Z" class="s f1"/>
+<ellipse cx="480" cy="151.2" rx="14.4" ry="5.2" class="s f2"/>
+<ellipse cx="480" cy="151.2" rx="10.4" ry="3.2" class="s f3 q2"/>
+<path d="M493.6 152.8Q504 156 492 160.8" class="s"/>
+<path d="M420 300Q520 330 620 300" class="m"/>
+<rect x="0" y="390" width="800" height="210" class="f1"/>
+<path d="M-116.2 390L-300 600M-42.5 390L-200 600M31.2 390L-100 600M105 390L0 600M178.8 390L100 600M252.5 390L200 600M326.2 390L300 600M400 390L400 600M473.8 390L500 600M547.5 390L600 600M621.2 390L700 600M695 390L800 600M768.8 390L900 600M842.5 390L1000 600M916.2 390L1100 600M0 390L800 390M0 426.2L800 426.2M0 499.8L800 499.8M0 600L800 600" class="m q2"/>
+</svg>
