@@ -1,0 +1,42 @@
+{
+  "dm-describes": {
+    "kind": "dm",
+    "term": "The DM describes",
+    "text": "A DM tells you what you see. The read-aloud box does it here."
+  },
+  "dm-secret": {
+    "kind": "dm",
+    "term": "The DM keeps secrets",
+    "text": "A DM knows things you do not. The flap holds them until you earn them."
+  },
+  "dm-asks": {
+    "kind": "dm",
+    "term": "The DM asks",
+    "text": "A DM asks what you do. Here you type the answer, and it goes on your card."
+  },
+  "dm-rolls": {
+    "kind": "dm",
+    "term": "The DM rolls",
+    "text": "A DM rolls when the answer is not certain. This is the table they would use."
+  },
+  "fate-rule": {
+    "kind": "rule",
+    "term": "Fate points",
+    "text": "A Fate point buys one thing you want. It is gone once spent. The ticket tears."
+  },
+  "gate": {
+    "kind": "rule",
+    "term": "Planning and Execution",
+    "text": "Planning is free: look, talk, change your mind. Execution is final. Once you break the seal, the dice decide."
+  },
+  "lens": {
+    "kind": "rule",
+    "term": "The Lens",
+    "text": "Old things show at the edge. You read each one as hymn or machine. Neither is wrong."
+  },
+  "river-lore": {
+    "kind": "lore",
+    "term": "The river road",
+    "text": "The old road crosses the river at a ford. The ferrymen keep the stones and ask a small toll."
+  }
+}

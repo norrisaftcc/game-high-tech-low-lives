@@ -1,0 +1,21 @@
+{
+  "sheet": "art/cast.svg",
+  "w": 400,
+  "h": 200,
+  "people": {
+    "wick": {
+      "name": "Wick",
+      "role": "Ferryman",
+      "x": 100,
+      "y": 100,
+      "r": 70
+    },
+    "keeper": {
+      "name": "The Keeper",
+      "role": "Lamp-keeper",
+      "x": 300,
+      "y": 100,
+      "r": 70
+    }
+  }
+}

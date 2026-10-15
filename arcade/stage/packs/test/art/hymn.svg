@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200">
+<rect x="0" y="0" width="300" height="200" fill="#F2EAD3" stroke="#1B1712" stroke-width="3"/>
+<path d="M30 140 q 30 -90 60 0 t 60 0 t 60 0" fill="none" stroke="#1B1712" stroke-width="3" stroke-linejoin="round"/>
+<text x="70" y="40" font-family="monospace" font-size="28" fill="#1B1712">HYMN</text>
+</svg>

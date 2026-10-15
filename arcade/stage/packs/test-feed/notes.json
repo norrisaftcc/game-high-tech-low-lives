@@ -1,0 +1,57 @@
+{
+  "alg-frame": {
+    "kind": "algorithm",
+    "term": "Frame",
+    "text": "CHANNEL 4. SUBJECT: ONE PERSON AT A FORD. STATE: WAITING. THE FEED RECORDS. THE FEED DOES NOT ACT."
+  },
+  "alg-redact": {
+    "kind": "algorithm",
+    "term": "Redaction",
+    "text": "Some lines are covered. The cover lifts when the subject earns the right to read them."
+  },
+  "alg-input": {
+    "kind": "algorithm",
+    "term": "Statement",
+    "text": "THE SUBJECT SPEAKS. THE FEED LOGS THE WORDS. THE WORDS GO ON THE SUBJECT'S FILE."
+  },
+  "alg-roll": {
+    "kind": "algorithm",
+    "term": "Dice",
+    "text": "WHEN THE OUTCOME IS NOT CERTAIN, THE FEED ROLLS FOUR DICE. THE FEED DOES NOT CHOOSE THE RESULT."
+  },
+  "handler-gate": {
+    "kind": "handler",
+    "term": "Handler",
+    "text": "Planning is free. Once you break the seal, the dice decide."
+  },
+  "handler-fate": {
+    "kind": "handler",
+    "term": "Handler",
+    "text": "One Fate point, one favour. Spend it with care."
+  },
+  "guide-4df": {
+    "kind": "guide",
+    "term": "Four dice",
+    "text": "Roll four Fate dice. Each shows plus, minus or blank. Add your stat. Beat the number to win. Beat it by three for style."
+  },
+  "fate-rule": {
+    "kind": "rule",
+    "term": "Fate points",
+    "text": "A Fate point buys one thing you want. It is gone once spent."
+  },
+  "gate": {
+    "kind": "rule",
+    "term": "Planning and Execution",
+    "text": "Planning is free: look, talk, change your mind. Execution is final. Once you break the seal, the dice decide."
+  },
+  "lens": {
+    "kind": "rule",
+    "term": "The Lens",
+    "text": "Old things show at the edge. You read each one as hymn or machine. Neither is wrong."
+  },
+  "river-lore": {
+    "kind": "lore",
+    "term": "The river road",
+    "text": "The old road crosses the river at a ford. The ferrymen keep the stones and ask a small toll."
+  }
+}

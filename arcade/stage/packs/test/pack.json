@@ -1,0 +1,57 @@
+{
+  "id": "test",
+  "title": "The Test Pack",
+  "subtitle": "A fixture that uses every feature",
+  "kit": "paper",
+  "resolver": "ose",
+  "start": "s1",
+  "storageKey": "fort-stage.test",
+  "meters": [
+    {
+      "id": "fate",
+      "label": "Fate",
+      "min": 0,
+      "max": 3,
+      "start": 2,
+      "hud": true
+    },
+    {
+      "id": "lamp",
+      "label": "Lamp oil",
+      "min": 0,
+      "max": 5,
+      "start": 2,
+      "hud": true
+    }
+  ],
+  "fields": [
+    {
+      "id": "public",
+      "label": "Public fact",
+      "side": "front"
+    },
+    {
+      "id": "secret",
+      "label": "Secret fact",
+      "side": "back"
+    },
+    {
+      "id": "road",
+      "label": "The road taken",
+      "side": "front"
+    }
+  ],
+  "tallies": {
+    "lens": [
+      "hymn",
+      "machine"
+    ]
+  },
+  "commentary": {
+    "label": "How the module DMs",
+    "kinds": [
+      "dm",
+      "rule"
+    ]
+  }
+}

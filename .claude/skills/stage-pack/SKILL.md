@@ -28,6 +28,8 @@ The Stage plays a solo story as a motion picture. The engine is fixed; a pack is
 - The first `exec` group carries a `rule` note in its own `notes` that teaches the gate. Teach 4dF on the first roll.
 - Every note is 60 words or fewer. One idea per beat.
 - No condition may read a field that an `input` writes.
+- A meter that hurts as it rises (stress, exposure) takes `"bad": true`.
+- Every `speaker` has a `cast.json` entry once the file exists. A person with no face circle gets the kit's placeholder (Chen's VIDEO FEED DISABLED box).
 - `look` decides the cue: `ink` is unwitnessed (a redaction lifting), `paint` is witnessed (the frame comes into focus).
 
 ## HTLL rules for a pack
