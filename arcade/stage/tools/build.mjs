@@ -2,7 +2,10 @@
 //   node stage/tools/build.mjs <packdir> [--out <file>] [--root <stagedir>]
 // Fills these markers in ui/index.html:
 //   <!-- @style -->   ui/style.css, @font-face rules from theme.fonts, a :root block of theme tokens
-//   <!-- @pack -->    window.PACK and window.ASSETS
+//   <!-- @pack -->    window.PACK and window.ASSETS, and window.SIM: the result of Stage.simulate(pack), computed here so that
+//                     the Verify sheet does not walk the story in the browser (the page stays deterministic: same pack, same bytes).
+//                     To keep the page small, each route's steps are one string, "s": steps joined by "|", a step being
+//                     "group.option", "group.option=tier" or "(typed)". view.js reads it back into steps.
 //   <!-- @engine -->  engine/stage.js
 //   <!-- @kit -->     ui/kits/<pack.kit>.js
 //   <!-- @view -->    ui/view.js
@@ -11,6 +14,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, join, resolve, extname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 import { loadAll, FONT_TYPES } from "./load.mjs";
 
 const here = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -32,6 +36,18 @@ if (missing.length) {
   process.exit(1);
 }
 const read = p => readFileSync(join(root, p), "utf8");
+// Verify's data. The engine is the one in --root, the same bytes the page carries. The pack goes through JSON first, as the page's copy does.
+const Stage = createRequire(import.meta.url)(join(root, "engine/stage.js"));
+let sim;
+try { sim = Stage.simulate(JSON.parse(JSON.stringify(pack))); } catch (e) { console.error(`cannot build ${pack.id}: Stage.simulate failed: ${e.message}`); process.exit(1); }
+function packSim(r) {
+  const word = x => {
+    if (x.input != null && x.opt == null) return "(typed)";
+    if (typeof x.opt !== "string" || /[|=]/.test(x.opt) || (x.result != null && /[|=]/.test(String(x.result)))) throw new Error(`a route step cannot be packed: ${JSON.stringify(x)}`);
+    return x.opt + (x.result ? "=" + x.result : "");
+  };
+  return { ...r, routes: r.routes.map(rt => ({ ending: rt.ending, count: rt.count, s: rt.steps.map(word).join("|") })) };
+}
 // "</script" or "<!--" inside inlined code or data would end the block early or change the parse state.
 const safe = s => s.replace(/<\/script/gi, "<\\/script").replace(/<!--/g, "<\\!--");
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -55,7 +71,7 @@ const tokenCss = [
 let html = read("ui/index.html").split("{{title}}").join(esc(pack.title));
 const parts = {
   "<!-- @style -->": `<style>\n${read("ui/style.css").replace(/<\/style/gi, "<\\/style")}\n${faces}\n${tokenCss}\n</style>`,
-  "<!-- @pack -->": `<script>\nwindow.PACK = ${safe(JSON.stringify(pack))};\nwindow.ASSETS = ${safe(JSON.stringify(assets))};\n</script>`,
+  "<!-- @pack -->": `<script>\nwindow.PACK = ${safe(JSON.stringify(pack))};\nwindow.ASSETS = ${safe(JSON.stringify(assets))};\nwindow.SIM = ${safe(JSON.stringify(packSim(sim)))};\n</script>`,
   "<!-- @engine -->": `<script>\n${safe(read("engine/stage.js"))}\n</script>`,
   "<!-- @kit -->": `<script>\n${safe(read(`ui/kits/${pack.kit}.js`))}\n</script>`,
   "<!-- @view -->": `<script>\n${safe(read("ui/view.js"))}\n</script>`,

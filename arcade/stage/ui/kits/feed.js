@@ -21,13 +21,13 @@
              file (the art carries data-band borders for the exposure bands), focus [x, y] (the art point to anchor), aspect
      track   cast (id), x, y, w; label (text) or bind (a field) with labels (field value to text); conf (a number, false to
              hide) or confs (field value to number, for a bound track; wins over the formula) and otherwise 26 + 12 x exposure;
-             face false (no portrait, a bare box); labelAt "below"; tiltOn "roll"
-             (the box tilts by --m-tilt toward the first other track when a roll fails or ties)
+             face false (no portrait, a bare box); labelAt "below"
              A person with no x, y and r in cast.json draws as a staticky VIDEO FEED DISABLED box. A person's `alt` list
              ({ when: { field, is }, x, y, r }) swaps the crop while the field matches.
      log     lines (strings, or { t, red: true } for a line under a bar), on (the cues that print a line: seal, roll, cost,
-             gain, tear, ink), x or right, y, w (a limit), max (rows kept, default 8), modLabel (the roll's modifier name),
-             keep (the beat's screen lines stay)
+             gain, tear, ink), x or right, y (a fraction of the stage; left out, the log sits 54 px down, just under the channel
+             chips, where a phone's text panel does not reach), w (a limit), max (rows kept, default 8), modLabel (the roll's
+             modifier name), keep (the beat's screen lines stay)
      redact  text (the caption under the bar), x, y, w, h, space, opensOn "reveal" | "none", over "track" (the bar covers
              that track's name field)
      plate   cast (id) or art, x, y, w, space, desat "exposure"
@@ -36,16 +36,19 @@
    What each cue does (end states are the elements' own styles; animation runs from a start keyframe, with fill: backwards)
      turn   hard cut: new set, new channel, clock set from the scene's place line, log prints again, boxes lock in at 1.12.
      shift  crossfade over --m-cross; the clock holds.
-     ink    focus goes soft, boxes dim, a redaction lifts when the beat is a reveal.
-     bloom  focus comes up (sharp layer over a pre-blurred copy); boxes tighten from 1.08.
-     seal   boxes go solid, the frame rule goes firm, the label reads LOCKED.
-     roll   one scan pass; the dice cells fill left to right; the log prints the roll; a flagged box tilts toward the subject.
+     ink    focus goes soft, box fills and faces dim (the dashed border keeps full strength), a redaction lifts on a reveal.
+     bloom  focus comes up (sharp layer over a pre-blurred copy); box fills and faces brighten by opacity. No scale.
+     seal   boxes go from dashed to solid, the frame rule goes firm, the label reads LOCKED. No scale.
+     roll   one scan pass; the dice cells fill left to right; the log prints the roll. The boxes do not move.
      cost, gain, tear, close as MOTION.md section 3.
    update(state) restores every state-bound visual in both directions: focus (look), boxes (exposure), labels (identity),
    redactions (revealed), the file border and plate (exposure bands). It does this in update() only, so forward cues still animate.
+   The box scale animates on a turn only (1.12 to 1). The scale a box rests at follows its confidence and changes with no motion.
    Nothing here is animated except transform and opacity. Timings come from --m-* tokens; colours from --st-* tokens.
    Under reduced motion (the media query, or <html data-motion="calm">) no animate() is called and the end state shows at once.
-   The clock counts on a one-second timer (cleared when hidden, reduced or closed); tick() returns false: nothing moves per frame. */
+   The clock counts on a one-second timer (cleared when hidden, reduced or closed); tick() returns false: nothing moves per frame.
+   The drift and the sweep move in steps, about two a second (--k-idle-steps, --k-sweep-steps, set in mount() from --m-idle and
+   --m-scan), so a 2 percent scale or a faint line does not keep the compositor at 60 frames a second. */
 (function () {
 
 "use strict";
@@ -117,11 +120,11 @@ const CSS = `
 .k-status{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:700 .875rem/1.4 var(--st-font-mono);letter-spacing:.14em;color:var(--st-ink);background:var(--st-scrim);padding:2px 10px;border:1px solid var(--st-edge)}
 
 .k-track{position:absolute;aspect-ratio:1/1;transform:translate(-50%,-50%)}
-.k-tbox{position:absolute;inset:0;border:2px dashed var(--st-accent);background:var(--st-card);transform:scale(var(--k-s,1))}
+.k-tbox{position:absolute;inset:0;border:2px dashed var(--st-accent);transform:scale(var(--k-s,1))}
+.k-tdim{position:absolute;inset:0;background:var(--st-card)}
 .k-locked .k-tbox,.k-track.is-locked .k-tbox{border-style:solid}
 .k-tface{position:absolute;inset:0;background-repeat:no-repeat;background-image:var(--k-sheet);opacity:var(--k-fo,1)}
-.k-track.is-off .k-tbox{background:var(--st-card)}
-.k-track.is-bare .k-tbox{background:transparent}
+.k-track.is-bare .k-tdim{background:transparent}
 .k-tnoise{position:absolute;inset:0;background:var(--st-ink-soft);opacity:.5;-webkit-mask-image:var(--k-noise);mask-image:var(--k-noise);-webkit-mask-size:96px 96px;mask-size:96px 96px}
 .k-tcam{position:absolute;left:50%;top:50%;width:46%;height:46%;transform:translate(-50%,-50%)}
 .k-tcam svg{display:block;width:100%;height:100%;fill:none;stroke:var(--st-ink);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
@@ -154,8 +157,8 @@ const CSS = `
 .k-scanbox{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .k-sweep{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(to bottom,var(--st-accent) 0,var(--st-accent) 2px,transparent 2px)}
 .k-pass{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(to bottom,var(--st-accent) 0,var(--st-accent) 2px,transparent 2px)}
-.k-idle{animation:k-drift var(--m-idle) var(--m-ease-inout) infinite alternate}
-.k-sweep.on{animation:k-sweep var(--m-scan) var(--m-ease-linear) infinite}
+.k-idle{animation:k-drift var(--m-idle) steps(var(--k-idle-steps,52),end) infinite alternate}
+.k-sweep.on{animation:k-sweep var(--m-scan) steps(var(--k-sweep-steps,16),end) infinite}
 @keyframes k-drift{to{transform:scale(var(--m-idle-scale))}}
 @keyframes k-sweep{from{transform:translateY(0);opacity:.15}to{transform:translateY(100%);opacity:.15}}
 html[data-cue] .k-idle,html[data-cue] .k-sweep.on,html[data-hidden] .k-idle,html[data-hidden] .k-sweep.on{animation-play-state:paused}
@@ -350,31 +353,32 @@ const frac = (v, d) => (v == null ? d : v);
 function buildTrack(K, l) {
   const e = div("k-track");
   e.style.left = pct(frac(l.x, 0.5)); e.style.top = pct(frac(l.y, 0.3)); e.style.width = pct(frac(l.w, 0.12));
-  const box = div("k-tbox"), label = div("k-tlabel");
+  const box = div("k-tbox"), dim = div("k-tdim"), label = div("k-tlabel");
+  box.appendChild(dim);
   const p = personOf(l.cast), off = l.face !== false && !cropFor(p, K.st);
   let face = null;
   if (l.face === false) e.classList.add("is-bare");
-  if (l.face !== false && !off) { face = div("k-tface"); box.appendChild(face); }
+  if (l.face !== false && !off) { face = div("k-tface"); dim.appendChild(face); }
   if (off) {
     e.classList.add("is-off");
-    box.appendChild(div("k-tnoise"));
-    const ic = div("k-tcam"); ic.innerHTML = CAMERA_OFF; box.appendChild(ic);
+    dim.appendChild(div("k-tnoise"));
+    const ic = div("k-tcam"); ic.innerHTML = CAMERA_OFF; dim.appendChild(ic);
   }
   const name = document.createElement("span"); name.className = "k-tname";
   const tn = document.createElement("span"); tn.className = "k-tn"; name.appendChild(tn);
   const conf = document.createElement("span"); conf.className = "k-tconf";
   label.appendChild(name); label.appendChild(conf);
   e.appendChild(box); e.appendChild(label);
-  K.tracks.push({ layer: l, el: e, box, face, name, tn, conf, label, off, tilt: 0, scale: 1 });
+  K.tracks.push({ layer: l, el: e, box, dim, face, name, tn, conf, label, off, scale: 1 });
   return e;
 }
 function buildLog(K, l) {
   const e = div("k-log"); e.setAttribute("aria-hidden", "true");
   if (l.x != null || l.y != null || l.w != null || l.right != null) {
     if (l.right != null) e.style.right = pct(l.right); else e.style.left = pct(frac(l.x, 0.02));
-    e.style.top = pct(frac(l.y, 0.16));
+    e.style.top = l.y != null ? pct(l.y) : "54px";
     e.style.maxWidth = pct(l.w != null ? l.w : 0.62); // w is a limit: the box is as wide as its longest line
-  } else { e.style.right = "12px"; e.style.top = "58px"; e.style.maxWidth = "62%"; }
+  } else { e.style.right = "12px"; e.style.top = "54px"; e.style.maxWidth = "62%"; }
   const L = { layer: l, el: e, model: (l.lines || []).map(x => (typeof x === "string" ? { t: x } : Object.assign({}, x))), on: new Set(l.on || []), max: l.max || 8 };
   K.logs.push(L);
   renderLog(L);
@@ -400,6 +404,11 @@ function buildRedact(K, l) {
   const bar = makeBar(); e.appendChild(bar);
   K.redacts.push({ layer: l, el: e, bar, opens: l.opensOn === "reveal", over: null });
   return e;
+}
+// What assistive tech hears for a redaction: "Redacted" while the bar is down, the caption once it is lifted.
+function redactAria(r, open) {
+  if (!r.el) return;
+  r.el.setAttribute("aria-label", !open ? "Redacted" : r.layer.text ? r.layer.text : "Redaction lifted");
 }
 function buildScan(K, l) {
   const e = div("k-scanbox"); e.setAttribute("aria-hidden", "true");
@@ -479,22 +488,39 @@ function layout(K) {
   placeLabels(K);
 }
 // Labels sit above their boxes, inside the stage, each within the band between its neighbours so they never overlap.
-// A label that would run up into the channel chips goes below its box instead.
+// A label that would run up into the channel chips goes below its box instead. A label then has only the labels on its own
+// side as neighbours (one above and one below cannot touch), so a long label that has gone below gets the room it needs
+// and stays short; the top of the stage is where a phone's text panel does not reach.
 function placeLabels(K) {
   const g = K.geo; if (!g || !K.tracks.length) return;
   const cxOf = T => g.left + frac(T.layer.x, 0.5) * g.cw;
   const order = [...K.tracks].sort((a, b) => cxOf(a) - cxOf(b));
-  order.forEach((T, i) => {
-    const l = T.layer, bw = T.el.offsetWidth || frac(l.w, 0.12) * g.cw, cx = cxOf(T);
-    const bandL = i > 0 ? (cxOf(order[i - 1]) + cx) / 2 + 2 : 12, bandR = i < order.length - 1 ? (cx + cxOf(order[i + 1])) / 2 - 2 : g.W - 12;
-    const lw = Math.max(96, Math.min(230, bandR - bandL, g.W - 24));
+  const widen = (T, group) => {
+    const i = group.indexOf(T), cx = cxOf(T);
+    const bandL = i > 0 ? (cxOf(group[i - 1]) + cx) / 2 + 2 : 12, bandR = i < group.length - 1 ? (cx + cxOf(group[i + 1])) / 2 - 2 : g.W - 12;
+    const cap = Math.max(96, Math.min(230, bandR - bandL, g.W - 24));
+    T.label.style.width = "max-content"; T.label.style.maxWidth = cap + "px"; // hugs its text, up to the room it has
+    const lw = Math.min(cap, Math.ceil(T.label.getBoundingClientRect().width));
     const want = clamp(cx - lw / 2, bandL, Math.max(bandL, bandR - lw));
     T.label.style.width = lw + "px";
-    T.label.style.left = (want - (cx - bw / 2)) + "px";
-    const boxTop = g.top + frac(l.y, 0.3) * g.ch - bw / 2, below = l.labelAt === "below" || boxTop - 6 - T.label.offsetHeight < 54;
-    if (below) { T.label.style.top = "100%"; T.label.style.bottom = "auto"; T.label.style.marginTop = "6px"; T.label.style.marginBottom = ""; }
-    else { T.label.style.bottom = "100%"; T.label.style.top = "auto"; T.label.style.marginBottom = "6px"; T.label.style.marginTop = ""; }
-  });
+    T.label.style.left = (want - (cx - (T.el.offsetWidth || frac(T.layer.w, 0.12) * g.cw) / 2)) + "px";
+  };
+  // pass 1: every label shares the bands; the label's height at that width says which side it takes
+  for (const T of order) widen(T, order);
+  for (const T of order) {
+    const l = T.layer, bw = T.el.offsetWidth || frac(l.w, 0.12) * g.cw;
+    const boxTop = g.top + frac(l.y, 0.3) * g.ch - bw / 2;
+    T.below = l.labelAt === "below" || boxTop - 6 - T.label.offsetHeight < 54;
+  }
+  // pass 2: the bands are shared by the labels on one side only
+  for (const side of [false, true]) {
+    const grp = order.filter(T => T.below === side);
+    for (const T of grp) {
+      widen(T, grp);
+      if (side) { T.label.style.top = "100%"; T.label.style.bottom = "auto"; T.label.style.marginTop = "6px"; T.label.style.marginBottom = ""; }
+      else { T.label.style.bottom = "100%"; T.label.style.top = "auto"; T.label.style.marginBottom = "6px"; T.label.style.marginTop = ""; }
+    }
+  }
 }
 
 // ---------------------------------------------------------------- state-bound looks (the end states)
@@ -533,8 +559,7 @@ function applyTrack(K, T) {
   T.conf.hidden = !showConf && !locked;
   T.scale = tightOf(conf);
   T.box.style.setProperty("--k-s", String(T.scale));
-  T.box.style.opacity = focusOn ? "" : "0.55";
-  T.box.style.transform = T.tilt ? `scale(${T.scale}) rotate(${T.tilt}deg)` : "";
+  T.dim.style.opacity = focusOn ? "" : "0.55"; // the fill and the face dim; the border keeps full strength
   if (T.face) { cropStyle(T.face, cropFor(p, K.st)); T.face.style.setProperty("--k-fo", String(0.5 + 0.5 * conf / 100)); }
   T.el.classList.toggle("is-locked", locked);
   T.el.setAttribute("role", "img");
@@ -546,7 +571,7 @@ function applyFocus(K) {
   for (const P of K.plates) P.el.classList.toggle("in-focus", focusOn);
 }
 function applyReveal(K, open) {
-  for (const r of K.redacts) (r.over ? r.over.name : r.el).classList.toggle("is-open", !!(r.opens && open));
+  for (const r of K.redacts) { const o = !!(r.opens && open); (r.over ? r.over.name : r.el).classList.toggle("is-open", o); redactAria(r, o); }
   for (const L of K.logs) { for (const x of L.model) if (x.red) x.open = open; for (const e of L.el.querySelectorAll(".k-red")) e.classList.toggle("is-open", open); }
 }
 const band = e => (e <= 1 ? 1 : e <= 3 ? 2 : 3);
@@ -622,6 +647,19 @@ function printLine(K, cue, text) {
   return els ? run(els[0], [{ opacity: 0, offset: 0 }], tk.state, tk.easeOut) : Promise.resolve();
 }
 
+// After back, load or Continue no turn cue brings the scene, so the clock takes the hour and minute of the place line the shell
+// shows. The shell writes that line just after show() (and update()), so watch it until it changes once.
+let placeMo = null;
+function unfollowPlace() { if (placeMo) { try { placeMo.disconnect(); } catch (e) {} placeMo = null; } }
+function followPlace() {
+  unfollowPlace();
+  const pl = document.getElementById("place");
+  if (!pl) return;
+  const take = () => { if (cur && /\d\d:\d\d\s*$/.test(pl.textContent || "")) { resetClock(cur, { place: pl.textContent }); setClock(cur); return true; } return false; };
+  take();
+  try { placeMo = new MutationObserver(() => { if (take()) unfollowPlace(); }); placeMo.observe(pl, { childList: true, characterData: true, subtree: true }); } catch (e) { placeMo = null; }
+}
+
 // ---------------------------------------------------------------- swapping sets
 function commit() {
   if (!pend) return;
@@ -639,13 +677,16 @@ const kit = {
     tk = { cross: ms(cs, "--m-cross", 650), ink: ms(cs, "--m-ink", 800), bloom: ms(cs, "--m-bloom", 700), roll: ms(cs, "--m-roll", 900),
       tear: ms(cs, "--m-tear", 500), close: ms(cs, "--m-close", 1200), state: ms(cs, "--m-state", 250), seal: ms(cs, "--m-seal", 300),
       stagger: ms(cs, "--m-stagger", 80), d3: ms(cs, "--m-d3", 16), max: ms(cs, "--m-layers-max", 3),
-      tilt: parseFloat(tok("--m-tilt")) || 3,
+      idle: ms(cs, "--m-idle", 26000), scan: ms(cs, "--m-scan", 8000),
       easeOut: tok("--m-ease-out") || "ease-out", easeIn: tok("--m-ease-in") || "ease-in", easeLinear: tok("--m-ease-linear") || "linear" };
     // log lines that print in turn start far enough apart that no more than --m-layers-max are fading at once
     tk.step = Math.max(tk.stagger, Math.ceil(tk.state / Math.max(1, tk.max)) + 1);
     if (!styleEl) { styleEl = document.createElement("style"); styleEl.setAttribute("data-kit", "feed"); styleEl.textContent = CSS; document.head.appendChild(styleEl); }
     host.style.background = "var(--st-bg)";
     host.style.setProperty("--k-noise", makeNoise());
+    // the drift and the sweep move in steps, two a second
+    host.style.setProperty("--k-idle-steps", String(Math.max(2, Math.round(tk.idle / 500))));
+    host.style.setProperty("--k-sweep-steps", String(Math.max(2, Math.round(tk.scan / 500))));
     if (cast && cast.sheet && assets[cast.sheet]) host.style.setProperty("--k-sheet", `url("${assets[cast.sheet]}")`);
     endEl = div("k-end"); endEl.innerHTML = `<i class="k-endline"></i><span class="k-endcap">FEED CLOSED</span>`; endEl.setAttribute("aria-hidden", "true");
     host.appendChild(endEl);
@@ -660,7 +701,7 @@ const kit = {
   },
 
   show(id, set, o) {
-    commit();
+    commit(); unfollowPlace();
     const st = (o && o.state) || S;
     const next = buildSet(id, set, st), old = cur;
     host.insertBefore(next.el, endEl);
@@ -671,7 +712,9 @@ const kit = {
       if (old) old.el.remove();
       cur = next; pend = null;
       next.el.style.transform = "";
-      applyAll(next, st); layout(next); resetClock(next, null); setClock(next);
+      applyAll(next, st); layout(next);
+      resetClock(next, null); setClock(next);
+      followPlace();
     } else {
       applyAll(next, st); layout(next);
       next.el.style.opacity = "0";
@@ -770,7 +813,7 @@ const kit = {
 
   destroy() {
     if (ro) { try { ro.disconnect(); } catch (e) {} ro = null; }
-    unhook();
+    unhook(); unfollowPlace();
     if (host) host.innerHTML = "";
     if (styleEl && styleEl.parentNode) styleEl.remove();
     styleEl = null; endEl = null; active.clear(); cur = pend = act = null;
@@ -783,11 +826,11 @@ const kit = {
 function cueTurn(o, red, seq) {
   const K = cur;
   if (!K) return Promise.resolve();
+  unfollowPlace();
   const p = pend; pend = null;
   if (p && p.old && p.old.el.parentNode) p.old.el.remove();
   K.el.style.opacity = ""; K.el.style.transform = "";
   closed = false; closedFresh = false; locked = false; endEl.classList.remove("k-closed");
-  for (const T of K.tracks) T.tilt = 0;
   focusOn = false;
   resetClock(K, o && o.scene);
   applyAll(K); restartSweeps(K);
@@ -820,17 +863,18 @@ function cueInk(o, red) {
   focusOn = false;
   K.cam.classList.remove("k-in-focus");
   for (const P of K.plates) P.el.classList.remove("in-focus");
-  for (const T of K.tracks) T.box.style.opacity = "0.55";
+  for (const T of K.tracks) T.dim.style.opacity = "0.55";
   const ps = [];
   if (!red) {
     ps.push(run(K.art, [{ opacity: 1, offset: 0 }], tk.ink, tk.easeOut));
-    for (const T of K.tracks) ps.push(run(T.box, [{ opacity: 1, offset: 0 }], tk.ink, tk.easeOut));
+    for (const T of K.tracks) ps.push(run(T.dim, [{ opacity: 1, offset: 0 }], tk.ink, tk.easeOut));
     for (const P of K.plates) ps.push(run(P.sharp, [{ opacity: 1, offset: 0 }], tk.ink, tk.easeOut));
   }
   if (reveal) {
     K.st = Object.assign({}, K.st, { revealed: true });
     for (const r of K.redacts) if (r.opens) {
       (r.over ? r.over.name : r.el).classList.add("is-open");
+      redactAria(r, true);
       if (!red) ps.push(run(r.bar, [{ opacity: 1, transform: "none", offset: 0 }], tk.ink, tk.easeOut));
     }
     const L = logFor(K, "ink");
@@ -839,21 +883,22 @@ function cueInk(o, red) {
   return track(Promise.all(ps));
 }
 
-// bloom: witnessed. A sharp layer fades in over the pre-blurred copy; the boxes tighten from 1.08 to 1.
+// bloom: witnessed. A sharp layer fades in over the pre-blurred copy; the box fills and faces come up by opacity. No scale.
 function cueBloom(red) {
   const K = cur; if (!K) return Promise.resolve();
   focusOn = true;
   K.cam.classList.add("k-in-focus");
   for (const P of K.plates) P.el.classList.add("in-focus");
-  for (const T of K.tracks) T.box.style.opacity = "";
+  for (const T of K.tracks) T.dim.style.opacity = "";
   if (red) return Promise.resolve();
   const ps = [run(K.art, [{ opacity: 0, offset: 0 }], tk.bloom, tk.easeOut)];
-  for (const T of K.tracks) ps.push(run(T.box, [{ opacity: 0.55, transform: `scale(${T.scale * 1.08})`, offset: 0 }], tk.bloom, tk.easeOut));
+  for (const T of K.tracks) ps.push(run(T.dim, [{ opacity: 0.55, offset: 0 }], tk.bloom, tk.easeOut));
   for (const P of K.plates) ps.push(run(P.sharp, [{ opacity: 0, offset: 0 }], tk.bloom, tk.easeOut));
   return track(Promise.all(ps));
 }
 
-// seal: the choice is final. Boxes go solid (a lock-on settle), the rule goes firm at once, the label reads LOCKED.
+// seal: the choice is final. Boxes go from dashed to solid and the rule goes firm at once; the label reads LOCKED and fades in.
+// Nothing scales.
 function cueSeal(red) {
   const K = visible(); if (!K) return Promise.resolve();
   locked = true;
@@ -861,13 +906,13 @@ function cueSeal(red) {
   for (const T of K.tracks) applyTrack(K, T);
   const ps = [];
   if (!red) {
-    for (const T of K.tracks) ps.push(run(T.box, [{ transform: `scale(${T.scale * 1.06})`, offset: 0 }], tk.seal, tk.easeOut));
+    for (const T of K.tracks) if (!T.conf.hidden) ps.push(run(T.conf, [{ opacity: 0, offset: 0 }], tk.seal, tk.easeOut));
   }
   ps.push(printLine(K, "seal", "INPUT LOCKED"));
   return track(Promise.all(ps));
 }
 
-// roll: one scan pass. The dice cells fill left to right. The log prints the roll. A flagged box tilts toward the subject.
+// roll: one scan pass. The dice cells fill left to right. The log prints the roll. The boxes do not move.
 function cueRoll(c, red) {
   const K = visible(); if (!K) return Promise.resolve();
   const faces = Array.isArray(c.faces) ? c.faces : [];
@@ -876,14 +921,6 @@ function cueRoll(c, red) {
   const els = L ? addEntry(L, K, [{ cells: faces.map(f => faceChar(c.dice || "", f)) },
     { t: `${lab} ${signed(c.add || 0)} = ${c.total} VS ${c.vs}` }, { t: `TIER: ${String(c.used || c.result || "").toUpperCase()}` }]) : null;
   const ps = [];
-  const bad = c.used === "fail" || c.used === "tie";
-  const subj = K.tracks.find(T => T.layer.tiltOn !== "roll");
-  for (const T of K.tracks) if (T.layer.tiltOn === "roll" && bad) {
-    const dir = subj && subj.layer.x != null && T.layer.x != null && subj.layer.x < T.layer.x ? -1 : 1;
-    T.tilt = dir * tk.tilt;
-    T.box.style.transform = `scale(${T.scale}) rotate(${T.tilt}deg)`;
-    ps.push(run(T.box, [{ transform: `scale(${T.scale})`, offset: 0 }], tk.roll, tk.easeOut));
-  }
   if (!red && !skipNow) {
     const sc = K.scans[0];
     if (sc) ps.push(run(sc.pass, [{ opacity: 0.35, transform: "translateY(0)", offset: 0 }, { opacity: 0.35, transform: "translateY(100%)", offset: 1 }], tk.roll, tk.easeLinear));
@@ -900,19 +937,16 @@ function cueRoll(c, red) {
   return track(Promise.all(ps), () => { for (const e of host.querySelectorAll(".k-cover")) e.remove(); });
 }
 
-// cost and gain: one new line in the log. A change to the exposure meter retightens every bound box.
+// cost and gain: one new line in the log. A change to the exposure meter changes the confidence numbers and the rest scale of
+// every bound box, with no motion.
 function cueMeter(c, red) {
   const K = visible(); if (!K) return Promise.resolve();
   const def = meterDefs[c.meter] || {};
   const d = ((c.type === "gain") !== !!def.bad ? 1 : -1) * (c.n || 0); // the way the meter's value moved
   const ps = [];
   if (c.meter === "exposure") {
-    const before = K.tracks.map(T => T.scale);
     K.expo = (K.expo || 0) + d;
-    K.tracks.forEach((T, i) => {
-      applyTrack(K, T);
-      if (typeof T.layer.conf !== "number" && Math.abs(before[i] - T.scale) > 1e-4) ps.push(run(T.box, [{ transform: `scale(${before[i]})`, offset: 0 }], tk.state, tk.easeOut));
-    });
+    for (const T of K.tracks) applyTrack(K, T);
     applyBands(K);
   }
   ps.push(printLine(K, c.type, `${meterLabel(c.meter)} ${signed(d)}`));

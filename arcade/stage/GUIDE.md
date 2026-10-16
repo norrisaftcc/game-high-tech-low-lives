@@ -170,7 +170,9 @@ Two channels teach. Use the right one.
 | **Commentary track** (`comment`) | One line under the text, in the pack's commentary voice. The player can turn it off. | What the module or the Algorithm is doing right now. One line per beat, at most. |
 | **ⓘ chip** (`notes`) | A button that opens the notes sheet at that note. The sheet keeps every note met. | A term or rule the player may want to look up. |
 
-Every note text is **60 words or fewer**. A note has a `kind` and a `term`. `commentary.kinds` in `pack.json` lists the kinds the track shows.
+Every note text is **60 words or fewer**. A note has a `kind` and a `term`. `commentary.kinds` in `pack.json` lists the kinds the track shows. When the track carries more than one voice (the Algorithm and g0), give it a neutral label ("The feed and g0").
+
+A note that teaches odds or a difficulty must not show before the note that teaches the dice. An ending line that quotes an earlier choice ("you said once") is gated on a flag that only that choice sets: a tally-routed ending is also reached by players who chose otherwise. When a scene shows a place line, a kicker and a set clock, all three agree, and "five minutes later" lands on the next scene's time. Art states only what canon gives every player ("TRY IT NEAR OLD STONE", not "WARMS NEAR").
 
 **Teach a rule the first time it matters.** Not before, not only in Help. The first `roll`, the first `exec` group, the first `fate` pick, the first `reveal` each need a note, on the beat that leads into them or in the group's own `notes`. Help repeats; it does not introduce.
 
@@ -243,7 +245,7 @@ SPEC §4 names the primitives. Each kit reads more properties than that table li
 | `x`, `y`, `w` (meaning) | all | SPEC says "fractions of the stage". In the paper kit they are fractions of the book box: a square of side min(stage width, stage height), centred on the stage, at the stage's full height. `x`, `y` are the centre. `w` is the width; the height follows the art's aspect. Defaults: x and y 0.5, w 0.5 (volvelle 0.3, ticket 0.2). | all |
 | `spread` (art optional) | spread | `art` fills the whole stage (the art is sliced to fit). A spread with no `art` draws only the gutter. | terminal and glass have none |
 | `flap` `art` and `under` | flap | `art` is a lid covering the whole layer box. `under` is the same box, behind the lid. On `reveal` the lid turns up to `--m-flap` degrees and the under sheet's `.d` contour draws on. The under sheet cannot be larger than the lid. | all flaps |
-| `pulltab` `art` and `under` | pulltab | `art` is the front card. `under` is the second sheet, same size, tucked behind it. It slides out `--m-d4` to the right when the tally leads, so the layer's right edge plus 32 px plus the 16 px tab must stay inside the stage. A tap on the tab pulls it fully over. `update()` folds it back when the tally no longer leads. | chamber, pen-autumn, glass, plinth |
+| `pulltab` `art` and `under` | pulltab | `art` is the front card. `under` is the second sheet, same size, tucked behind it. It slides out up to `--m-d4` to the right when the tally leads (the kit shortens the slide so the tab stays inside the stage). The kit tells the shell where the tab is, so the text keeps clear of it wherever the layer sits; a tab near the right edge (`x + w/2` about .87) costs the text the least width. `words: [front, under]` names the two cards for the tab's spoken label. A tap on the tab pulls it fully over. `update()` folds it back when the tally no longer leads. | chamber, pen-autumn, glass, plinth |
 | `look` | plate | `paint` blooms (wash and lamp, settles by `--m-tilt`). `ink` draws the `.d` contour. | cover, pen-stone, muster-pen, milestone (paint); glass, breaths (ink) |
 | Art vocabulary | all SVG art | SVG is inlined. Strokes and fills use currentColor, which is ink, or Blueline blue in the Blueline map. Fill classes: `fi` ink, `fp` paper, `f1` tint-1, `f2` tint-2, `fg` plate-gold, `fu` plate-umber, `fs` rule grey. Stroke classes: `sg`, `su`, `ss`. One `path.d` with `pathLength="1"` is the contour the ink cue draws, and it must be the only stroke of that contour (shapes beneath it use stroke="none"). Text fills with `--k-text`. | all art |
 | Text on a layer | all SVG art | Text must sit on a `fp` paper fill, never directly on gold, umber or a tint. A label on a flap or pull-tab must be at least 10 px at 360x640: the SVG font-size in user units times (layer w x book side / viewBox width) is at least 10. | all art |
@@ -270,7 +272,6 @@ The feed kit's layer properties. SPEC section 4 names only the primitives (frame
 | track | `confs` | NEW. Map from the bound field's value to a confidence. Wins over the formula, which is 26 + 12 x exposure capped at 99. An empty-string key covers an empty field | yes |
 | track | `face: false` | No portrait, a bare box | yes (far) |
 | track | `labelAt: "below"` | The label sits under the box. A label that would reach the chips goes below anyway | yes (corner Chen) |
-| track | `tiltOn: "roll"` | The box tilts by --m-tilt toward the first other track when a roll fails or ties | yes (corner Chen) |
 | log | `lines` | Strings, or { t, red } for a line under a bar | yes |
 | log | `on` | The cues that print a line: seal, roll, cost, gain, tear, ink | yes |
 | log | `x` or `right`, `y`, `w` | Position as fractions of the space; w is a limit | yes |
