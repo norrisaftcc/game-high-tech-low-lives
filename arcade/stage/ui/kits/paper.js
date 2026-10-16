@@ -20,6 +20,7 @@
      volvelle      art, range, center            range [min,max] faces round the rim (default [2,12]); the face "center" is
                                                  at the top when the wheel is at rest (default the middle one); a fixed
                                                  pointer is drawn by the kit; on roll the wheel stops with the total at the top
+                                                 (a total outside the range leaves the wheel at rest)
      ticket        art, meter                    the Fate ticket: boxes are drawn by the kit (a hole for each point left)
 
    Art vocabulary (SVG files are inlined, so strokes follow the map style): strokes and fills use currentColor, which the
@@ -564,6 +565,8 @@ const kit = {
         const l = w._l, range = Array.isArray(l.range) && l.range.length === 2 ? l.range : [2, 12];
         const n = range[1] - range[0] + 1;
         const center = l.center != null ? l.center : Math.round((range[0] + range[1]) / 2);
+        // A total the wheel does not carry (a d100 roll in a set with a d6 wheel) leaves the wheel at rest: it never shows a wrong face.
+        if (c.total != null && (c.total < range[0] || c.total > range[1])) { delete w.dataset.total; return Promise.resolve(); }
         const total = Math.max(range[0], Math.min(range[1], Math.round(c.total == null ? center : c.total)));
         const target = -((total - center) * 360 / n);
         const base = w._rot || 0;

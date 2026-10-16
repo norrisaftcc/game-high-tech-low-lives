@@ -47,13 +47,24 @@ const rollFaces = (S, d) => {
 };
 const sum = a => a.reduce((x, y) => x + y, 0);
 // The nominal result of a roll: ose reads fail/success; fate4df reads fail/tie/success/style.
-function nominal(resolver, total, vs) {
+// An ose roll with `under` succeeds on vs or less (B/X "2-in-6", a thief's percentage); without it, on vs or more.
+function nominal(resolver, total, vs, under) {
   if (resolver === "fate4df") {
     const sh = total - vs;
     return sh < 0 ? "fail" : sh === 0 ? "tie" : sh >= 3 ? "style" : "success";
   }
-  return total >= vs ? "success" : "fail";
+  return (under ? total <= vs : total >= vs) ? "success" : "fail";
 }
+// A table roll (`table: true`, ose) reads the result whose key is a face range ("3", "1-2") holding the total, as a B/X table does.
+function rangeOf(k) {
+  const m = /^(\d+)(?:-(\d+))?$/.exec(String(k));
+  return m ? [+m[1], m[2] == null ? +m[1] : +m[2]] : null;
+}
+function tableKey(spec, total) {
+  for (const k of Object.keys(spec.results || {})) { const r = rangeOf(k); if (r && total >= r[0] && total <= r[1]) return k; }
+  return null;
+}
+const nominalOf = (resolver, spec, total) => (spec.table ? tableKey(spec, total) : nominal(resolver, total, spec.vs, spec.under));
 // The result table to read: a missing tie reads fail; a missing style reads success.
 function used(spec, nom) {
   const r = spec.results || {};
@@ -306,8 +317,9 @@ const addValue = (S, X, add) => {
 
 // Apply a decided roll: record it, apply the result's effects, queue its beats.
 function applyRoll(S, X, oref, spec, info) {
-  S.rollRes = info;
-  S.cues.push({ type: "roll", dice: spec.dice, faces: info.faces, total: info.total, add: info.add, vs: spec.vs, result: info.result, used: info.used });
+  const label = ((spec.results || {})[info.used] || {}).label || null;
+  S.rollRes = { ...info, under: !!spec.under, table: !!spec.table, label };
+  S.cues.push({ type: "roll", dice: spec.dice, faces: info.faces, total: info.total, add: info.add, vs: spec.vs, under: !!spec.under, table: !!spec.table, label, result: info.result, used: info.used });
   const res = (spec.results && spec.results[info.used]) || {};
   applyEffects(S, X, res.effects);
   S.q = (res.then || []).map((_, i) => `b ${oref}:roll.${info.used}:${i}`).concat(S.q);
@@ -318,8 +330,8 @@ const diceRange = d => (d.f === "F" ? [-d.n, d.n] : [d.n, d.n * d.f]);
 function reachableTiers(resolver, spec, add) {
   const d = parseDice(spec.dice) || { n: 2, f: 6 };
   const [lo, hi] = diceRange(d), got = new Set();
-  for (let t = lo + add; t <= hi + add; t++) got.add(used(spec, nominal(resolver, t, spec.vs)));
-  return ["fail", "tie", "success", "style"].filter(k => got.has(k));
+  for (let t = lo + add; t <= hi + add; t++) got.add(used(spec, nominalOf(resolver, spec, t)));
+  return (spec.table ? Object.keys(spec.results || {}) : ["fail", "tie", "success", "style"]).filter(k => got.has(k));
 }
 // Roll the dice for the pending roll node. `forced` is a result key to steer toward (replay), or null.
 // A forced result draws its faces within that tier: by rejection first, then by building faces for a seeded total.
@@ -329,22 +341,22 @@ function resolveRoll(S, X, forced) {
   const d = parseDice(spec.dice) || { n: 2, f: 6 };
   const add = addValue(S, X, spec.add);
   let faces = rollFaces(S, d);
-  let nom = nominal(X.resolver, sum(faces) + add, spec.vs), u = used(spec, nom);
+  let nom = nominalOf(X.resolver, spec, sum(faces) + add), u = used(spec, nom);
   if (forced && u !== forced) {
     for (let t = 0; t < 200 && u !== forced; t++) {
       faces = rollFaces(S, d);
-      nom = nominal(X.resolver, sum(faces) + add, spec.vs); u = used(spec, nom);
+      nom = nominalOf(X.resolver, spec, sum(faces) + add); u = used(spec, nom);
     }
     if (u !== forced) {
       const [lo, hi] = diceRange(d);
       const totals = [];
-      for (let t = lo; t <= hi; t++) if (used(spec, nominal(X.resolver, t + add, spec.vs)) === forced) totals.push(t);
+      for (let t = lo; t <= hi; t++) if (used(spec, nominalOf(X.resolver, spec, t + add)) === forced) totals.push(t);
       const dlo = d.f === "F" ? -1 : 1, dhi = d.f === "F" ? 1 : d.f;
       if (totals.length) {
         let extra = totals[Math.floor(rand(S) * totals.length)] - d.n * dlo;
         faces = Array.from({ length: d.n }, () => dlo);
         while (extra > 0) { const i = Math.floor(rand(S) * d.n); if (faces[i] < dhi) { faces[i]++; extra--; } }
-        nom = nominal(X.resolver, sum(faces) + add, spec.vs); u = used(spec, nom);
+        nom = nominalOf(X.resolver, spec, sum(faces) + add); u = used(spec, nom);
       } else { // the dice cannot give it: fake the faces, keep the asked-for result
         faces = Array.from({ length: d.n }, () => (forced === "fail" || forced === "tie" ? dlo : dhi));
         nom = u = forced;
@@ -762,6 +774,7 @@ function check(pack) {
     fieldIds.add(f.id);
     if (!str(f.label)) err(`pack.json field ${f.id}`, "label is missing");
     if (f.side != null && !["front", "back"].includes(f.side)) err(`pack.json field ${f.id}`, `side must be "front" or "back", not ${JSON.stringify(f.side)}`);
+    if (f.hidden != null && typeof f.hidden !== "boolean") err(`pack.json field ${f.id}`, "hidden must be true or false");
   }
   // tallies: a map of tally id to its allowed values. Never a list of ids.
   if (pack.tallies != null) {
@@ -1012,17 +1025,38 @@ function check(pack) {
           else if (pack.resolver === "ose" && d.f === "F") err(ow, "an ose pack rolls dN, not dF");
           else if (pack.resolver === "fate4df" && d.n !== 4) err(ow, "a fate4df roll is four dice (4dF)");
           if (!isObj(r)) return err(ow, "roll must be an object");
-          if (!num(r.vs)) err(ow, "roll.vs must be a number");
+          if (r.table != null && typeof r.table !== "boolean") err(ow, "roll.table must be true or false");
+          const table = r.table === true;
+          if (table) {
+            if (pack.resolver !== "ose") err(ow, "roll.table is for ose rolls only");
+            if (r.add != null) err(ow, "a table roll takes no add (a bonus is another option)");
+            if (r.under) err(ow, "a table roll takes no under");
+          } else if (!num(r.vs)) err(ow, "roll.vs must be a number");
+          if (r.under != null && typeof r.under !== "boolean") err(ow, "roll.under must be true or false");
+          else if (r.under && pack.resolver !== "ose") err(ow, "roll.under is for ose rolls only");
           if (r.add != null && !meterIds.has(r.add)) err(ow, `roll.add "${r.add}" is not a meter (add names a meter only)`);
           if (!isObj(r.results)) err(ow, "roll.results is missing");
           else {
             const ok = pack.resolver === "fate4df" ? ["fail", "tie", "success", "style"] : ["fail", "success"];
+            if (table && d) { // every face total in exactly one range
+              const [lo, hi] = diceRange(d), hits = new Map();
+              for (const k of Object.keys(r.results)) {
+                const g = rangeOf(k);
+                if (!g || g[0] > g[1]) { err(ow, `table result "${k}" must be a face or a range such as "3-4"`); continue; }
+                if (g[0] < lo || g[1] > hi) err(ow, `table result "${k}" is outside ${r.dice} (${lo}-${hi})`);
+                for (let t = g[0]; t <= g[1]; t++) hits.set(t, (hits.get(t) || 0) + 1);
+                const lb = isObj(r.results[k]) ? r.results[k].label : null;
+                if (lb != null && !str(lb)) err(ow, `table result "${k}" label must be text`);
+              }
+              for (let t = lo; t <= hi; t++) if ((hits.get(t) || 0) !== 1) err(ow, `table: the total ${t} is in ${hits.get(t) || 0} results, not 1`);
+            }
             for (const k of Object.keys(r.results)) {
+              if (table) { if (!isObj(r.results[k])) err(ow, `roll result "${k}" must be an object`); else { checkEffects(`${ow} result ${k}`, r.results[k].effects); checkBeats(`${ow} result ${k}`, r.results[k].then); } continue; }
               if (!ok.includes(k)) err(ow, `roll result "${k}" is not read by ${pack.resolver} (${ok.join(", ")})`);
               else if (!isObj(r.results[k])) err(ow, `roll result "${k}" must be an object`);
               else { checkEffects(`${ow} result ${k}`, r.results[k].effects); checkBeats(`${ow} result ${k}`, r.results[k].then); }
             }
-            for (const k of ["fail", "success"]) if (!has(r.results, k)) err(ow, `roll.results needs "${k}"`);
+            if (!table) for (const k of ["fail", "success"]) if (!has(r.results, k)) err(ow, `roll.results needs "${k}"`);
           }
         }
       });

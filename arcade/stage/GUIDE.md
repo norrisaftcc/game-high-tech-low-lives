@@ -197,6 +197,8 @@ A note that teaches odds or a difficulty must not show before the note that teac
 - A condition (`when`, `lock`, `route`) must not read a field that an `input` writes. Typed text cannot be explored, and `validate` rejects it. Use a flag for the choice that matters and keep the typed text for the card.
 - Put the mechanical effect in `sub`, in plain words: "2d6 + Luck vs 8".
 - `roll` gives `fail` and `success` in `ose`. In `fate4df` it gives `fail`, `tie`, `success` and `style`. Give each result its own `effects` and `then`. A roll with no consequence is not a roll.
+- B/X rolls low and reads tables. An X-in-6 check or a thief's percentage is `"under": true`: `{ "dice": "1d6", "under": true, "vs": 2 }` is 2-in-6, `{ "dice": "1d100", "under": true, "vs": 20 }` is 20 %. A bonus raises `vs`, so it is a second option with a `when`, never `add`. A table (a Trade die, an event list, or any roll where "success" would read wrong, such as a wandering check) is `"table": true` with face-range keys and a `label` each: `{ "1": { "label": "Something comes" }, "2-6": { "label": "The dark is quiet" } }`. Print the odds in the option's `sub` before the pick (*Two in Six* does it everywhere).
+- A choice a later scene reads, then forgets, goes in a field with `"hidden": true`, cleared (`set` to `""`) once it is spent. A flag cannot be cleared, so every flag a condition reads splits the routes for the rest of the story (*The Spring Turn*'s Directives).
 - A `fate` group needs `cost`: `{ "meter": "fate", "n": 1 }`. Make a `lock` with a `hint` for the option the player cannot afford, so they see why.
 - Check your Fate meter against the setting's pin (the OSR pack starts at 3 of 6). Spend the first Fate pick in a scene that teaches it. Give the player something they could not have done by luck.
 
@@ -239,7 +241,7 @@ SPEC §4 names the primitives. Each kit reads more properties than that table li
 |---|---|---|---|
 | `art2`, `art3`, `art4`, `art5` | tunnel | More planes, far to near. `art` is the farthest. 1 to 5 planes in all, all with one viewBox. | terminal (art to art4), breaths (art to art3), wall (art to art4), milestone (art to art5) |
 | `screen` `{x,y,w,h}` | plate | Fractions of the plate (the art box inside the frame) where `beat.screen` lines are printed, in the shell's mono font. Without it, screen lines appear in a free box near the top of the book. | glass |
-| `range` `[min,max]` | volvelle | Faces round the rim, default `[2,12]`. On `roll` the wheel stops with the total at the top. | plinth `[2,12]` |
+| `range` `[min,max]` | volvelle | Faces round the rim, default `[2,12]`. On `roll` the wheel stops with the total at the top; a total outside the range (a d100 roll in a set with a d6 wheel) leaves it at rest. | plinth `[2,12]` |
 | `center` | volvelle | The face at the top at rest. Default is the middle of `range`. | not used (default 7) |
 | `meter` | ticket | The meter id whose points are drawn as boxes. Default `fate`. A hole is punched for each point left, and `tear` splits the ticket. | wall `fate` |
 | `x`, `y`, `w` (meaning) | all | SPEC says "fractions of the stage". In the paper kit they are fractions of the book box: a square of side min(stage width, stage height), centred on the stage, at the stage's full height. `x`, `y` are the centre. `w` is the width; the height follows the art's aspect. Defaults: x and y 0.5, w 0.5 (volvelle 0.3, ticket 0.2). | all |
