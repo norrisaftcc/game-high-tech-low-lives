@@ -26,8 +26,7 @@
         },
         "x": 0.4,
         "y": 0.29,
-        "w": 0.12,
-        "labelAt": "below"
+        "w": 0.12
       },
       {
         "prim": "scan"
@@ -153,8 +152,7 @@
         },
         "x": 0.42,
         "y": 0.29,
-        "w": 0.12,
-        "labelAt": "below"
+        "w": 0.12
       },
       {
         "prim": "redact",
@@ -327,8 +325,7 @@
         "y": 0.3,
         "w": 0.12,
         "conf": 22,
-        "face": false,
-        "labelAt": "below"
+        "face": false
       },
       {
         "prim": "log",
