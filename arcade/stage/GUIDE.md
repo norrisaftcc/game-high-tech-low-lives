@@ -271,7 +271,8 @@ The feed kit's layer properties. SPEC section 4 names only the primitives (frame
 | track | `conf` | A number sets the confidence; false hides it | yes |
 | track | `confs` | NEW. Map from the bound field's value to a confidence. Wins over the formula, which is 26 + 12 x exposure capped at 99. An empty-string key covers an empty field | yes |
 | track | `face: false` | No portrait, a bare box | yes (far) |
-| track | `labelAt: "below"` | The label sits under the box. A label that would reach the chips goes below anyway | yes (corner Chen) |
+| track | `labelAt: "below"` | The label always sits under the box. Without `labelAt` the kit chooses: above, beside (when a log or the chips are in the way and there is 120 px of room) or below | no |
+| track | `labelAt: "side"` | The label always sits beside the box, on the roomier side; below when there is no room | no |
 | log | `lines` | Strings, or { t, red } for a line under a bar | yes |
 | log | `on` | The cues that print a line: seal, roll, cost, gain, tear, ink | yes |
 | log | `x` or `right`, `y`, `w` | Position as fractions of the space; w is a limit | yes |

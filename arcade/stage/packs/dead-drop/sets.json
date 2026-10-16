@@ -212,8 +212,7 @@
         "x": 0.75,
         "y": 0.31,
         "w": 0.09,
-        "conf": 97,
-        "labelAt": "below"
+        "conf": 97
       },
       {
         "prim": "scan"

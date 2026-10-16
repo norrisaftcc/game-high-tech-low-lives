@@ -467,7 +467,10 @@ const kit = {
     cur = next;
     if (old) tabsOn(old, false);
     tilt.tx = tilt.ty = tilt.x = tilt.y = 0;
-    if (instant) { if (old) old.remove(); root.appendChild(next); pend = null; }
+    if (instant) {
+      if (old) old.remove(); root.appendChild(next); pend = null;
+      if (!old) run(next, [{ opacity: 0, offset: 0 }], T.state, T.easeOut); // the page's first set fades in (the shell builds it after the title paints)
+    }
     else { next.inert = true; root.insertBefore(next, old); pend = { next, old, leaf: null }; }
     tabReserve();
   },
