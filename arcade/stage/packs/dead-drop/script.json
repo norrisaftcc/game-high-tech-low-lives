@@ -189,7 +189,7 @@
             {
               "key": "split",
               "label": "Try to split your attention",
-              "sub": "Watch Chen and grab the check. Harder: difficulty 3.",
+              "sub": "Watch Chen and grab the check. Harder: the pass is rated 3, not 2. The feed explains the rating.",
               "effects": [
                 {
                   "flag": "split"
@@ -1104,12 +1104,12 @@
     {
       "id": "table",
       "title": "Chen Stands",
-      "place": "Harborview Cafe · 07:02",
+      "place": "Harborview Cafe · 06:58",
       "look": "paint",
       "set": "corner",
       "beats": [
         {
-          "kicker": "CH 3 · TABLE 9 · 06:58:10",
+          "kicker": "CH 3 · CORNER · 06:58:10",
           "text": "You sit. The espresso is bitter and cooling fast."
         },
         {
@@ -1515,7 +1515,7 @@
           "notes": [
             "g-fate"
           ],
-          "text": "Chen's eyes stay on you. You still have a favour to call, if you choose to pay for it.",
+          "text": "Chen's eyes stay on you. You still have a favor to call, if you choose to pay for it.",
           "when": {
             "all": [
               {
@@ -1655,7 +1655,7 @@
     },
     {
       "id": "invoke",
-      "title": "A Favour Called In",
+      "title": "A Favor Called In",
       "place": "Harborview Cafe · 07:03",
       "look": "ink",
       "set": "corner",
@@ -1986,7 +1986,7 @@
           "text": "The dead drop cup stays three seats away, untouched. Protocol abandoned. No roll required."
         },
         {
-          "text": "The talk is small: algorithms, the exam curve, the Harborview's burnt coffee. Chen is tired and sharp. Her remarks about student stress and network behaviour are too precise for small talk."
+          "text": "The talk is small: algorithms, the exam curve, the Harborview's burnt coffee. Chen is tired and sharp. Her remarks about student stress and network behavior are too precise for small talk."
         },
         {
           "speaker": "chen",

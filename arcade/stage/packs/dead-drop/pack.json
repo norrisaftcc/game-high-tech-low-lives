@@ -84,7 +84,7 @@
   ],
   "tallies": {},
   "commentary": {
-    "label": "What the Algorithm logs",
+    "label": "The feed and g0",
     "kinds": [
       "algorithm",
       "handler"

@@ -59,16 +59,26 @@ The Algorithm sees, scores and logs. It never decides. The player's choices chan
 | Where | Teaches | Note |
 |-------|---------|------|
 | `arrive` first beat | What a dead drop is. The Blackout. | `lore-protocol`, `lore-blackout` |
-| `arrive` track beat | Look first. Splitting is harder. | `g-observe`, `g-split` |
+| `arrive` track beat | Look first. Splitting is harder (no numbers yet; the odds wait for the first roll). | `g-observe`, `g-split` |
 | `arrive` last beat | Planning is free. A redaction can lift. | `rule-plan`, `rule-reveal` |
 | `counter` | Execution is final. Exposure. The coffee is a choice. | `rule-gate` (also on the first exec group, as `validate` requires), `rule-exposure`, `g-exposure`, `g-pay` |
-| `drop` and `splitdrop` | 4dF: four dice, the stat, the difficulty, tie and style. The odds. | `rule-4df` (on the lead-in beat and on the group), `g-4df` |
+| `drop` and `splitdrop` | 4dF: four dice, the stat, the difficulty, tie and style. The odds, including difficulty 3 on the split (the `arrive` option says "rated 3, not 2"; `rule-4df` explains the rating at the first roll). | `rule-4df` (on the lead-in beat and on the group), `g-4df` |
 | First tie or fail | Stress tracks | `rule-stress` |
 | `table` | A compel. Spend Fate on people. | `rule-compel`, `g-fate` |
-| `invoke` | Fate points and aspects | `rule-fate` |
+| `invoke` | Fate points and aspects. The HUD shows FATE 3 / 5: the playbook has no cap, so the note says "the feed holds five". | `rule-fate` |
 | Every ending | One Algorithm line and one g0 line | `a-end-*`, `h-end-*` |
 
 Voices: Algorithm lines are `algorithm` notes, shown as comments. g0 is the Handler: `handler` notes as comments, and g0's texts as speaker beats. Ann Sho's GameFAQs voice is `guide` notes on chips.
+
+### Decisions recorded (wave 3 review)
+
+- **Stress tracks follow the Sable Harker pregen** (Meat 3, Nerves 4, Systems 5), not the Ann Sho example in playbook v2, which differs.
+- **Currency is "yen".** The Twine uses it, so the pack keeps it.
+- **The speaker chip says "Ann Sho"; the feed overlay says REDACTED.** The chip is the reader's label, not the feed's. The two are meant to differ.
+- **Clock times in `table` (Chen Stands).** The scene happens at 06:58. The place line reads 06:58, the kicker reads "CH 3 · CORNER · 06:58:10" (one camera name, the same as the set's frame label), and the set's frame clock reads 06:58. "Five minutes later" lands on 07:03, the time of the next scene (`invoke`). The previous scene ends at 06:51:50.
+- **Commentary label.** pack.json calls the commentary "The feed and g0", because it carries the Algorithm's lines and g0's dry lines.
+- **g-chen** follows the guide: weak against honest confusion and professional competence; strong against obvious lies and incomplete answers.
+- **US spelling** throughout the pack (favor, behavior, color, gray, center).
 
 ### Canon pins and what the pack invents
 
@@ -178,9 +188,9 @@ Orange `#FF6B35` and teal `#1B4D5C` are the Infiltrator pair. Two facts shape th
 - Orange on teal is 3.27:1. That fails 4.5:1 for text. So the two never sit as text on ground.
 - Orange on the light ground is 2.45:1. So the light theme uses a burnt orange `#A33708` for accent text.
 
-The dark theme (the feed) uses the teal as the `line` colour and as the family of the grounds. The light theme uses the teal as `ink-soft` (8.03:1 on the light ground). Every text token on every ground, both themes, is 4.5:1 or better (lowest 4.70:1), and so is the button text. Recomputed 2026-10-15 from `theme.json` with the WCAG formula; no value changed:
+The dark theme (the feed) uses the teal as the `line` color and as the family of the grounds. The light theme uses the teal as `ink-soft` (8.03:1 on the light ground). Every text token on every ground, both themes, is 4.5:1 or better (lowest 4.70:1), and so is the button text. Recomputed 2026-10-15 from `theme.json` with the WCAG formula; no value changed:
 
-Both themes define every token in the block TOKENS THE SHELL READS at the top of `stage/ui/style.css`: `bg`, `panel`, `card`, `line`, `ink`, `ink-soft`, `muted`, `accent`, `lamp`, `good` and `bad`. `validate` checks it. `on-accent` is optional and not set, so the text on an accent button is `bg`; that pair is in the last row of each table. The `line` colour is a hairline and not text, so it has no ratio to meet.
+Both themes define every token in the block TOKENS THE SHELL READS at the top of `stage/ui/style.css`: `bg`, `panel`, `card`, `line`, `ink`, `ink-soft`, `muted`, `accent`, `lamp`, `good` and `bad`. `validate` checks it. `on-accent` is optional and not set, so the text on an accent button is `bg`; that pair is in the last row of each table. The `line` color is a hairline and not text, so it has no ratio to meet.
 
 **dark**
 
@@ -251,16 +261,16 @@ handler notes 16, g0 lines 21, longest handler/g0 line 74; algorithm notes 29, s
 
 For `cast.json` and `art/cast.jpg` (the feed-kit agent). One sheet, three tiles. Suggested sheet 960 by 320, one 320 px tile each, `r` 150 in `cast.json`, JPEG quality 80, 120 KB or less. Crops are circles; all pixel coordinates are in the original image. I looked at each crop in a render.
 
-| Cast id | Name | Role | File in `build/art/` | Original size | Face centre, radius | Tile centre on the sheet |
+| Cast id | Name | Role | File in `build/art/` | Original size | Face center, radius | Tile center on the sheet |
 |---------|------|------|----------------------|---------------|---------------------|--------------------------|
 | `ann` | Ann Sho | Subject 1 | `ann-sho-at-workxcf.png` | 932 by 936 | (430, 390), r 200 | (160, 160) |
 | `chen` | Manager Chen | Subject 2 | none: no crop (decided 2026-10-14) | — | — | — |
 | `g0` | g0 | Contact | none: draw the tile | | | (800, 160) |
 
-- **`ann`.** The best match for "Ann" in the Twine: dark bob, orange glasses, the ANN SHO // SHODANN badge, teal and orange. Alternate for the Sable identity: `sable-harker-algocratic.jpeg`, 1620 by 1663, face centre (780, 620), r 370. The kit may swap the portrait when `fields.identity` is the badge (add a `sable` entry; `validate` warns that she never speaks, which is fine).
+- **`ann`.** The best match for "Ann" in the Twine: dark bob, orange glasses, the ANN SHO // SHODANN badge, teal and orange. Alternate for the Sable identity: `sable-harker-algocratic.jpeg`, 1620 by 1663, face center (780, 620), r 370. The kit may swap the portrait when `fields.identity` is the badge (add a `sable` entry; `validate` warns that she never speaks, which is fine).
 - **`chen`.** Decided by the user, 2026-10-14: Chen has no portrait in this version. The feed shows her as a **"VIDEO FEED DISABLED"** box: a staticky outline where her face would be. Her metadata still reads ("CHEN, M. · YELLOW CLEARANCE"), but her video is masked. The Algorithm can name her and cannot see her, and that fits the scene. In `cast.json` she has a name and role and no `x`, `y` or `r`; the feed kit draws the disabled box for any person without a crop (SPEC §2, cast.json). The user also confirmed that Chen is both the Twine's lecturer and the pregen's Manager YELLOW#A1C4. Other faces may reuse art from `build/art/`.
 - **`g0`.** g0 has no face; the Twine shows only dead image files. Draw a tile: teal ground, an orange "g0" glyph, a noise band across the middle. No portrait.
-- Another face for reference, not needed: `infiltrator-infiltrating.jpeg`, 1620 by 972, centre (680, 230), r 170.
+- Another face for reference, not needed: `infiltrator-infiltrating.jpeg`, 1620 by 972, center (680, 230), r 170.
 
 ## SET BRIEFs
 
@@ -344,7 +354,7 @@ SET BRIEF: blind
 Scenes and beats that use it: drop, the `then` beats of the blind-line results (a `shift` from corner)
 Look: paint   Art style: duotone ink
 Layers, back to front:
-  1. frame   art: seat 9 behind the espresso machine. The same view, but the picture is static and grey. Kicker reads "NO SIGNAL". CH 2.   moves on: shift
+  1. frame   art: seat 9 behind the espresso machine. The same view, but the picture is static and gray. Kicker reads "NO SIGNAL". CH 2.   moves on: shift
   2. log     "SEAT 9: NOT COVERED", "GAP: 9 S", "REASON: NOT HELD"   moves on: none
 Cues this set must answer: shift, bloom. Bound state for update(): none. There is no track: the feed has nothing here.
 What the player must read in the end state: the feed has no face, no box and no reason.
