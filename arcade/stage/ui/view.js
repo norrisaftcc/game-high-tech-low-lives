@@ -114,7 +114,7 @@ function cleanRecord(d) {
 const V = {
   game: null, view: null, kit: null, phase: "title", token: 0, rec: null,
   settings: null, found: new Set(), extraMet: new Set(), seen: new Set(),
-  shown: { meters: {}, high: {}, tallies: {} }, setId: null,
+  shown: { meters: {}, high: {}, tallies: {} }, setId: null, preview: null,
   slide: null, typing: null, cueBusy: false, ctx: null, waiters: new Set(),
   autoT: null, sheet: null, opener: null, replaying: false, seedPending: 1, seedFixed: false, force: [], forceIgnored: [], starting: false,
   lastFlash: -1e9, sealed: false, rollEl: null, sim: null, simAt: 0, rafId: 0, dragX: 0, dragY: 0, restartT: null,
@@ -955,6 +955,7 @@ function begin(cont) {
   // The flag is set here and cleared when the first beat or card has rendered, when the start fails, or at the title.
   if (V.starting) return;
   V.starting = true;
+  cancelPreview();
   if (V.sheet) closeSheet(true);
   V.token++; stopTyping(); clearAuto();
   V.replaying = false;
@@ -976,6 +977,7 @@ function begin(cont) {
   if (save) V.starting = false;
 }
 function restore(v) {
+  cancelPreview();
   V.token++; stopTyping(); clearAuto();
   V.phase = "play"; V.cueBusy = false; V.sealed = false; V.ctx = null; V.rollEl = null;
   root.removeAttribute("data-cue");
@@ -988,12 +990,28 @@ function restore(v) {
   deckUI();
 }
 function adopt(game) { // Verify: play a route and land on its end
+  cancelPreview();
   V.replaying = true;
   V.game = game; V.view = game.view();
   V.seen = new Set(); buildHud();
   restore(V.view);
 }
+// Run fn in the task after the next frame has painted (a frame callback runs before the paint, a timer after it).
+function afterPaint(fn) { requestAnimationFrame(() => setTimeout(fn, 0)); }
+// At boot the title's set is built after the title has painted, in a task of its own, so the boot task and the first frame
+// stay short. Until then the stage is clear; the kit fades its first set in. Anything that puts a set on the stage first
+// (begin, restore, adopt, a second title) calls cancelPreview().
+function deferPreview(build) {
+  const mark = V.preview = {};
+  afterPaint(() => {
+    if (V.preview !== mark) return;
+    V.preview = null;
+    build();
+  });
+}
+function cancelPreview() { V.preview = null; }
 function toTitle() {
+  cancelPreview();
   if (V.sheet) closeSheet(true);
   V.token++; stopTyping(); clearAuto();
   V.starting = false;
@@ -1006,8 +1024,11 @@ function toTitle() {
   $("brandSub").textContent = `Endings found ${V.found.size} of ${ENDING_IDS.length}`;
   const start = sceneById[PACK.start];
   if (start && PACK.sets && PACK.sets[start.set]) {
-    const pv = Stage.create(PACK, { seed: 1 }).view();
-    kitShow(start.set, pv, true); V.setId = start.set; kitUpdate(pv);
+    const preview = () => {
+      const pv = Stage.create(PACK, { seed: 1 }).view();
+      kitShow(start.set, pv, true); V.setId = start.set; kitUpdate(pv);
+    };
+    if (V.kit && V.setId == null) deferPreview(preview); else preview(); // the first title of the page waits; later ones swap at once
   }
   kitCall("screen", []);
   const sl = titleSlide();
@@ -1015,8 +1036,9 @@ function toTitle() {
   sl.classList.add("done");
   deckUI();
   setFoot(footTitle());
+  // Focus waits for the frame to paint: focusing forces a full style and layout pass, which would sit in this task.
   const b = sl.querySelector("#contBtn") || sl.querySelector("#beginBtn");
-  if (b) b.focus({ preventScroll: true });
+  if (b) afterPaint(() => { if (V.phase === "title" && !V.sheet && b.isConnected) b.focus({ preventScroll: true }); });
   announce(`${PACK.title}. ${PACK.subtitle || ""}`);
 }
 

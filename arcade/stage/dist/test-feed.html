@@ -1962,6 +1962,8 @@ let S = { meters: {}, fields: {}, tallies: {}, flags: {}, look: "", revealed: fa
 let focusOn = false;       // the look on show: true is paint (sharp), false is ink (soft)
 let locked = false, closed = false, closedFresh = false;
 let cueSeq = 0, stoppedSeq = -1;
+let noiseOn = false;       // --k-noise is set on the host
+let shownOnce = false;     // the page has had a set; the first one is laid out late (see settle())
 const clock = { base: 0, acc: 0 };
 let timer = 0, mq = null, mo = null;
 const svgCache = new Map();
@@ -1998,13 +2000,35 @@ function div(cls, css) { const e = document.createElement("div"); if (cls) e.cla
 
 function mulberry(a) { return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 // One 96 px tile of static, as an alpha mask. The colour comes from the element's own background (a theme token).
+// The PNG is written by hand (grey + alpha, stored deflate blocks): a canvas and its PNG encoder cost far more than this.
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function pngChunk(type, data) {
+  const out = new Uint8Array(12 + data.length), dv = new DataView(out.buffer);
+  dv.setUint32(0, data.length);
+  for (let i = 0; i < 4; i++) out[4 + i] = type.charCodeAt(i);
+  out.set(data, 8);
+  let c = 0xFFFFFFFF;
+  for (let i = 4; i < 8 + data.length; i++) c = CRC[(c ^ out[i]) & 255] ^ (c >>> 8);
+  dv.setUint32(8 + data.length, (c ^ 0xFFFFFFFF) >>> 0);
+  return out;
+}
 function makeNoise() {
   try {
-    const c = document.createElement("canvas"); c.width = c.height = 96;
-    const g = c.getContext("2d"), im = g.createImageData(96, 96), r = mulberry(1977);
-    for (let i = 0; i < im.data.length; i += 4) { im.data[i] = im.data[i + 1] = im.data[i + 2] = 0; im.data[i + 3] = r() < 0.5 ? 0 : 80 + Math.floor(r() * 175); }
-    g.putImageData(im, 0, 0);
-    return `url("${c.toDataURL("image/png")}")`;
+    const N = 96, r = mulberry(1977);
+    const raw = new Uint8Array(N * (1 + 2 * N)); // each row: filter byte 0, then (grey 0, alpha) per pixel
+    let o = 0;
+    for (let y = 0; y < N; y++) { raw[o++] = 0; for (let x = 0; x < N; x++) { raw[o++] = 0; raw[o++] = r() < 0.5 ? 0 : 80 + Math.floor(r() * 175); } }
+    let a1 = 1, a2 = 0;
+    for (let i = 0; i < raw.length; i++) { a1 = (a1 + raw[i]) % 65521; a2 = (a2 + a1) % 65521; }
+    const z = new Uint8Array(2 + 5 + raw.length + 4), zv = new DataView(z.buffer); // zlib header, one stored block, Adler-32
+    z[0] = 0x78; z[1] = 0x01; z[2] = 1; zv.setUint16(3, raw.length, true); zv.setUint16(5, ~raw.length & 0xFFFF, true);
+    z.set(raw, 7); zv.setUint32(7 + raw.length, ((a2 << 16) | a1) >>> 0);
+    const ihdr = new Uint8Array(13), hv = new DataView(ihdr.buffer);
+    hv.setUint32(0, N); hv.setUint32(4, N); ihdr[8] = 8; ihdr[9] = 4; // 8-bit grey with alpha
+    const parts = [new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]), pngChunk("IHDR", ihdr), pngChunk("IDAT", z), pngChunk("IEND", new Uint8Array(0))];
+    let bin = "";
+    for (const p of parts) for (let i = 0; i < p.length; i += 8192) bin += String.fromCharCode.apply(null, p.subarray(i, i + 8192));
+    return `url("data:image/png;base64,${btoa(bin)}")`;
   } catch (e) { return "none"; }
 }
 
@@ -2153,7 +2177,7 @@ function buildLog(K, l) {
     e.style.top = l.y != null ? pct(l.y) : "54px";
     e.style.maxWidth = pct(l.w != null ? l.w : 0.62); // w is a limit: the box is as wide as its longest line
   } else { e.style.right = "12px"; e.style.top = "54px"; e.style.maxWidth = "62%"; }
-  const L = { layer: l, el: e, model: (l.lines || []).map(x => (typeof x === "string" ? { t: x } : Object.assign({}, x))), on: new Set(l.on || []), max: l.max || 8 };
+  const L = { K, layer: l, el: e, model: (l.lines || []).map(x => (typeof x === "string" ? { t: x } : Object.assign({}, x))), on: new Set(l.on || []), max: l.max || 8, has: false };
   K.logs.push(L);
   renderLog(L);
   return e;
@@ -2161,6 +2185,13 @@ function buildLog(K, l) {
 function renderLog(L, lines) {
   L.el.innerHTML = "";
   for (const x of lines || L.model) L.el.appendChild(lineEl(x));
+  // A log that gains its first line (or loses its last) may now be in the way of a label, or clear of it.
+  const had = L.has, K = L.K; L.has = !!L.el.firstChild;
+  if (K.geo && K.tracks.length) {
+    // A log that appears or goes, or that changes size while it moves a label or runs into one, may move the labels.
+    const r = had === L.has ? logRect(K, L) : null;
+    if (had !== L.has || (r && sigOf(r) !== L.sig && (K.byLog || K.tracks.some(T => T.rect && hits(T.rect, r))))) placeLabels(K);
+  }
 }
 function lineEl(x) {
   const e = div("k-ln");
@@ -2229,12 +2260,32 @@ function spanOf(K) {
   }
   return hi > lo ? [lo, hi] : null;
 }
+// The first set of a page is built in one task and laid out in the next two, so the cold first layout (styles, the art, the
+// text) does not sit in one long task. The set is display:none until then (it costs no layout), has no geometry, and layout()
+// leaves it alone. late is 2 before any layout, 1 once the chrome is laid out (the camera still waits), 0 when done.
+// Any call that needs the geometry (a new set, a cue) calls settle() first and finishes it at once.
+function settle(K, partial) {
+  if (!K || !K.late) return;
+  if (partial && K.late === 2) {
+    K.late = 1; K.el.style.visibility = "hidden"; K.wrap.style.display = "none"; K.el.style.display = "";
+    void K.el.offsetWidth;
+    return;
+  }
+  const faded = K.late === 1;
+  K.late = 0;
+  const size = [host.clientWidth, host.clientHeight];
+  K.wrap.style.display = ""; K.el.style.display = ""; K.el.style.visibility = "";
+  layout(K, size);
+  if (faded) run(K.el, [{ opacity: 0, offset: 0 }], tk.state, tk.easeOut);
+}
 // The art is drawn in a cam of its own aspect. The scale is cover (like object-fit) unless the span that must be seen is
 // wider than the stage; then the cam shrinks until the span fits, and the ground colour shows where the art ends. The cam
 // is centred on the span (on the focus point when there is none) and sits so that the focus line is FOCAL down the stage.
-function layout(K) {
-  if (!K || !host) return;
-  const W = host.clientWidth || 360, H = host.clientHeight || 392, Hs = Math.max(1, H - PAD), a = K.aspect;
+// `size` is the stage's [width, height] when the caller read it before the set went in: the read then lays out only what was
+// already there, not the new set at a size it is about to leave.
+function layout(K, size) {
+  if (!K || !host || K.late) return;
+  const W = (size ? size[0] : host.clientWidth) || 360, H = (size ? size[1] : host.clientHeight) || 392, Hs = Math.max(1, H - PAD), a = K.aspect;
   const sp = spanOf(K);
   let cw = Math.max(W, Hs * a), cx = K.focus[0];
   if (sp) {
@@ -2262,38 +2313,146 @@ function layout(K) {
   placeLabels(K);
 }
 // Labels sit above their boxes, inside the stage, each within the band between its neighbours so they never overlap.
-// A label that would run up into the channel chips goes below its box instead. A label then has only the labels on its own
-// side as neighbours (one above and one below cannot touch), so a long label that has gone below gets the room it needs
-// and stays short; the top of the stage is where a phone's text panel does not reach.
+// A label that would run up into the channel chips goes beside its box instead (below it when there is no room beside).
+// Beside means on the side with more room, level with the box centre, in the room between the box and the nearest other
+// box on that side: higher than below the box, so a text panel that rises over the stage reaches it later. Labels beside
+// a box take no part in the bands. A label below has only the labels below as neighbours (one above and one below cannot
+// touch), so a long label that has gone below gets the room it needs and stays short.
+// A log that has lines is in the way of a label above it: the label keeps to the free side of the log, and when the box
+// sits under the log it goes beside the box. A label with labelAt "side" is always beside, one with "below" always below.
+// The labels are placed again when a log gains its first line or loses its last.
+const SIDE_MIN = 120;
+// A log's rectangle in the set's own space, 4 px wider on each side so that a label keeps its distance. Only a log in the set's
+// own layer (not in the cam) that has lines.
+const logRect = (K, L) => (L.has && L.el.parentNode === K.el && L.el.offsetWidth ? { x0: L.el.offsetLeft - 4, x1: L.el.offsetLeft + L.el.offsetWidth + 4, y0: L.el.offsetTop, y1: L.el.offsetTop + L.el.offsetHeight } : null);
+const sigOf = r => (r ? [r.x0, r.y0, r.x1, r.y1].join() : "");
+const logRects = K => K.logs.map(L => { const r = logRect(K, L); L.sig = sigOf(r); return r; }).filter(Boolean);
+const hits = (a, b) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+
 function placeLabels(K) {
   const g = K.geo; if (!g || !K.tracks.length) return;
+  for (const T of K.tracks) T.moved = false;
   const cxOf = T => g.left + frac(T.layer.x, 0.5) * g.cw;
-  const order = [...K.tracks].sort((a, b) => cxOf(a) - cxOf(b));
-  const widen = (T, group) => {
-    const i = group.indexOf(T), cx = cxOf(T);
-    const bandL = i > 0 ? (cxOf(group[i - 1]) + cx) / 2 + 2 : 12, bandR = i < group.length - 1 ? (cx + cxOf(group[i + 1])) / 2 - 2 : g.W - 12;
-    const cap = Math.max(96, Math.min(230, bandR - bandL, g.W - 24));
-    T.label.style.width = "max-content"; T.label.style.maxWidth = cap + "px"; // hugs its text, up to the room it has
-    const lw = Math.min(cap, Math.ceil(T.label.getBoundingClientRect().width));
-    const want = clamp(cx - lw / 2, bandL, Math.max(bandL, bandR - lw));
-    T.label.style.width = lw + "px";
-    T.label.style.left = (want - (cx - (T.el.offsetWidth || frac(T.layer.w, 0.12) * g.cw) / 2)) + "px";
+  const bwOf = T => T.el.offsetWidth || frac(T.layer.w, 0.12) * g.cw;
+  // The room beside a box: from the box's edge to the nearest other box on that side, or to the stage edge.
+  const sideOf = T => {
+    const cx = cxOf(T), bw = bwOf(T), left = cx > g.W / 2;
+    let edge = left ? 12 : g.W - 12;
+    for (const O of K.tracks) {
+      if (O === T) continue;
+      const ox = cxOf(O), ow = bwOf(O);
+      if (left && ox < cx) edge = Math.max(edge, ox + ow / 2 + 6);
+      if (!left && ox > cx) edge = Math.min(edge, ox - ow / 2 - 6);
+    }
+    const room = left ? cx - bw / 2 - 6 - edge : edge - (cx + bw / 2 + 6);
+    return { left, room: Math.min(230, g.W - 24, room) };
   };
+  // The logs that have lines, as rectangles in the set's own space (one read, and only when there is such a log).
+  const logs = logRects(K);
+  K.byLog = false; // set when a log moved a label: the labels are placed again when that log changes
+  for (const T of K.tracks) { T.clipL = 0; T.clipR = Infinity; T.beside = T.layer.labelAt === "side" && sideOf(T).room >= SIDE_MIN; }
+  // Each label hugs its text up to the room it has between its neighbours (and clear of a log). Labels do not affect one
+  // another's width, so the writes, the reads and the final writes each run as one batch: one layout pass per batch.
+  const widen = group => {
+    const plan = group.map((T, i) => {
+      const cx = cxOf(T);
+      const bandL = Math.max(T.clipL, i > 0 ? (cxOf(group[i - 1]) + cx) / 2 + 2 : 12), bandR = Math.min(T.clipR, i < group.length - 1 ? (cx + cxOf(group[i + 1])) / 2 - 2 : g.W - 12);
+      const cap = Math.max(96, Math.min(230, bandR - bandL, g.W - 24));
+      T.label.style.width = "max-content"; T.label.style.maxWidth = cap + "px";
+      return { T, cx, bandL, bandR, cap };
+    });
+    for (const p of plan) {
+      p.lw = Math.min(p.cap, Math.ceil(p.T.label.getBoundingClientRect().width));
+      p.bw = bwOf(p.T);
+    }
+    for (const p of plan) {
+      const want = clamp(p.cx - p.lw / 2, p.bandL, Math.max(p.bandL, p.bandR - p.lw));
+      p.T.lx = want; p.T.lw = p.lw;
+      p.T.label.style.width = p.lw + "px";
+      p.T.label.style.left = (want - (p.cx - p.bw / 2)) + "px";
+    }
+  };
+  // The room above a box, from the chips to the box, is the most a label above it can take (it keeps 2 px off the box at least).
+  // On a stage much shorter than it is tall the text panel covers most of it, so a label that has room lifts up to LIFT px off
+  // its box: the higher the label, the later the panel reaches it.
+  const LIFT = g.H < 1.3 * g.W ? 10 : 0;
+  const tops = new Map(K.tracks.map(T => [T, g.top + frac(T.layer.y, 0.3) * g.ch - bwOf(T) / 2 - 54]));
+  const rooms = new Map(K.tracks.map(T => [T, tops.get(T) - 2]));
+  let order = K.tracks.filter(T => !T.beside).sort((a, b) => cxOf(a) - cxOf(b));
   // pass 1: every label shares the bands; the label's height at that width says which side it takes
-  for (const T of order) widen(T, order);
+  widen(order);
   for (const T of order) {
-    const l = T.layer, bw = T.el.offsetWidth || frac(l.w, 0.12) * g.cw;
-    const boxTop = g.top + frac(l.y, 0.3) * g.ch - bw / 2;
-    T.below = l.labelAt === "below" || boxTop - 6 - T.label.offsetHeight < 54;
+    T.below = T.layer.labelAt === "below" || T.layer.labelAt === "side";
+    if (!T.below && T.label.offsetHeight > rooms.get(T)) { if (sideOf(T).room >= SIDE_MIN) T.beside = true; else T.below = true; }
+  }
+  order = order.filter(T => !T.beside);
+  // a log in the way: keep to the free side of it, or go beside the box when the box is under it
+  if (logs.length) {
+    for (const T of order) {
+      if (T.below) continue;
+      const cx = cxOf(T), top = tops.get(T) + 54, r = { x0: T.lx, x1: T.lx + T.lw, y0: top - 6 - LIFT - T.label.offsetHeight, y1: top };
+      const hit = logs.find(o => hits(r, o));
+      if (!hit) continue;
+      K.byLog = true;
+      // the label keeps to one side of the log, if that side has room and still reaches over the box (10 px at least)
+      const bw = bwOf(T), leftOk = hit.x0 - 12 >= SIDE_MIN && hit.x0 >= cx - bw / 2 + 10, rightOk = g.W - 12 - hit.x1 >= SIDE_MIN && hit.x1 <= cx + bw / 2 - 10;
+      if (leftOk && (!rightOk || cx <= (hit.x0 + hit.x1) / 2)) T.clipR = hit.x0;
+      else if (rightOk) T.clipL = hit.x1;
+      else if (sideOf(T).room >= SIDE_MIN) T.beside = true;
+      else T.below = true;
+    }
+    order = order.filter(T => !T.beside);
   }
   // pass 2: the bands are shared by the labels on one side only
-  for (const side of [false, true]) {
-    const grp = order.filter(T => T.below === side);
-    for (const T of grp) {
-      widen(T, grp);
-      if (side) { T.label.style.top = "100%"; T.label.style.bottom = "auto"; T.label.style.marginTop = "6px"; T.label.style.marginBottom = ""; }
-      else { T.label.style.bottom = "100%"; T.label.style.top = "auto"; T.label.style.marginBottom = "6px"; T.label.style.marginTop = ""; }
+  const settle = () => {
+    for (const side of [false, true]) {
+      const grp = order.filter(T => !T.beside && T.below === side);
+      widen(grp);
+      for (const T of grp) {
+        if (side) { T.label.style.top = "100%"; T.label.style.bottom = "auto"; T.label.style.marginTop = "6px"; T.label.style.marginBottom = ""; }
+        else { T.label.style.bottom = "100%"; T.label.style.top = "auto"; T.label.style.marginTop = ""; }
+      }
+      if (!side) { // one read for the heights, then the writes
+        const lift = grp.map(T => clamp(tops.get(T) - T.label.offsetHeight, 2, 6 + LIFT));
+        grp.forEach((T, i) => { T.label.style.marginBottom = lift[i] + "px"; });
+      }
+      for (const T of grp) { // where the label is, for the labels that sit beside a box
+        const h = T.label.offsetHeight, boxTop = tops.get(T) + 54, boxBottom = boxTop + bwOf(T);
+        const y0 = side ? boxBottom + 6 : boxTop - clamp(tops.get(T) - h, 2, 6 + LIFT) - h;
+        T.rect = { x0: T.lx, x1: T.lx + T.lw, y0, y1: y0 + h };
+      }
     }
+  };
+  settle();
+  // a label that kept clear of a log is narrower and so taller: it may no longer fit above
+  const tall = order.filter(T => !T.below && T.label.offsetHeight > rooms.get(T));
+  if (tall.length) { for (const T of tall) { if (sideOf(T).room >= SIDE_MIN) T.beside = true; else T.below = true; } order = order.filter(T => !T.beside); settle(); }
+  // side labels: write the widths, read the sizes, write the places. Two labels that face each other across the gap
+  // between their boxes share it.
+  const plan = K.tracks.filter(T => T.beside).map(T => {
+    const s = sideOf(T);
+    const O = K.tracks.filter(o => o !== T && o.beside && sideOf(o).left !== s.left && (s.left ? cxOf(o) < cxOf(T) : cxOf(o) > cxOf(T)))
+      .sort((a, b) => Math.abs(cxOf(a) - cxOf(T)) - Math.abs(cxOf(b) - cxOf(T)))[0];
+    if (O) { // the gap from this box's edge to the other box's edge, less the margins, is split between the two labels
+      const gap = Math.abs(cxOf(O) - cxOf(T)) - (bwOf(O) + bwOf(T)) / 2 - 12 - 6;
+      s.room = Math.max(40, Math.min(s.room, gap / 2)); // never wider than half the gap (40 px at least); the overlap check below moves a label that still meets another
+    }
+    T.label.style.width = "max-content"; T.label.style.maxWidth = s.room + "px";
+    return { T, s };
+  });
+  for (const p of plan) { p.lw = Math.min(p.s.room, Math.ceil(p.T.label.getBoundingClientRect().width)); p.lh = p.T.label.offsetHeight; p.bw = bwOf(p.T); }
+  const others = order.map(T => T.rect).concat(logs);
+  for (const p of plan) {
+    const st = p.T.label.style, cx = cxOf(p.T), cy = g.top + frac(p.T.layer.y, 0.3) * g.ch;
+    const x0 = p.s.left ? cx - p.bw / 2 - 6 - p.lw : cx + p.bw / 2 + 6;
+    let y0 = cy - p.lh / 2; // level with the box centre, or just under a label or a log that is in the way
+    for (const r of others.slice().sort((a, b) => a.y0 - b.y0)) {
+      if (x0 < r.x1 && x0 + p.lw > r.x0 && y0 < r.y1 - 2 && y0 + p.lh > r.y0 + 2) { y0 = r.y1 + 2; if (logs.includes(r)) K.byLog = true; } // (an overlap of 2 px is a touch)
+    }
+    st.width = p.lw + "px"; st.left = (p.s.left ? -6 - p.lw : p.bw + 6) + "px";
+    st.top = "50%"; st.bottom = "auto"; st.marginTop = (y0 - cy) + "px"; st.marginBottom = "";
+    p.T.rect = { x0, x1: x0 + p.lw, y0, y1: y0 + p.lh };
+    others.push(p.T.rect); // a later side label keeps clear of this one
   }
 }
 
@@ -2323,14 +2482,18 @@ function labelOf(K, T) {
   const p = personOf(l.cast);
   return String((p && p.name) || "SUBJECT");
 }
-function applyTrack(K, T) {
+function applyTrack(K, T, later) {
   const l = T.layer, conf = confOf(K, T), p = personOf(l.cast);
   let name = labelOf(K, T);
   if (T.off && !/VIDEO FEED DISABLED/i.test(name)) name += " · VIDEO FEED DISABLED";
-  T.tn.textContent = name;
   const showConf = l.conf !== false;
-  T.conf.textContent = showConf ? `CONF ${Math.round(conf)}%${locked ? " · LOCKED" : ""}` : (locked ? "LOCKED" : "");
-  T.conf.hidden = !showConf && !locked;
+  const confText = showConf ? `CONF ${Math.round(conf)}%${locked ? " · LOCKED" : ""}` : (locked ? "LOCKED" : "");
+  const confHidden = !showConf && !locked;
+  const sig = name + "\n" + confText + "\n" + confHidden;
+  if (T.sig !== sig) { T.sig = sig; T.moved = true; } // the label's words changed: its size, so its place, may have
+  T.tn.textContent = name;
+  T.conf.textContent = confText;
+  T.conf.hidden = confHidden;
   T.scale = tightOf(conf);
   T.box.style.setProperty("--k-s", String(T.scale));
   T.dim.style.opacity = focusOn ? "" : "0.55"; // the fill and the face dim; the border keeps full strength
@@ -2338,7 +2501,12 @@ function applyTrack(K, T) {
   T.el.classList.toggle("is-locked", locked);
   T.el.setAttribute("role", "img");
   T.el.setAttribute("aria-label", `${name}${showConf ? ", confidence " + Math.round(conf) + " percent" : ""}`);
-  if (K.geo) placeLabels(K);
+  if (K.geo && !later && T.moved) placeLabels(K);
+}
+// Every track at once: the labels are placed once, not once per track.
+function applyTracks(K) {
+  for (const T of K.tracks) applyTrack(K, T, true);
+  if (K.geo && K.tracks.some(T => T.moved)) placeLabels(K);
 }
 function applyFocus(K) {
   K.cam.classList.toggle("k-in-focus", focusOn);
@@ -2359,7 +2527,7 @@ function applyAll(K, st) {
   K.st = st || K.st || S;
   K.expo = K.st.meters && K.st.meters.exposure != null ? K.st.meters.exposure : 0;
   applyFocus(K);
-  for (const T of K.tracks) applyTrack(K, T);
+  applyTracks(K);
   applyReveal(K, !!K.st.revealed);
   applyBands(K);
   K.el.classList.toggle("k-locked", locked);
@@ -2457,14 +2625,19 @@ const kit = {
     tk.step = Math.max(tk.stagger, Math.ceil(tk.state / Math.max(1, tk.max)) + 1);
     if (!styleEl) { styleEl = document.createElement("style"); styleEl.setAttribute("data-kit", "feed"); styleEl.textContent = CSS; document.head.appendChild(styleEl); }
     host.style.background = "var(--st-bg)";
-    host.style.setProperty("--k-noise", makeNoise());
+    noiseOn = false; shownOnce = false;
     // the drift and the sweep move in steps, two a second
     host.style.setProperty("--k-idle-steps", String(Math.max(2, Math.round(tk.idle / 500))));
     host.style.setProperty("--k-sweep-steps", String(Math.max(2, Math.round(tk.scan / 500))));
     if (cast && cast.sheet && assets[cast.sheet]) host.style.setProperty("--k-sheet", `url("${assets[cast.sheet]}")`);
     endEl = div("k-end"); endEl.innerHTML = `<i class="k-endline"></i><span class="k-endcap">FEED CLOSED</span>`; endEl.setAttribute("aria-hidden", "true");
     host.appendChild(endEl);
-    const relayout = () => { layout(cur); if (pend) { layout(pend.next); layout(pend.old); } };
+    // A resize that left the stage the size it was laid out at needs nothing (the observer's first call is one of those).
+    const relayout = () => {
+      const W = host.clientWidth || 360, H = host.clientHeight || 392;
+      const go = K => { if (K && !(K.geo && K.geo.W === W && K.geo.H === H)) layout(K); };
+      go(cur); if (pend) { go(pend.next); go(pend.old); }
+    };
     if (window.ResizeObserver) { ro = new ResizeObserver(relayout); ro.observe(host); } else window.addEventListener("resize", relayout);
     // the clock timer follows the page: hidden, reduced motion and Calm stop it
     unhook();
@@ -2476,8 +2649,12 @@ const kit = {
 
   show(id, set, o) {
     commit(); unfollowPlace();
+    settle(cur);
     const st = (o && o.state) || S;
     const next = buildSet(id, set, st), old = cur;
+    const size = [host.clientWidth, host.clientHeight];
+    // The grain is drawn the first time a set needs it (a canvas and a PNG encode: too slow to sit in the page's boot task).
+    if (!noiseOn) { noiseOn = true; host.style.setProperty("--k-noise", makeNoise()); }
     host.insertBefore(next.el, endEl);
     if (o && o.instant) {
       // back, load, Continue, a new game: nothing animates, so the set takes the state it is shown with
@@ -2486,11 +2663,16 @@ const kit = {
       if (old) old.el.remove();
       cur = next; pend = null;
       next.el.style.transform = "";
-      applyAll(next, st); layout(next);
+      applyAll(next, st);
+      if (!old && !shownOnce && typeof requestAnimationFrame === "function") {
+        next.late = 2; next.el.style.display = "none";
+        requestAnimationFrame(() => { settle(next, true); setTimeout(() => settle(next), 0); });
+      } else layout(next, size);
+      shownOnce = true;
       resetClock(next, null); setClock(next);
       followPlace();
     } else {
-      applyAll(next, st); layout(next);
+      applyAll(next, st); layout(next, size);
       next.el.style.opacity = "0";
       cur = next; pend = old ? { next, old } : null;
       if (!old) next.el.style.opacity = "";
@@ -2514,6 +2696,7 @@ const kit = {
   cue(c, o) {
     const red = (o && o.reduced) || redNow();
     skipNow = !!(o && o.reduced);
+    settle(cur); if (pend) { settle(pend.next); settle(pend.old); }
     const seq = ++cueSeq;
     let p;
     switch (c.type) {
@@ -2677,7 +2860,7 @@ function cueSeal(red) {
   const K = visible(); if (!K) return Promise.resolve();
   locked = true;
   K.el.classList.add("k-locked"); K.chrome.classList.add("k-locked");
-  for (const T of K.tracks) applyTrack(K, T);
+  applyTracks(K);
   const ps = [];
   if (!red) {
     for (const T of K.tracks) if (!T.conf.hidden) ps.push(run(T.conf, [{ opacity: 0, offset: 0 }], tk.seal, tk.easeOut));
@@ -2720,7 +2903,7 @@ function cueMeter(c, red) {
   const ps = [];
   if (c.meter === "exposure") {
     K.expo = (K.expo || 0) + d;
-    for (const T of K.tracks) applyTrack(K, T);
+    applyTracks(K);
     applyBands(K);
   }
   ps.push(printLine(K, c.type, `${meterLabel(c.meter)} ${signed(d)}`));
@@ -2881,7 +3064,7 @@ function cleanRecord(d) {
 const V = {
   game: null, view: null, kit: null, phase: "title", token: 0, rec: null,
   settings: null, found: new Set(), extraMet: new Set(), seen: new Set(),
-  shown: { meters: {}, high: {}, tallies: {} }, setId: null,
+  shown: { meters: {}, high: {}, tallies: {} }, setId: null, preview: null,
   slide: null, typing: null, cueBusy: false, ctx: null, waiters: new Set(),
   autoT: null, sheet: null, opener: null, replaying: false, seedPending: 1, seedFixed: false, force: [], forceIgnored: [], starting: false,
   lastFlash: -1e9, sealed: false, rollEl: null, sim: null, simAt: 0, rafId: 0, dragX: 0, dragY: 0, restartT: null,
@@ -3722,6 +3905,7 @@ function begin(cont) {
   // The flag is set here and cleared when the first beat or card has rendered, when the start fails, or at the title.
   if (V.starting) return;
   V.starting = true;
+  cancelPreview();
   if (V.sheet) closeSheet(true);
   V.token++; stopTyping(); clearAuto();
   V.replaying = false;
@@ -3743,6 +3927,7 @@ function begin(cont) {
   if (save) V.starting = false;
 }
 function restore(v) {
+  cancelPreview();
   V.token++; stopTyping(); clearAuto();
   V.phase = "play"; V.cueBusy = false; V.sealed = false; V.ctx = null; V.rollEl = null;
   root.removeAttribute("data-cue");
@@ -3755,12 +3940,28 @@ function restore(v) {
   deckUI();
 }
 function adopt(game) { // Verify: play a route and land on its end
+  cancelPreview();
   V.replaying = true;
   V.game = game; V.view = game.view();
   V.seen = new Set(); buildHud();
   restore(V.view);
 }
+// Run fn in the task after the next frame has painted (a frame callback runs before the paint, a timer after it).
+function afterPaint(fn) { requestAnimationFrame(() => setTimeout(fn, 0)); }
+// At boot the title's set is built after the title has painted, in a task of its own, so the boot task and the first frame
+// stay short. Until then the stage is clear; the kit fades its first set in. Anything that puts a set on the stage first
+// (begin, restore, adopt, a second title) calls cancelPreview().
+function deferPreview(build) {
+  const mark = V.preview = {};
+  afterPaint(() => {
+    if (V.preview !== mark) return;
+    V.preview = null;
+    build();
+  });
+}
+function cancelPreview() { V.preview = null; }
 function toTitle() {
+  cancelPreview();
   if (V.sheet) closeSheet(true);
   V.token++; stopTyping(); clearAuto();
   V.starting = false;
@@ -3773,8 +3974,11 @@ function toTitle() {
   $("brandSub").textContent = `Endings found ${V.found.size} of ${ENDING_IDS.length}`;
   const start = sceneById[PACK.start];
   if (start && PACK.sets && PACK.sets[start.set]) {
-    const pv = Stage.create(PACK, { seed: 1 }).view();
-    kitShow(start.set, pv, true); V.setId = start.set; kitUpdate(pv);
+    const preview = () => {
+      const pv = Stage.create(PACK, { seed: 1 }).view();
+      kitShow(start.set, pv, true); V.setId = start.set; kitUpdate(pv);
+    };
+    if (V.kit && V.setId == null) deferPreview(preview); else preview(); // the first title of the page waits; later ones swap at once
   }
   kitCall("screen", []);
   const sl = titleSlide();
@@ -3782,8 +3986,9 @@ function toTitle() {
   sl.classList.add("done");
   deckUI();
   setFoot(footTitle());
+  // Focus waits for the frame to paint: focusing forces a full style and layout pass, which would sit in this task.
   const b = sl.querySelector("#contBtn") || sl.querySelector("#beginBtn");
-  if (b) b.focus({ preventScroll: true });
+  if (b) afterPaint(() => { if (V.phase === "title" && !V.sheet && b.isConnected) b.focus({ preventScroll: true }); });
   announce(`${PACK.title}. ${PACK.subtitle || ""}`);
 }
 
