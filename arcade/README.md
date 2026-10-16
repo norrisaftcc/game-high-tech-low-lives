@@ -11,6 +11,10 @@ This file holds what is HTLL's to define: the personas, the format, and the refe
 `cartridges/m3-hard-land-rising/index.html`, and the unchanged reference build at
 `hardwired-coast/index.html`.
 
+**The Stage.** [`stage/dist/dead-drop.html`](stage/dist/dead-drop.html) plays *The Dead Drop*: Shodann
+at the Harborview drop, seen through the Algorithm's surveillance feed. One offline file, for phones.
+The engine is vendored from the Fort repository; see `AGENTS.md` and `stage/GUIDE.md`.
+
 ## Layout
 
 ```
@@ -33,6 +37,9 @@ arcade/
   crawler/                        a first-person party crawler: a vendored engine, view and
                                   tools (from the Fort repository), and the Drowned Floors
                                   pack; see crawler/README.md
+  stage/                          a motion visual novel: a vendored engine, shell, kits and
+                                  tools (from the Fort repository), and the Dead Drop pack;
+                                  built pages in stage/dist/
 ```
 
 Phase note: this is technical implementation, which the project deferred to Phase 3. A
