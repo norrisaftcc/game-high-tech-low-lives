@@ -16,7 +16,8 @@
 //   routes       every route from Stage.simulate, opened with ?seed=1&force=<its roll tiers>, played by keyboard under
 //                reduced motion, reaches its ending; no running animation after any step; no horizontal scroll at 360 px
 //                (and no speaker's avatar has a NaN size: a cast entry with no crop gets the placeholder disc)
-//   verify       the Verify sheet's counts equal Stage.simulate's; a route replays to its ending; Last pick stops at a choice
+//   verify       the Verify sheet's counts equal Stage.simulate's; it lists the first 20 routes (VERIFY_FIRST) and "Show all N routes" lists them
+//                all; a route replays to its ending; Last pick stops at a choice
 //   commentary   the toggle hides the track; the track's note is in the Notes sheet
 //   chips        every ⓘ chip opens its note
 //   contrast     light and dark text pairs are 4.5:1 or better, from the computed tokens (by data-theme and by the system setting);
@@ -30,6 +31,13 @@
 //   storage      the page works when localStorage throws, when its methods throw, and when it holds garbage; every key the page writes
 //                is the pack's storageKey (or starts with it), and starts with htll. in HTLL
 //   layout       no horizontal scroll at 360 and 1280 px (play, title, every sheet)
+//   phone        (wave 3) no .m-name is clipped (scrollWidth > clientWidth) on any step of the shortest route at 360x640, 390x844 and 412x915;
+//                at 568x320 and 844x390 the Begin button is fully visible and hit-testable at the title with no scrolling, and the first choice
+//                panel is at least min(120 px, its own content) tall; at 320x256 every option of the first choice can be scrolled into view
+//                and hit by a tap; every focusable element in #kit is hit-testable at its centre when focused, at 360x640, on each stable
+//                step of the longest route (a covered pull-tab fails)
+//   shortcuts    Settings > Keyboard shortcuts Off: "a" and "n" change nothing; On: "a" toggles AUTO
+//   verify speed the Verify sheet opens with its route list in under 300 ms at 1x CPU, from the page's embedded window.SIM
 //   calm         Settings > Calm behaves like reduced motion
 //   motion       full motion plays a route by keyboard, tapping through every cue, with no console error
 //   console      no console error, no console warning, no page error, anywhere
@@ -403,6 +411,7 @@ async function checkCommentary(page, spec) {
   } catch (e) { fail(spec.id, "commentary", errText(e)); await page.keyboard.press("Escape").catch(() => {}); }
 }
 
+const VERIFY_FIRST = 20; // routes the Verify sheet lists before "Show all" (ui/view.js VERIFY_FIRST)
 async function checkVerify(page, spec) {
   const sim = spec.sim, id = spec.id;
   try {
@@ -418,9 +427,19 @@ async function checkVerify(page, spec) {
     for (const e of Object.keys(got.ends)) if (!(e in sim.endings)) fail(id, "verify", `Verify lists an ending "${e}" that Stage.simulate does not`);
     if (!got.text.includes(`${sim.routes.length} routes`)) fail(id, "verify", `Verify does not say "${sim.routes.length} routes"`);
     if (!got.text.includes(`${sim.states} states`)) fail(id, "verify", `Verify does not say "${sim.states} states"`);
-    if (got.rows !== Math.min(60, sim.routes.length)) fail(id, "verify", `Verify lists ${got.rows} route rows; expected ${Math.min(60, sim.routes.length)}`);
+    if (got.rows !== Math.min(VERIFY_FIRST, sim.routes.length)) fail(id, "verify", `Verify lists ${got.rows} route rows; expected ${Math.min(VERIFY_FIRST, sim.routes.length)}`);
+    // Past the first VERIFY_FIRST, one button lists them all.
+    if (sim.routes.length > VERIFY_FIRST) {
+      const more = await page.evaluate(() => { const b = document.getElementById("vmore"); return b ? b.textContent.trim() : null; });
+      if (more !== `Show all ${sim.routes.length} routes`) fail(id, "verify", `Verify has ${sim.routes.length} routes and shows ${VERIFY_FIRST}, but its button says ${JSON.stringify(more)}, not "Show all ${sim.routes.length} routes"`);
+      else {
+        await page.click("#vmore");
+        const all = await page.evaluate(() => document.querySelectorAll("#body-verify .route").length);
+        if (all !== sim.routes.length) fail(id, "verify", `"Show all ${sim.routes.length} routes" lists ${all} route rows`);
+      }
+    }
     // A route replays to its ending; Last pick stops at a choice.
-    const i = sim.routes.findIndex((r, k) => k < 60 && r.steps.some(s => s.opt));
+    const i = sim.routes.findIndex((r, k) => k < VERIFY_FIRST && r.steps.some(s => s.opt));
     if (i < 0) return;
     await page.click(`#body-verify .route[data-route="${i}"]`);
     await page.waitForFunction(() => document.getElementById("app").dataset.node === "ending");
@@ -816,6 +835,210 @@ async function textContrastTask(spec, scheme, width) {
   await s.close();
 }
 
+
+/* ---------------------------------------------------------------------------
+   Phone layouts (wave 3). Generic over packs; the same code runs in the Fort and in HTLL.
+   One session each, reused for every size: setViewportSize, then a fresh load with the route's ?seed and ?force.
+   ------------------------------------------------------------------------- */
+const PHONES = [[360, 640], [390, 844], [412, 915]];
+const SHORT_SCREENS = [[568, 320], [844, 390]];
+const TINY = [320, 256];
+async function openAt(s, spec, route, w, h) {
+  await s.page.setViewportSize({ width: w, height: h });
+  await s.page.goto(URL_OF(spec, queryOf(route)));
+  await s.page.waitForFunction(() => document.getElementById("app").dataset.phase === "title");
+  await read(s.page); // settled
+}
+const atChoice = st => st.node === "choice" || st.node === "input";
+
+// T1. A meter's name is never cut (the shell wraps it). Runs inside the page.
+function CLIPPED_NAMES() {
+  return [...document.querySelectorAll(".m-name")]
+    .filter(n => n.getClientRects().length && n.scrollWidth > n.clientWidth)
+    .map(n => ({ name: (n.textContent || "").trim().slice(0, 30), sw: n.scrollWidth, cw: n.clientWidth }));
+}
+async function phoneNamesTask(spec) {
+  const route = spec.shortest;
+  const s = await session(spec, { tag: "phone names" });
+  try {
+    for (const [w, h] of PHONES) {
+      await openAt(s, spec, route, w, h);
+      const seen = new Map();
+      await walk(s.page, spec, route, {
+        onState: async () => { for (const x of await s.page.evaluate(CLIPPED_NAMES)) if (!seen.has(x.name)) seen.set(x.name, x); },
+      });
+      for (const x of seen.values()) fail(spec.id, "phone", `${w}x${h}: the meter name "${x.name}" is clipped (scrollWidth ${x.sw} > clientWidth ${x.cw})`);
+    }
+  } catch (e) { fail(spec.id, "phone", `meter names: ${errText(e)}`); }
+  await s.close();
+}
+
+// T2. Short and tiny screens. Runs inside the page.
+function BEGIN_VISIBLE() {
+  const b = document.querySelector("#slides .sl:not(.out) #beginBtn");
+  if (!b) return { missing: true };
+  const r = b.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
+  const inside = r.width > 0 && r.height > 0 && r.top >= 0 && r.left >= 0 && r.bottom <= vh + 0.5 && r.right <= vw + 0.5;
+  // Hit-test the centre and the middle of each edge, pulled in by 3 px (a rounded corner is not the button): a button under a panel's
+  // edge, or clipped by it, fails.
+  const pts = [[r.left + r.width / 2, r.top + r.height / 2], [r.left + 3, r.top + r.height / 2], [r.right - 3, r.top + r.height / 2], [r.left + r.width / 2, r.top + 3], [r.left + r.width / 2, r.bottom - 3]];
+  const blocked = pts.filter(([x, y]) => { const t = document.elementFromPoint(x, y); return !t || !b.contains(t); }).length;
+  return { inside, blocked, top: Math.round(r.top), bottom: Math.round(r.bottom), vh, scrollY: Math.round(window.scrollY) };
+}
+function PANEL_HEIGHT() {
+  const p = document.querySelector("#slides .sl:not(.out) .panel");
+  if (!p) return null;
+  return { h: Math.round(p.getBoundingClientRect().height * 10) / 10, content: p.scrollHeight };
+}
+async function REACHABLE() {
+  const out = [];
+  const els = document.querySelectorAll("#slides .sl:not(.out) :is(.opt, #inField, .in-form button)");
+  for (const o of els) {
+    o.scrollIntoView({ block: "center", inline: "nearest" });
+    await new Promise(r => requestAnimationFrame(r));
+    const r = o.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+    const t = document.elementFromPoint(x, y);
+    const inView = x >= 0 && y >= 0 && x <= document.documentElement.clientWidth && y <= window.innerHeight;
+    out.push({ label: (o.id ? "#" + o.id : (o.innerText || o.className || "?").replace(/\s+/g, " ").trim().slice(0, 30)), ok: inView && !!t && o.contains(t), inView, cover: t && !o.contains(t) ? t.tagName.toLowerCase() + (typeof t.className === "string" && t.className.trim() ? "." + t.className.trim().split(/\s+/).join(".") : "") : "" });
+  }
+  return out;
+}
+async function shortScreensTask(spec) {
+  const route = spec.shortest;
+  const s = await session(spec, { tag: "short screens" });
+  try {
+    for (const [w, h] of [...SHORT_SCREENS, TINY]) {
+      const at = `${w}x${h}`, small = w < 568;
+      await openAt(s, spec, route, w, h);
+      if (!small) {
+        const b = await s.page.evaluate(BEGIN_VISIBLE);
+        if (b.missing) fail(spec.id, "phone", `${at}: no Begin button at the title`);
+        else if (!b.inside || b.blocked) fail(spec.id, "phone", `${at}: the Begin button is not fully visible at the title without scrolling (top ${b.top}, bottom ${b.bottom} of ${b.vh}${b.blocked ? `; ${b.blocked} of 5 test points are covered` : ""})`);
+      }
+      const { st, stopped } = await walk(s.page, spec, route, { stop: atChoice });
+      if (!stopped) { fail(spec.id, "phone", `${at}: the route reached its end with no choice or input`); continue; }
+      if (!small) {
+        const p = await s.page.evaluate(PANEL_HEIGHT);
+        if (!p) fail(spec.id, "phone", `${at}: no panel at the first ${st.node}`);
+        else if (p.h + 1 < Math.min(120, p.content)) fail(spec.id, "phone", `${at}: the first ${st.node} panel is ${p.h} px tall (its content is ${p.content} px); it needs at least 120 px`);
+      } else {
+        const list = await s.page.evaluate(REACHABLE);
+        if (!list.length) fail(spec.id, "phone", `${at}: the first ${st.node} has nothing to reach`);
+        for (const o of list) if (!o.ok) fail(spec.id, "phone", `${at}: "${o.label}" at the first ${st.node} cannot be hit after scrolling it to the middle of the screen (${o.inView ? "covered by " + o.cover : "centre is outside the window"})`);
+      }
+    }
+  } catch (e) { fail(spec.id, "phone", `short screens: ${errText(e)}`); }
+  await s.close();
+}
+
+// T3. Every focusable thing in the kit can be tapped where it is. A pull-tab under the text panel fails here. Runs inside the page.
+function KIT_FOCUS() {
+  const host = document.getElementById("kit");
+  const out = { n: 0, bad: [] };
+  if (!host) return out;
+  const prior = document.activeElement;
+  const nameOf = n => n.tagName.toLowerCase() + (typeof n.className === "string" && n.className.trim() ? "." + n.className.trim().split(/\s+/).join(".") : "");
+  for (const el of host.querySelectorAll('a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])')) {
+    if (el.disabled || el.closest("[hidden], [inert]") || !el.getClientRects().length) continue;
+    const cs = getComputedStyle(el);
+    if (cs.visibility === "hidden") continue;
+    el.focus({ preventScroll: true });
+    out.n++;
+    const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+    const t = document.elementFromPoint(x, y);
+    if (document.activeElement !== el) out.bad.push(`${nameOf(el)} "${el.getAttribute("aria-label") || el.textContent.trim().slice(0, 20)}" could not be focused`);
+    else if (!t) out.bad.push(`${nameOf(el)} "${el.getAttribute("aria-label") || ""}" has its centre (${Math.round(x)},${Math.round(y)}) outside the window`);
+    else if (!el.contains(t)) out.bad.push(`${nameOf(el)} "${el.getAttribute("aria-label") || el.textContent.trim().slice(0, 20)}" is covered at its centre by ${nameOf(t)}`);
+    el.blur();
+  }
+  if (prior && prior !== document.body && document.contains(prior)) prior.focus({ preventScroll: true }); else if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+  return out;
+}
+async function kitFocusTask(spec) {
+  const route = spec.longest;
+  const s = await session(spec, { tag: "kit focus" });
+  try {
+    await openAt(s, spec, route, 360, 640);
+    const said = new Set();
+    spec.kitFocus = 0;
+    await walk(s.page, spec, route, {
+      onState: async st => {
+        const r = await s.page.evaluate(KIT_FOCUS);
+        spec.kitFocus += r.n;
+        for (const b of r.bad) if (!said.has(b)) { said.add(b); fail(spec.id, "phone", `360x640, at a ${st.node || st.phase}: ${b}`); }
+      },
+    });
+  } catch (e) { fail(spec.id, "phone", `kit focus: ${errText(e)}`); }
+  await s.close();
+}
+
+// T4. The shortcuts setting is honoured (WCAG 2.1.4).
+async function shortcutsTask(spec) {
+  const s = await session(spec, { tag: "shortcuts" });
+  const p = s.page;
+  const state = () => p.evaluate(() => ({ auto: document.getElementById("autoBtn").getAttribute("aria-pressed"), sheets: [...document.querySelectorAll(".sheet")].filter(x => !x.hidden).map(x => x.id), live: document.getElementById("live").textContent }));
+  try {
+    await p.goto(URL_OF(spec, "seed=1"));
+    await p.waitForFunction(() => document.getElementById("app").dataset.phase === "title");
+    const base = await state();
+    if (base.auto !== "false") fail(spec.id, "shortcuts", `AUTO starts as aria-pressed="${base.auto}", not "false"`);
+    await setSetting(p, "shortcuts", "off");
+    const off0 = await state();
+    for (const k of ["a", "n", "A", "N"]) {
+      await p.keyboard.press(k);
+      const now = await state();
+      if (now.auto !== off0.auto) fail(spec.id, "shortcuts", `with Keyboard shortcuts Off, pressing "${k}" changed AUTO (${off0.auto} to ${now.auto})`);
+      if (now.sheets.length) fail(spec.id, "shortcuts", `with Keyboard shortcuts Off, pressing "${k}" opened ${now.sheets.join(", ")}`);
+      if (now.sheets.length) await p.keyboard.press("Escape");
+    }
+    // Esc and the arrows are not letter keys: the page still takes them (Esc is tested through the settings sheet below).
+    await setSetting(p, "shortcuts", "on");
+    await p.keyboard.press("a");
+    const on1 = await state();
+    if (on1.auto !== "true") fail(spec.id, "shortcuts", `with Keyboard shortcuts On, pressing "a" left AUTO at aria-pressed="${on1.auto}", not "true"`);
+    await p.keyboard.press("a");
+    const on2 = await state();
+    if (on2.auto !== "false") fail(spec.id, "shortcuts", `with Keyboard shortcuts On, pressing "a" twice left AUTO at aria-pressed="${on2.auto}", not "false"`);
+    await p.keyboard.press("n");
+    const on3 = await state();
+    if (!on3.sheets.includes("sheet-notes")) fail(spec.id, "shortcuts", `with Keyboard shortcuts On, pressing "n" did not open the Notes sheet`);
+    await p.keyboard.press("Escape");
+  } catch (e) { fail(spec.id, "shortcuts", errText(e)); }
+  await linger(p);
+  await s.close();
+}
+
+// T5. Verify uses the result the build embedded (window.SIM), so it opens at once. Time: key press to a painted route list, in the page.
+async function verifySpeedTask(spec) {
+  const s = await session(spec, { tag: "verify speed" });
+  const p = s.page;
+  try {
+    await p.goto(URL_OF(spec, "seed=1"));
+    await p.waitForFunction(() => document.getElementById("app").dataset.phase === "title");
+    const has = await p.evaluate(() => !!(window.SIM && window.SIM.routes && window.SIM.routes.length));
+    if (!has) fail(spec.id, "verify", "the page carries no window.SIM, so Verify must walk the story itself (the build embeds Stage.simulate's result)");
+    let best = Infinity, rows = 0;
+    for (let k = 0; k < 3 && best >= 300; k++) { // a loaded machine may slow one try; the best of up to three counts
+      const r = await p.evaluate(async () => {
+        const t0 = performance.now();
+        document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "v", bubbles: true }));
+        const frame = () => new Promise(r => requestAnimationFrame(r));
+        while (!document.querySelector("#body-verify .route") && performance.now() - t0 < 3000) await frame(); // (a page without window.SIM walks the story first)
+        await frame(); await frame(); // two frames: painted
+        return { ms: performance.now() - t0, rows: document.querySelectorAll("#body-verify .route").length, open: !document.getElementById("sheet-verify").hidden };
+      });
+      if (!r.open) { fail(spec.id, "verify", "the v key did not open the Verify sheet"); break; }
+      rows = r.rows;
+      best = Math.min(best, r.ms);
+      await p.keyboard.press("Escape"); await letGo(p);
+    }
+    if (best < Infinity && !rows) fail(spec.id, "verify", "the Verify sheet opened with no route list");
+    else if (best >= 300) fail(spec.id, "verify", `the Verify sheet took ${Math.round(best)} ms to show its route list (limit 300 ms)`);
+    spec.verifyMs = Math.round(best);
+  } catch (e) { fail(spec.id, "verify", errText(e)); }
+  await s.close();
+}
+
 /* The page-level task: layout, verify, contrast, shots. */
 async function pageTask(spec) {
   for (const width of [360, 1280]) {
@@ -979,6 +1202,11 @@ for (const spec of specs) {
   add(spec, "begin", () => beginTask(spec));
   add(spec, "continue", () => continueTask(spec));
   add(spec, "force", () => forceTask(spec));
+  add(spec, "phone names", () => phoneNamesTask(spec));
+  add(spec, "short screens", () => shortScreensTask(spec));
+  add(spec, "kit focus", () => kitFocusTask(spec));
+  add(spec, "shortcuts", () => shortcutsTask(spec));
+  add(spec, "verify speed", () => verifySpeedTask(spec));
   for (const r of spec.routes) add(spec, "route", () => routeTask(spec, r, r.i, false));
 }
 function doneOne(spec) {
@@ -1005,6 +1233,7 @@ for (const spec of specs) {
   const want = chipNotes(spec.pack);
   const unseen = [...want].filter(id => !spec.chipsTested.has(id));
   notes.push(`${spec.id}: chips tested for ${spec.chipsTested.size} of ${want.size} note ids${spec.pack.commentary ? `; commentary ${spec.claims.has("commentary") ? "tested" : "NOT TESTED (no track met)"}` : "; no commentary"}${unseen.length ? `; not met on the routes played: ${unseen.join(", ")}` : ""}`);
+  notes.push(`${spec.id}: ${spec.kitFocus || 0} kit focus test(s) at 360x640; Verify opened in ${spec.verifyMs == null ? "?" : spec.verifyMs} ms`);
   if (spec.pack.commentary && !spec.claims.has("commentary") && !SAMPLE) fail(spec.id, "commentary", "no commentary track appeared on any route, so the toggle was not tested");
   if (unseen.length && !SAMPLE) fail(spec.id, "chips", `chips for these notes were never met on a route: ${unseen.join(", ")}`);
 }

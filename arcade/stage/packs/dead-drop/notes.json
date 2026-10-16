@@ -37,7 +37,7 @@
   "rule-fate": {
     "kind": "rule",
     "term": "Fate points",
-    "text": "A Fate point buys one thing luck could not. You start with three. Style and compels earn them. Invoke an aspect to spend one. Spend it on a person, not a die."
+    "text": "A Fate point buys one thing luck could not. You start with three. The feed holds five. Style and compels earn them. Invoke an aspect to spend one. Spend it on a person, not a die."
   },
   "lore-protocol": {
     "kind": "lore",
@@ -92,7 +92,7 @@
   "h-fate": {
     "kind": "handler",
     "term": "g0",
-    "text": "Fate is a favour you do yourself. Spend it where it counts."
+    "text": "Fate is a favor you do yourself. Spend it where it counts."
   },
   "h-end-clean": {
     "kind": "handler",
@@ -297,12 +297,12 @@
   "g-split": {
     "kind": "guide",
     "term": "Splitting attention",
-    "text": "WARNING: Splitting your attention is harder: difficulty 3, not 2. Code +3 now fails about two rolls in five. Time it to her stylus and it drops back to 2. Plan first."
+    "text": "WARNING: Splitting your attention is harder. Time it to her stylus and it eases. Plan first."
   },
   "g-chen": {
     "kind": "guide",
     "term": "Boss: Manager Chen",
-    "text": "BOSS: MANAGER CHEN. Weak to: facts. Strong against: lies, nerves and small talk. She marks everything in red. Do not out-talk her. Out-prepare her. Note: she is early today. That is her first move."
+    "text": "BOSS: MANAGER CHEN. Weak to: honest confusion and professional competence. Strong against: obvious lies and incomplete answers. She marks everything in red. Do not out-talk her. Out-prepare her. Note: she is early today. That is her first move."
   },
   "g-fate": {
     "kind": "guide",

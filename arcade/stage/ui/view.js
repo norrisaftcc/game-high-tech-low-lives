@@ -8,6 +8,7 @@
      2. play the step's cues one at a time; each cue is a shell effect plus kit.cue(); wait for both
      3. sync the HUD and kit.update(state), then show the card or the next panel and start the line
    A tap during the cues skips the rest of them. Under reduced motion no animation is started.
+   Text panels slide only on a `turn`; any other new panel crossfades over --m-state (MOTION.md, "beat"). The page carries window.SIM (Stage.simulate, embedded by the build) for Verify.
 
    Kit notes for wave 2:
      - Call order is show() then cue(): for `turn` and `shift` the kit gets the new set first and animates the swap in cue().
@@ -88,7 +89,7 @@ const store = {
   },
   write(d) { this.mem = d; try { localStorage.setItem(PACK.storageKey, JSON.stringify(d)); } catch (e) {} },
 };
-const DEFAULTS = { theme: "auto", map: MAP_STYLES[0] || "ink", motion: "full", commentary: true, sound: false, auto: false, speed: "normal" };
+const DEFAULTS = { theme: "auto", map: MAP_STYLES[0] || "ink", motion: "full", commentary: true, sound: false, auto: false, speed: "normal", shortcuts: true };
 function cleanRecord(d) {
   const r = { save: null, found: [], met: [], settings: Object.assign({}, DEFAULTS) };
   if (!d || typeof d !== "object") return r;
@@ -103,6 +104,7 @@ function cleanRecord(d) {
     if (typeof s.commentary === "boolean") r.settings.commentary = s.commentary;
     if (typeof s.sound === "boolean") r.settings.sound = s.sound;
     if (typeof s.auto === "boolean") r.settings.auto = s.auto;
+    if (typeof s.shortcuts === "boolean") r.settings.shortcuts = s.shortcuts;
     if (["slow", "normal", "fast"].includes(s.speed)) r.settings.speed = s.speed;
   }
   return r;
@@ -128,6 +130,10 @@ function announce(parts) {
   const live = $("live");
   live.textContent = live.textContent === text ? text + " " : text;
 }
+
+// A touch screen has no keys to name. Key hints are true only when the reader has a pointer and a keyboard and has not turned shortcuts off.
+const isTouch = () => { try { return !matchMedia("(hover: hover) and (pointer: fine)").matches; } catch (e) { return false; } };
+const keysOn = () => !!(V.settings && V.settings.shortcuts) && !isTouch();
 
 // ---------------------------------------------------------------- sound (Web Audio, no files, off until asked)
 const snd = {
@@ -238,7 +244,7 @@ function buildHud() {
   }
   renderTallies();
 }
-function setMeter(id, value) {
+function setMeter(id, value, animate) {
   const m = METERS.find(x => x.id === id), node = document.querySelector(`.meter[data-meter="${CSS.escape(id)}"]`);
   if (!m || !node) return;
   V.shown.meters[id] = value;
@@ -250,12 +256,21 @@ function setMeter(id, value) {
   const pips = node.querySelector(".pips");
   if (span > 12) { pips.innerHTML = `<span class="bar-track" style="flex:1 1 auto;margin:0"><i style="--p:${(value - m.min) / span}"></i></span>`; return; }
   const high = V.shown.high[id];
-  let h = "";
-  for (let i = 1; i <= span; i++) {
-    const at = m.min + i;
-    h += `<span class="pip ${at <= value ? "on" : at <= high ? "spent" : ""}"></span>`;
+  const cls = i => { const at = m.min + i; return "pip" + (at <= value ? " on" : at <= high ? " spent" : ""); };
+  // The pips are built once. A change toggles a class on the pip that changed (never innerHTML), and that pip fades in over --m-state
+  // (MOTION section 3: the pip fills). Calm and reduced motion start nothing.
+  if (pips.children.length !== span || pips.firstElementChild.classList.contains("bar-track")) {
+    let h = "";
+    for (let i = 1; i <= span; i++) h += `<span class="${cls(i)}"></span>`;
+    pips.innerHTML = h;
+    return;
   }
-  pips.innerHTML = h;
+  for (let i = 1; i <= span; i++) {
+    const pip = pips.children[i - 1], c = cls(i);
+    if (pip.className === c) continue;
+    pip.className = c;
+    if (animate && !isReduced()) pip.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: M.state, easing: M.easeOut });
+  }
 }
 function syncHud(v) {
   for (const m of METERS) { if (m.hud !== false && v.meters[m.id] != null) setMeter(m.id, v.meters[m.id]); }
@@ -263,6 +278,7 @@ function syncHud(v) {
   renderTallies();
   const met = metSet(v);
   $("notesCount").textContent = met.size ? String(met.size) : "";
+  $("notesBtn").setAttribute("aria-label", met.size ? `Notes, ${met.size}` : "Notes");
 }
 function renderTallies() {
   const box = $("tallies");
@@ -299,7 +315,8 @@ function showDelta(id, d, kind) {
   lab.textContent = `${sgn(d)} ${meterLabel(id)}`;
   lab.className = "m-delta " + (kind === "cost" ? "neg" : "pos");
   lab.hidden = false;
-  if (!isReduced()) lab.animate([{ opacity: 0, transform: `translateY(${d < 0 ? M.d1 : -M.d1}px)` }, { opacity: 1, transform: "none" }], { duration: M.state, easing: M.easeOut });
+  // MOTION section 3: a cost rises in, a gain falls in. The direction is the cue's, not the number's sign (a cost on a bad meter is a plus).
+  if (!isReduced()) lab.animate([{ opacity: 0, transform: `translateY(${kind === "cost" ? M.d1 : -M.d1}px)` }, { opacity: 1, transform: "none" }], { duration: M.state, easing: M.easeOut });
   clearTimeout(lab._t); lab._t = setTimeout(() => { lab.hidden = true; }, M.hold);
   if (kind === "cost" && flashEdge() && !isReduced()) node.querySelector(".m-flash").animate([{ opacity: M.flashAlpha }, { opacity: 0 }], { duration: M.flash, easing: M.easeOut });
 }
@@ -340,11 +357,11 @@ function avatar(id) {
   const fin = v => typeof v === "number" && Number.isFinite(v);
   // A cast entry with no crop (x, y and r) has no face on the sheet: draw a still placeholder, not the sheet's top-left corner.
   if (!fin(c.x) || !fin(c.y) || !fin(c.r) || c.r <= 0 || !fin(PACK.cast.w) || !fin(PACK.cast.h)) {
-    return `<div class="who"><span class="ava ava-none" role="img" aria-label="${esc(c.name)}"></span>${who}</div>`;
+    return `<div class="who"><span class="ava ava-none" aria-hidden="true"></span>${who}</div>`;
   }
   const size = 44, k = size / (2 * c.r);
   const style = `background-size:${PACK.cast.w * k}px ${PACK.cast.h * k}px;background-position:${-(c.x - c.r) * k}px ${-(c.y - c.r) * k}px`;
-  return `<div class="who"><span class="ava" style="${style}" role="img" aria-label="${esc(c.name)}"></span>${who}</div>`;
+  return `<div class="who"><span class="ava" style="${style}" aria-hidden="true"></span>${who}</div>`;
 }
 function chipsHtml(ids) {
   const list = (ids || []).filter(id => NOTES[id]);
@@ -359,10 +376,16 @@ function trackHtml(id) {
   return `<aside class="track late" data-kind="${esc(n.kind)}" aria-label="${esc(COMMENTARY.label)}"><span class="t-label">${esc(COMMENTARY.label)}</span><b>${esc(n.term)}.</b> ${esc(n.text)}</aside>`;
 }
 const lookTag = look => look === "ink" || look === "paint" ? `<span class="tag" data-k="${look}">${ASK_MAP[look]}</span>` : "";
-const gateWord = (gate, cost) => gate === "plan" ? "Planning · free" : gate === "exec" ? "Execution · final" : `${cost ? cost.n + " " + meterLabel(cost.meter) : "Fate"} · final`;
-function gateTag(gate, cost) {
+const gateParts = (gate, cost) => gate === "plan" ? ["Planning", "free"] : gate === "exec" ? ["Execution", "final"] : [cost ? cost.n + " " + meterLabel(cost.meter) : "Fate", "final"];
+const gateWord = (gate, cost) => gateParts(gate, cost).join(" · ");
+// What a screen reader says when a choice appears: words, no dot. "Execution, final."
+const gateSay = (gate, cost) => gate === "plan" ? "Planning, free" : gate === "exec" ? "Execution, final" : cost ? `Spends ${cost.n} ${meterLabel(cost.meter)}, final` : "Fate point, final";
+let gateSeq = 0;
+function gateTag(gate, cost, id) {
   const glyph = gate === "exec" ? `<span class="seal-glyph" aria-hidden="true"></span>` : gate === "fate" ? `<span class="star" aria-hidden="true">&#9733;</span>` : "";
-  return `<span class="gate" data-gate="${gate}">${glyph}${esc(gateWord(gate, cost))}</span>`;
+  const [a, b] = gateParts(gate, cost);
+  // The dot is for the eye; the space after it keeps the two words apart for a screen reader.
+  return `<span class="gate" data-gate="${gate}"${id ? ` id="${id}"` : ""}>${glyph}${esc(a)}<span aria-hidden="true"> &middot;</span> ${esc(b)}</span>`;
 }
 
 // A slide holds one panel (and sometimes a commentary track). Slides enter and leave with a direction.
@@ -375,24 +398,48 @@ function retire(old, dir, fade, instant) {
   // A button that held focus goes inert with its panel; let go of focus so the keys keep working (Enter on a dead button does nothing).
   if (old.contains(document.activeElement) && document.activeElement !== document.body) { try { document.activeElement.blur(); } catch (e) {} }
   old.setAttribute("inert", ""); old.setAttribute("aria-hidden", "true"); old.classList.add("out");
-  if (isReduced() || instant) { old.remove(); return; }
+  if (isReduced() || instant) { gone(old); return; }
   const a = old.animate(fade ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 1, transform: "translateX(0)" }, { opacity: 0, transform: `translateX(${-dir * M.d5}px)` }],
     { duration: fade ? M.state : M.out, easing: M.easeIn, fill: "forwards" });
-  const done = () => old.remove();
+  const done = () => gone(old);
   a.onfinish = done; a.oncancel = done;
 }
 const fadeOnly = () => KIT_ID === "feed"; // a hard cut does not slide
-function clearOutgoing() { for (const x of $("slides").querySelectorAll(".sl.out")) x.remove(); } // at most one panel leaves at a time
-function showSlide(sl, dir, instant) {
-  const old = V.slide;
+function clearOutgoing() { for (const x of $("slides").querySelectorAll(".sl.out")) gone(x); } // at most one panel leaves at a time
+// A panel slides (--m-in, 48 px) only when the step has a `turn`: time passes. Any other new panel (a beat, a choice, a roll, a `shift`)
+// crossfades by opacity over --m-state. The feed kit never slides.
+function showSlide(sl, dir, instant, slide) {
+  const old = V.slide, fade = !slide || fadeOnly();
   clearOutgoing();
   V.slide = sl;
   $("slides").appendChild(sl);
-  if (old && old !== sl) retire(old, dir, fadeOnly(), instant);
-  if (!isReduced() && !instant) sl.animate(enterFrames(dir, fadeOnly()), { duration: fadeOnly() ? M.state : M.in, easing: M.easeOut, fill: "backwards" });
-  // A panel that scrolls must be reachable by keyboard.
-  requestAnimationFrame(() => { const p = sl.querySelector(".panel"); if (p && p.scrollHeight > p.clientHeight + 1) { p.tabIndex = 0; p.setAttribute("role", "region"); p.setAttribute("aria-label", "Story text, scrollable"); } });
+  if (old && old !== sl) retire(old, dir, fade, instant);
+  if (!isReduced() && !instant) sl.animate(enterFrames(dir, fade), { duration: fade ? M.state : M.in, easing: M.easeOut, fill: "backwards" });
+  watchOverflow(sl);
 }
+// A panel or track that scrolls says so (data-overflow="1" while there is more below) and can be reached by keyboard.
+function syncOverflow(e) {
+  const over = e.scrollHeight > e.clientHeight + 1;
+  const atEnd = e.scrollTop + e.clientHeight >= e.scrollHeight - 1;
+  if (over && !atEnd) e.setAttribute("data-overflow", "1"); else e.removeAttribute("data-overflow");
+  if (over) {
+    if (e.dataset.scr !== "1") { e.dataset.scr = "1"; e.dataset.lab = e.getAttribute("aria-label") || ""; }
+    e.tabIndex = 0; e.setAttribute("role", "region"); e.setAttribute("aria-label", (e.dataset.lab || "Passage") + ", scrollable");
+  } else if (e.dataset.scr === "1") {
+    e.dataset.scr = ""; e.removeAttribute("tabindex"); e.removeAttribute("role");
+    if (e.dataset.lab) e.setAttribute("aria-label", e.dataset.lab); else e.removeAttribute("aria-label");
+  }
+}
+function watchOverflow(sl) {
+  const els = [...sl.querySelectorAll(".panel, .track")];
+  if (!els.length) return;
+  const run = () => els.forEach(syncOverflow);
+  for (const e of els) e.addEventListener("scroll", () => syncOverflow(e), { passive: true });
+  if (window.ResizeObserver) { try { sl._ro = new ResizeObserver(run); els.forEach(e => sl._ro.observe(e)); } catch (e) {} }
+  requestAnimationFrame(run);
+}
+window.addEventListener("resize", () => { if (V.slide) V.slide.querySelectorAll(".panel, .track").forEach(syncOverflow); });
+const gone = n => { if (n._ro) { n._ro.disconnect(); n._ro = null; } n.remove(); };
 function dropSlide(dir) { // retire the current panel now (the turn cue)
   const old = V.slide;
   if (!old) return;
@@ -429,15 +476,16 @@ function beatSlide(v) {
     return { el: el(slideHtml(`<section class="panel is-secret" data-look="ink" aria-label="Hidden note">
         <div class="tags"><span class="tag" data-k="secret">${tag}</span></div>
         <p class="secret-note">A note is sealed here. Reveal it when you are ready. It is yours to open.</p>
-        <div class="row" style="margin-top:0"><button type="button" class="btn primary" data-act="reveal">Reveal <span class="kbd-hint">R</span></button></div></section>`)),
-      say: "Hidden note. Use the Reveal button, or press R.", typing: null };
+        <div class="row" style="margin-top:0"><button type="button" class="btn primary" data-act="reveal">Reveal${keysOn() ? ' <span class="kbd-hint" aria-hidden="true">R</span>' : ""}</button></div></section>`)),
+      say: keysOn() ? "Hidden note. Use the Reveal button, or press R." : "Hidden note. Use the Reveal button.", typing: null };
   }
   const segs = parseEm(b.text);
   const secret = b.reveal;
   const tags = secret ? `<span class="tag" data-k="secret">${KIT_ID === "feed" ? "Unwitnessed" : "Referee only"}</span>` : lookTag(look);
-  // The kit draws a screen itself when it has screen(lines); the panel then keeps a copy for screen readers only.
-  const screen = b.screen ? `<div class="${kitHas("screen") ? "sr-only" : "screen late"}" role="group" aria-label="Screen">${b.screen.map(l => esc(l)).join("\n")}</div>` : "";
-  const html = slideHtml(`<section class="panel ${secret ? "is-secret" : ""}" data-look="${esc(secret ? "ink" : look)}" aria-label="Story">
+  // The kit draws a screen itself when it has screen(lines); the panel then keeps a copy for screen readers only
+  // (.screen-copy: on a short screen, where the panel covers the stage, style.css shows it).
+  const screen = b.screen ? `<div class="${kitHas("screen") ? "sr-only screen-copy" : "screen late"}" role="group" aria-label="Screen">${b.screen.map(l => esc(l)).join("\n")}</div>` : "";
+  const html = slideHtml(`<section class="panel ${secret ? "is-secret" : ""}" data-look="${esc(secret ? "ink" : look)}" aria-label="Passage">
       ${tags ? `<div class="tags">${tags}</div>` : ""}
       ${b.kicker ? `<p class="kicker">${esc(b.kicker)}</p>` : ""}
       ${b.speaker ? avatar(b.speaker) : ""}
@@ -457,13 +505,14 @@ function choiceSlide(v) {
       <span class="o-body"><span class="o-label">${esc(o.label)}</span>${o.sub ? `<span class="o-sub">${esc(o.sub)}</span>` : ""}${locked && o.hint ? `<span class="o-hint">${esc(o.hint)}</span>` : ""}</span>
       <span class="o-seal"><span class="seal-glyph" aria-hidden="true"></span>Sealed</span></button></li>`;
   }).join("");
+  const gid = "gate-" + (++gateSeq);
   const html = slideHtml(`<section class="panel choice" data-look="${esc(v.scene ? v.scene.look : "")}" aria-label="Choice">
-      <div class="tags">${gateTag(g.gate, g.cost)}</div>
-      <h2 class="ask" tabindex="-1">${esc(g.ask)}</h2>
+      <div class="tags">${gateTag(g.gate, g.cost, gid)}</div>
+      <h2 class="ask" tabindex="-1" aria-describedby="${gid}">${esc(g.ask)}</h2>
       ${chipsHtml(notes)}
       <ul class="opts">${opts}</ul><p class="sealed-note" hidden>Sealed. No going back.</p></section>${trackHtml(g.comment)}`);
   const node = el(html);
-  return { el: node, say: "", focus: ".ask" };
+  return { el: node, say: `${gateSay(g.gate, g.cost)}. ${g.ask}`, focus: ".ask" };
 }
 
 function resultWord(r) { return { fail: "Fail", success: "Success", tie: "Tie", style: "Style" }[r] || r; }
@@ -475,19 +524,42 @@ function rollLine(info) {
   const add = info.add ? ` ${info.add < 0 ? "−" : "+"} ${Math.abs(info.add)}` : "";
   return `${info.dice}: ${faces}${add} = ${info.total} vs ${info.vs}`;
 }
-function rollSlide(info, pending) {
+// The meter a roll adds, for the spoken line ("plus 3 for Code"). A pick names its option; with no pick (Back, Continue) the scene's rolls
+// that match the dice and the target decide, when they agree.
+function rollMeter(info, ref, v) {
+  const sc = ref ? sceneById[ref.scene] : v && v.scene ? sceneById[v.scene.id] : null;
+  if (!sc) return null;
+  const adds = new Set();
+  for (const g of sc.choices || []) {
+    if (ref && g.key !== ref.group) continue;
+    for (const o of g.options || []) {
+      if (ref && o.key !== ref.opt) continue;
+      if (o.roll && (ref || (o.roll.dice === info.dice && o.roll.vs === info.vs))) adds.add(o.roll.add || "");
+    }
+  }
+  return adds.size === 1 && [...adds][0] ? [...adds][0] : null;
+}
+const spokenNum = n => n < 0 ? "minus " + Math.abs(n) : String(n);
+// The roll in words, never in symbols: "plus, minus, blank, minus, plus 3 for Code: total 2 against 2".
+function rollWords(info, meterId) {
   const dF = /dF$/i.test(info.dice);
-  const dice = info.faces.map(f => `<span class="die ${pending ? "pending" : ""}">${pending ? "?" : esc(faceText(info.dice, f))}</span>`).join("");
-  const addHtml = info.add ? `<span class="op">${info.add < 0 ? "−" : "+"} ${Math.abs(info.add)}</span>` : "";
+  const faces = info.faces.map(f => dF ? (f > 0 ? "plus" : f < 0 ? "minus" : "blank") : String(f)).join(", ");
+  const add = info.add ? `, ${info.add < 0 ? "minus" : "plus"} ${Math.abs(info.add)}${meterId ? " for " + meterLabel(meterId) : ""}` : "";
+  return `${faces}${add}: total ${spokenNum(info.total)} against ${info.vs}`;
+}
+const rollPlain = (info, meterId) => `${rollWords(info, meterId)}. ${resultWord(info.result)}`; // (announce() joins parts with ". ")
+function rollSlide(info, pending, meterId) {
+  const dF = /dF$/i.test(info.dice);
+  const dice = info.faces.map(f => `<span class="die ${pending ? "pending" : ""}" aria-hidden="true">${pending ? "?" : esc(faceText(info.dice, f))}</span>`).join("");
+  const addHtml = info.add ? `<span class="op" aria-hidden="true">${info.add < 0 ? "−" : "+"} ${Math.abs(info.add)}</span>` : "";
   const text = pending ? "Rolling…" : `${rollLine(info)}: `;
   const html = slideHtml(`<section class="panel roll-panel" data-look="${esc(V.view && V.view.scene ? V.view.scene.look : "")}" aria-label="Roll">
       <div class="tags">${gateTag("exec")}</div>
       <p class="roll-ask">The dice decide${dF ? " (four Fate dice)" : ""}</p>
-      <div class="dice">${dice}${pending ? "" : addHtml}</div>
-      <p class="roll-line ${pending ? "pending" : ""}" data-r="${pending ? "" : esc(info.result)}"><span class="rl-t">${esc(text)}</span>${pending ? "" : `<span class="res">${esc(resultWord(info.result))}</span>`}</p></section>`);
+      <div class="dice" role="img" aria-label="${esc(pending ? "Rolling" : rollWords(info, meterId))}">${dice}${pending ? "" : addHtml}</div>
+      <p class="roll-line ${pending ? "pending" : ""}" data-r="${pending ? "" : esc(info.result)}"><span class="rl-t" aria-hidden="true">${esc(text)}</span>${pending ? "" : `<span class="res">${esc(resultWord(info.result))}</span>`}</p></section>`);
   return el(html);
 }
-function rollPlain(info) { return `${rollLine(info).replace(/−/g, "minus ")}: ${resultWord(info.result)}`; }
 
 function inputSlide(v) {
   const i = v.input;
@@ -513,7 +585,7 @@ function endingSlide(v) {
         <button type="button" class="btn" data-act="copy">Copy result</button>
         <button type="button" class="btn" data-act="verify">Verify</button>
       </div></section>`);
-  return { el: el(html), say: "" };
+  return { el: el(html), say: "", focus: ".end-title" };
 }
 
 // ---------------------------------------------------------------- typewriter
@@ -572,22 +644,24 @@ async function playCue(c, ctx) {
       break;
     case "roll": {
       const info = { dice: c.dice, faces: c.faces, total: c.total, add: c.add, vs: c.vs, result: c.result, used: c.used };
-      const sl = rollSlide(info, !reduced);
+      const mid = rollMeter(info, ctx.pickRef, v);
+      const sl = rollSlide(info, !reduced, mid);
       V.rollEl = sl;
-      showSlide(sl, 1, false);
+      showSlide(sl, 1, false, false); // a roll crossfades in: no time has passed
       shell = wait(M.roll).then(() => {
-        const done = rollSlide(info, false);
+        const done = rollSlide(info, false, mid);
         sl.innerHTML = done.innerHTML;
       });
-      ctx.say.push(rollPlain(info));
+      ctx.say.push(rollPlain(info, mid));
       break;
     }
     case "cost":
     case "gain": {
       const cur = V.shown.meters[c.meter], d = cueDelta(c);
-      if (cur != null) setMeter(c.meter, cur + d);
-      showDelta(c.meter, d, c.type); // the sign is the number's; cost or gain is the colour
-      ctx.say.push(`${meterLabel(c.meter)}, ${d < 0 ? "minus" : "plus"} ${Math.abs(d)}`);
+      if (cur != null) setMeter(c.meter, cur + d, true);
+      showDelta(c.meter, d, c.type); // the sign is the number's; cost or gain is the colour and the direction of the label
+      // Words, with the direction: a cost on a stress meter makes it rise ("Nerves rises by 1").
+      ctx.say.push(`${c.type === "cost" ? "Cost" : "Gain"}: ${meterLabel(c.meter)} ${d < 0 ? "falls" : "rises"} by ${Math.abs(d)}`);
       shell = wait(c.type === "cost" ? M.flash : M.state);
       break;
     }
@@ -636,7 +710,7 @@ async function present(v, o) {
   const turn = cues.find(c => c.type === "turn");
   const hasShift = cues.some(c => c.type === "shift");
   const dir = turn ? (turn.dir || 1) : (o.dir || 1);
-  const ctx = { skip: false, scene: v.scene, beat: v.beat, v, setChange: !!turn || hasShift, pickKey: o.pickKey, say: [] };
+  const ctx = { skip: false, scene: v.scene, beat: v.beat, v, setChange: !!turn || hasShift, pickKey: o.pickKey, pickRef: o.pickRef || null, say: [] };
   V.ctx = ctx; V.cueBusy = true; V.rollEl = null; V.sealed = false;
   root.setAttribute("data-cue", "");
   setBusy();
@@ -664,12 +738,12 @@ async function present(v, o) {
   if (card) {
     V.phase = "card"; $("app").dataset.phase = "card";
     kitCall("screen", []);
-    showSlide(cardSlide(v.scene), dir, false);
+    showSlide(cardSlide(v.scene), dir, false, true); // the card arrives with the turn
     announce(ctx.say.filter(Boolean));
     deckUI(); armAuto();
   } else {
     V.phase = "play"; $("app").dataset.phase = "play";
-    renderNode(v, dir, ctx.say, o);
+    renderNode(v, dir, ctx.say, Object.assign({}, o, { slide: !!turn || !!o.fresh })); // only a turn (or the first scene) slides the text
   }
   setBusy();
 }
@@ -681,14 +755,14 @@ function renderNode(v, dir, say, o) {
   let built = null, slide;
   if (v.node === "roll") {
     if (V.rollEl && V.rollEl.isConnected && V.slide === V.rollEl) { slide = V.rollEl; V.rollEl = null; }
-    else if (v.roll) { slide = rollSlide(v.roll, false); say.push(rollPlain(v.roll)); showSlide(slide, dir, o.instant); }
+    else if (v.roll) { const mid = rollMeter(v.roll, null, v); slide = rollSlide(v.roll, false, mid); say.push(rollPlain(v.roll, mid)); showSlide(slide, dir, o.instant, o.slide); }
     else return;
   } else {
     built = v.node === "beat" ? beatSlide(v) : v.node === "choice" ? choiceSlide(v) : v.node === "input" ? inputSlide(v)
       : v.node === "ending" ? endingSlide(v) : null;
     if (!built) return;
     slide = built.el;
-    showSlide(slide, dir, o.instant);
+    showSlide(slide, dir, o.instant, o.slide);
     if (built.say) say.push(built.say);
   }
   kitCall("screen", v.node === "beat" && v.beat && !v.beat.hidden && v.beat.screen ? v.beat.screen : []);
@@ -719,8 +793,12 @@ function deckUI() {
   const v = V.view, back = $("backBtn"), next = $("nextBtn"), hint = $("hint");
   setBusy();
   if (V.phase === "title" || !v) {
-    back.disabled = true; next.disabled = true; next.innerHTML = 'Next <span aria-hidden="true">&rarr;</span>';
-    hint.textContent = "Press Enter to begin."; return;
+    // At the title Next acts as the main button (Begin, or Continue when there is a save), on every device.
+    const cont = canContinue();
+    back.disabled = true; next.disabled = false;
+    next.innerHTML = `${cont ? "Continue" : "Begin"} <span aria-hidden="true">&rarr;</span>`;
+    hint.textContent = isTouch() ? `Tap ${cont ? "Continue" : "Begin"}.` : cont ? "Press Enter to continue." : "Press Enter to begin.";
+    return;
   }
   back.disabled = !v.canBack || V.sealed;
   let nextLabel = 'Next <span aria-hidden="true">&rarr;</span>', h = "", off = false;
@@ -728,11 +806,11 @@ function deckUI() {
   else if (V.typing) h = "Tap to finish the line.";
   else if (V.phase === "card") h = "Tap or press → to open the scene.";
   else if (v.node === "beat") {
-    if (v.beat && v.beat.hidden) { nextLabel = 'Reveal <span aria-hidden="true">&rarr;</span>'; h = "Press R to reveal the note."; }
+    if (v.beat && v.beat.hidden) { nextLabel = 'Reveal <span aria-hidden="true">&rarr;</span>'; h = keysOn() ? "Press R to reveal the note." : "Tap Reveal."; }
     else h = "Tap or press → to go on.";
   } else if (v.node === "choice") {
     off = true;
-    h = V.sealed ? "Sealed. No going back." : `${gateWord(v.group.gate, v.group.cost)}. Press ${v.options.length > 2 ? "1 to " + v.options.length : v.options.length === 2 ? "1 or 2" : "1"}.`;
+    h = V.sealed ? "Sealed. No going back." : `${gateWord(v.group.gate, v.group.cost)}. ${keysOn() ? "Press " + (v.options.length > 2 ? "1 to " + v.options.length : v.options.length === 2 ? "1 or 2" : "1") : "Tap an option"}.`;
     if (v.group.gate === "plan" && !V.sealed) h += " You can go back.";
   } else if (v.node === "input") { off = true; h = "Type, then press Enter."; }
   else if (v.node === "roll") h = "Tap or press → to go on.";
@@ -741,8 +819,20 @@ function deckUI() {
   next.disabled = off && !V.cueBusy && !V.typing;
   if (V.settings.auto && !off) h += " AUTO is on.";
   hint.textContent = h;
-  const seed = v.seed != null ? v.seed : V.seedPending;
-  $("foot").textContent = `Seed ${seed}${V.replaying ? " · replay" : ""} · ${runUrl(seed)} repeats this run${ignoredNote()}`;
+  setFoot(footPlay(v));
+}
+// The seed line. A touch screen has no room for it under the deck: it moves into the Settings sheet.
+function footPlay(v) {
+  const seed = v && v.seed != null ? v.seed : V.seedPending;
+  return `Seed ${seed}${V.replaying ? " · replay" : ""} · ${runUrl(seed)} repeats this run${ignoredNote()}`;
+}
+const footTitle = () => `Seed ${V.seedPending}${V.force.length ? " (set by ?seed or ?force)" : V.seedFixed ? " (set by ?seed)" : ""}${ignoredNote()}`;
+function setFoot(text) {
+  V.footText = text;
+  const f = $("foot"), t = isTouch();
+  f.textContent = t ? "" : text;
+  f.hidden = t;
+  if (t && V.sheet === "settings") renderSettings();
 }
 // The query that repeats this run: the seed, and the forced tiers when ?force= was given.
 const runUrl = seed => `?seed=${seed}${V.force.length ? "&force=" + V.force.join(",") : ""}`;
@@ -767,13 +857,15 @@ function armAuto() {
 }
 function syncAutoBtn() {
   const b = $("autoBtn"), on = !!V.settings.auto;
+  // One fixed name; aria-pressed says whether film mode is on (WCAG 2.5.3: the name holds the visible word).
   b.setAttribute("aria-pressed", String(on));
-  b.textContent = on ? "AUTO" : "STEP";
-  b.setAttribute("aria-label", on ? "Film mode: AUTO. Press to switch to STEP" : "Film mode: STEP. Press to switch to AUTO");
+  b.textContent = "AUTO";
+  b.setAttribute("aria-label", "Film mode (AUTO)");
 }
 function setAuto(on) {
   V.settings.auto = !!on;
   syncAutoBtn();
+  announce(on ? "AUTO on" : "AUTO off");
   persistSettings();
   if (on) armAuto(); else clearAuto();
   deckUI();
@@ -783,7 +875,7 @@ function setAuto(on) {
 // ---------------------------------------------------------------- input from the player
 function advance() {
   if (V.sheet) return;
-  if (V.phase === "title") return;
+  if (V.phase === "title") { const b = $("slides").querySelector("#contBtn, #beginBtn"); if (b) b.click(); return; }
   if (V.cueBusy) return skipCues();
   if (V.typing) return finishTyping();
   if (V.phase === "card") return dismissCard();
@@ -805,7 +897,7 @@ function pick(key) {
   const o = v.options.find(x => x.key === key);
   if (!o) return;
   if (o.locked) { announce(`Locked. ${o.hint || ""}`); return; }
-  step(() => V.game.choose(key), { dir: 1, pickKey: key });
+  step(() => V.game.choose(key), { dir: 1, pickKey: key, pickRef: { scene: v.scene ? v.scene.id : "", group: v.group ? v.group.key : "", opt: key } });
 }
 function goBack() {
   if (V.phase === "title" || !V.view) return;
@@ -891,7 +983,7 @@ function restore(v) {
   const setId = v.scene && v.scene.set;
   if (setId) { kitShow(setId, v, true); V.setId = setId; }
   syncHud(v); kitUpdate(v); setPlace(v);
-  if (V.slide) { V.slide.remove(); V.slide = null; }
+  if (V.slide) { gone(V.slide); V.slide = null; }
   renderNode(v, 1, [], { instant: true });
   deckUI();
 }
@@ -922,7 +1014,7 @@ function toTitle() {
   showSlide(sl, 1, true);
   sl.classList.add("done");
   deckUI();
-  $("foot").textContent = `Seed ${V.seedPending}${V.force.length ? " (set by ?seed or ?force)" : V.seedFixed ? " (set by ?seed)" : ""}${ignoredNote()}`;
+  setFoot(footTitle());
   const b = sl.querySelector("#contBtn") || sl.querySelector("#beginBtn");
   if (b) b.focus({ preventScroll: true });
   announce(`${PACK.title}. ${PACK.subtitle || ""}`);
@@ -978,7 +1070,8 @@ function renderHelp() {
       <dt><kbd>C</kbd></dt><dd>Card</dd>
       <dt><kbd>V</kbd></dt><dd>Verify</dd>
       <dt><kbd>H</kbd> or <kbd>?</kbd></dt><dd>This help</dd>
-      <dt><kbd>Esc</kbd></dt><dd>Close a sheet</dd></dl>`)}
+      <dt><kbd>Esc</kbd></dt><dd>Close a sheet</dd></dl>
+      <p>The letter and digit keys can be turned off in Settings (Keyboard shortcuts). The arrows, Space, Enter and Esc then still work.</p>`)}
     ${section("What each motion means", `<dl class="kv">
       <dt>Page turn, or a cut</dt><dd>Time passes. A new scene begins.</dd>
       <dt>Crossfade</dt><dd>The same moment, a new view.</dd>
@@ -1056,10 +1149,20 @@ function copyText(text) {
   try { navigator.clipboard.writeText(text).then(() => announce("Copied."), fallback); } catch (e) { fallback(); }
 }
 
+// The build embeds Stage.simulate's result (window.SIM), so Verify does not walk the story on the main thread. Without it, the page computes it.
 function getSim() {
-  if (!V.sim) { try { V.sim = Stage.simulate(PACK); } catch (e) { V.sim = { error: e.message }; } }
+  if (!V.sim) {
+    if (window.SIM && typeof window.SIM === "object" && window.SIM.routes) V.sim = unpackSim(window.SIM);
+    else { try { V.sim = Stage.simulate(PACK); } catch (e) { V.sim = { error: e.message }; } }
+  }
   return V.sim;
 }
+// The build packs each route's steps into one string (tools/build.mjs): "group.option", "group.option=tier" or "(typed)", joined by "|".
+function unpackSim(sim) {
+  const step = w => { if (w === "(typed)") return { input: "(typed)" }; const i = w.indexOf("="); return i < 0 ? { opt: w } : { opt: w.slice(0, i), result: w.slice(i + 1) }; };
+  return { ...sim, routes: sim.routes.map(r => r.steps ? r : { ending: r.ending, count: r.count, steps: r.s ? r.s.split("|").map(step) : [] }) };
+}
+const VERIFY_FIRST = 20; // routes listed before "Show all"
 // A route is { ending, count, steps }; a step is { opt, result? } or { input }. Label: "group.option", "group.option=tier", "(typed)".
 const stepWord = x => (x.opt ? x.opt + (x.result ? "=" + x.result : "") : x.input != null ? "(typed)" : "?");
 const pickCount = r => r.steps.filter(x => x.opt).length;
@@ -1068,13 +1171,12 @@ function pathLabel(r) {
 }
 function renderVerify() {
   const body = $("body-verify");
-  body.innerHTML = `<p>Walking every route…</p>`;
-  setTimeout(() => {
+  const draw = now => {
     const sim = getSim();
-    if (V.sheet !== "verify") return;
+    if (!now && V.sheet !== "verify") return; // (the sheet is marked open just after it renders)
     if (sim.error) { body.innerHTML = `<p>Verify could not run: ${esc(sim.error)}</p>`; return; }
     const ends = Object.keys(sim.endings);
-    const shown = V.verifyAll ? sim.routes.length : Math.min(60, sim.routes.length);
+    const shown = V.verifyAll ? sim.routes.length : Math.min(VERIFY_FIRST, sim.routes.length);
     const byEnd = {};
     sim.routes.forEach((r, i) => { if (i < shown) (byEnd[r.ending] = byEnd[r.ending] || []).push(i); });
     let html = `<p>This walks the story with the same rules as the game. It counts every path to each ending. Tap a route to replay it and land on its ending. Then use Back to look at it.</p>
@@ -1089,7 +1191,10 @@ function renderVerify() {
     }
     if (shown < sim.routes.length) html += `<div class="row"><button type="button" class="btn" id="vmore">Show all ${sim.routes.length} routes</button></div>`;
     body.innerHTML = html;
-  }, 30);
+  };
+  // Embedded (or already computed): draw now. Otherwise say so, let the sheet paint, then compute.
+  if (V.sim || (window.SIM && window.SIM.routes)) draw(true);
+  else { body.innerHTML = `<p>Walking every route…</p>`; setTimeout(draw, 30); }
 }
 // Replay a route with Stage.replay(pack, route, { seed, upTo }). `upTo` stops at the choice after that many picks.
 function replayRoute(i, beforeLast) {
@@ -1117,6 +1222,8 @@ function renderSettings() {
     ${mq.matches ? `<p class="fine">Your system asks for reduced motion, so motion is already Calm.</p>` : s.motion === "calm" ? `<p class="fine">Calm: nothing moves, and each line appears whole.</p>` : ""}
     ${COMMENTARY ? `<div class="set-row"><span>${esc(COMMENTARY.label)}</span>${seg("Commentary", "commentary", [["on", "On"], ["off", "Off"]], s.commentary ? "on" : "off")}</div>` : ""}
     <div class="set-row"><span>Sound</span>${seg("Sound", "sound", [["off", "Off"], ["on", "On"]], s.sound ? "on" : "off")}</div>
+    <div class="set-row"><span>Keyboard shortcuts</span>${seg("Keyboard shortcuts", "shortcuts", [["on", "On"], ["off", "Off"]], s.shortcuts ? "on" : "off")}</div>
+    ${s.shortcuts ? "" : `<p class="fine">Off: letter and digit keys do nothing. The arrow keys, Space, Enter and Esc still work.</p>`}
     <div class="set-row"><span>Film mode</span>${seg("Film mode", "auto", [["off", "Step"], ["on", "AUTO"]], s.auto ? "on" : "off")}</div>
     <div class="set-row"><span>AUTO speed</span>${seg("AUTO speed", "speed", [["slow", "Slow"], ["normal", "Normal"], ["fast", "Fast"]], s.speed)}</div>
     <div class="set-actions">
@@ -1126,6 +1233,7 @@ function renderSettings() {
       <button type="button" class="btn" data-act="help">Help</button>
       <button type="button" class="btn" data-act="restart" id="restartBtn">Start over</button>
     </div>
+    ${isTouch() && V.footText ? `<p class="fine" id="seedLine">${esc(V.footText)}</p>` : ""}
     <p class="fine">${esc(PACK.storageKey)} · nothing leaves this page.</p>`;
 }
 
@@ -1143,9 +1251,10 @@ function changeSetting(name, val) {
   const s = V.settings;
   if (name === "theme") s.theme = val;
   else if (name === "map") { s.map = val; applyMap(); }
-  else if (name === "motion") { s.motion = val === "calm" ? "calm" : "full"; applySettings(); if (isReduced()) stopAllMotion(); }
+  else if (name === "motion") { s.motion = val === "calm" ? "calm" : "full"; applySettings(); if (isReduced()) stopAllMotion(); announce(s.motion === "calm" ? "Calm on" : "Calm off"); }
   else if (name === "commentary") s.commentary = val === "on";
-  else if (name === "sound") { s.sound = val === "on"; snd.set(s.sound); }
+  else if (name === "sound") { s.sound = val === "on"; snd.set(s.sound); announce(s.sound ? "Sound on" : "Sound off"); }
+  else if (name === "shortcuts") { s.shortcuts = val === "on"; announce(s.shortcuts ? "Keyboard shortcuts on" : "Keyboard shortcuts off"); if (V.phase !== "title" && V.view) deckUI(); }
   else if (name === "auto") { setAuto(val === "on"); return; }
   else if (name === "speed") { s.speed = val; if (V.phase !== "title") armAuto(); }
   applySettings(); persistSettings(); renderSettings();
@@ -1235,6 +1344,8 @@ window.addEventListener("keydown", e => {
   if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
   snd.unlock();
   const k = e.key, low = k.length === 1 ? k.toLowerCase() : k;
+  // WCAG 2.1.4: with shortcuts off, a letter, a digit or "?" does nothing. Arrows, Space, Enter and Escape still work.
+  if (!V.settings.shortcuts && /^[a-z0-9?]$/i.test(k)) return;
   const onBtn = tag === "BUTTON";
   if (low === "n") { e.preventDefault(); openSheet("notes"); return; }
   if (low === "c") { e.preventDefault(); openSheet("card"); return; }

@@ -42,6 +42,9 @@
      #app[data-phase="title|card|play"], #app[data-node="beat|choice|input|roll|ending"], #app[data-busy="0|1"]
      #app[data-ending="<id>"] and .panel.ending[data-ending="<id>"]   the id of the ending on show; absent at any other node
      .ava.ava-none                    the speaker's avatar when the cast entry has no crop: a still disc with a camera-off mark
+     .panel[data-overflow="1"], .track[data-overflow="1"]   the box scrolls and is not at its end: a fade shows on its bottom edge
+   Custom properties the shell reads from a kit or pack (optional): --st-tab-x (where a pull-tab stands across the book box, default .87)
+   and --st-tab-out (how far its card has slid out, default 0px): the paper kit sets both on #stage, and while a .k-tab shows, the text slide keeps clear of it, --st-stage-min (the least height of the stage, default 9.5rem).
 */
 
 :root {
@@ -89,6 +92,8 @@
   --st-gutter-r: max(16px, env(safe-area-inset-right, 0px));
   --st-target: 44px;
   --st-radius: 8px;
+  --st-stage-min: 9.5rem; /* the stage never gets shorter than this; a shorter screen scrolls the page (WCAG 1.4.10) */
+  --st-tab-x: .87;       /* where a pull-tab sits across the book box, 0 to 1 (the right edge of its card); the text panel keeps clear of it */
 }
 @supports (background: color-mix(in srgb, red 50%, blue)) {
   :root {
@@ -100,7 +105,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { height: 100%; -webkit-text-size-adjust: 100%; }
 body {
-  height: 100%; margin: 0; overflow: hidden;
+  min-height: 100%; margin: 0; overflow-x: hidden;
   background: var(--st-bg); color: var(--st-ink);
   font: 16px/1.5 var(--st-font-ui);
   -webkit-font-smoothing: antialiased;
@@ -117,23 +122,23 @@ button, input, textarea { font: inherit; color: inherit; }
 
 /* ---------- frame: top bar, HUD, stage, deck ---------- */
 .app {
-  position: relative; height: 100vh; height: 100dvh;
-  display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto;
+  position: relative; min-height: 100vh; min-height: 100dvh;
+  display: grid; grid-template-rows: auto auto minmax(var(--st-stage-min), 1fr) auto;
   background: var(--st-bg);
 }
 .app > * { min-width: 0; }
 
 .bar {
   display: flex; align-items: center; gap: 8px;
-  padding: 6px var(--st-gutter-r) 6px var(--st-gutter);
+  padding: max(6px, env(safe-area-inset-top, 0px)) var(--st-gutter-r) 6px var(--st-gutter);
   background: var(--st-panel); border-bottom: 1px solid var(--st-line);
 }
 .brand { flex: 1 1 auto; min-width: 0; }
 .brand-name {
   font: 700 1.05rem/1.2 var(--st-font-display);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
-.brand-sub { font-size: .75rem; line-height: 1.3; color: var(--st-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand-sub { font-size: .75rem; line-height: 1.3; color: var(--st-muted); overflow-wrap: anywhere; }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -142,7 +147,6 @@ button, input, textarea { font: inherit; color: inherit; }
   border: 1px solid var(--st-edge); border-radius: var(--st-radius);
   font: 600 .875rem/1.2 var(--st-font-ui); letter-spacing: .02em;
   cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent;
-  transition: background-color var(--m-state) var(--m-ease-out);
 }
 .btn:hover:not(:disabled):not(.primary):not([aria-pressed="true"]) { background: var(--st-tint1); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
@@ -153,18 +157,45 @@ button, input, textarea { font: inherit; color: inherit; }
 @media (max-width: 480px) { .kbd-hint { display: none; } }
 
 .hud {
-  display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; container-type: inline-size;
   padding: 8px var(--st-gutter-r) 8px var(--st-gutter);
   background: var(--st-panel); border-bottom: 1px solid var(--st-line);
 }
-.meters { display: flex; gap: 8px; flex: 1 1 200px; min-width: 0; }
-.hud-tools { display: flex; align-items: center; gap: 8px; flex: 0 1 auto; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+.hud-tools { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; margin-left: auto; }
+.tallies { flex: 0 1 5.5rem; min-width: 0; font-size: .8125rem; line-height: 1.35; color: var(--st-ink-soft); }
+.tallies:empty { display: none; }
+.tallies b { font-weight: 700; color: var(--st-ink); }
+.tallies i { font-style: normal; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tallies i.bump { color: var(--st-ink); font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.tallies span + span::before { content: "\00b7"; margin: 0 6px; }
+.count { font-variant-numeric: tabular-nums; }
+.hud-tools .count:not(:empty) { font-size: .8125rem; }
+
+/* The meters. One or two sit side by side. Three share a row. Four make a 2 x 2 block until the HUD is 520px wide.
+   A meter's name is never cut: when name and number do not fit on one line, the number drops under the name. */
+.meters {
+  --st-mw: 6rem; /* the least width the meters get before the tallies and buttons drop to a second row */
+  flex: 1 1 var(--st-mw); min-width: var(--st-mw); display: grid; gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+}
+.meters:has(.meter:nth-child(2)) { --st-mw: 13rem; }
+.meters:has(.meter:nth-child(3)) { --st-mw: 25rem; }
+.meters:not(:has(.meter:nth-child(3))) { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+.meters:has(.meter:nth-child(3)):not(:has(.meter:nth-child(4))) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.meters:has(.meter:nth-child(4)):not(:has(.meter:nth-child(5))) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@container (min-width: 520px) {
+  .meters:has(.meter:nth-child(4)):not(:has(.meter:nth-child(5))) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@container (max-width: 399px) {
+  .meters:has(.meter:nth-child(3)):not(:has(.meter:nth-child(4))) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .meters:has(.meter:nth-child(3)):not(:has(.meter:nth-child(4))) .meter:last-child { grid-column: 1 / -1; }
+}
 .meter {
-  position: relative; flex: 1 1 88px; min-width: 0; padding: 4px 8px 6px;
+  position: relative; min-width: 0; padding: 4px 8px 6px;
   background: var(--st-card); border: 1px solid var(--st-line); border-radius: var(--st-radius);
 }
-.m-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
-.m-name { font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--st-ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; column-gap: 6px; }
+.m-name { flex: 0 1 auto; min-width: 0; font-size: .75rem; line-height: 1.3; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--st-ink-soft); overflow-wrap: anywhere; }
 .m-val { font: 700 1.25rem/1.1 var(--st-font-display); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .m-val small { font-size: .75rem; font-weight: 600; color: var(--st-muted); }
 .pips { display: flex; gap: 3px; margin-top: 3px; }
@@ -176,9 +207,9 @@ button, input, textarea { font: inherit; color: inherit; }
 }
 .bar-track { height: 8px; margin-top: 3px; border: 1px solid var(--st-ink); border-radius: 2px; overflow: hidden; }
 .bar-track i { display: block; height: 100%; width: calc(var(--p, 0) * 100%); background: var(--st-ink); }
-.m-delta {
-  position: absolute; right: 6px; top: -13px; z-index: 5; pointer-events: none;
-  padding: 1px 6px; border-radius: 4px; font-size: .75rem; font-weight: 800; line-height: 1.3;
+.m-delta { /* the signed change a cost or gain made: it sits on the meter's top edge for --m-hold, clear of the name and the row above */
+  position: absolute; right: 6px; top: -14px; z-index: 5; pointer-events: none; max-width: calc(100% - 8px);
+  padding: 0 6px; border-radius: 4px; font-size: .75rem; font-weight: 800; line-height: 1.3; white-space: nowrap;
   background: var(--st-panel); border: 1px solid currentColor;
 }
 .m-delta.neg { color: var(--st-bad); }
@@ -187,19 +218,23 @@ button, input, textarea { font: inherit; color: inherit; }
   position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
   background: var(--m-flash-color);
 }
-.tallies { font-size: .8125rem; color: var(--st-ink-soft); }
-.tallies b { font-weight: 700; color: var(--st-ink); }
-.tallies i { font-style: normal; font-variant-numeric: tabular-nums; }
-.tallies i.bump { color: var(--st-ink); font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
-.tallies span + span::before { content: "\00b7"; margin: 0 6px; }
-.count { font-variant-numeric: tabular-nums; }
 @media (max-width: 380px) { .m-val small { display: none; } }
-@media (max-width: 520px) { .hud-tools .lbl { display: none; } .hud-tools .btn { padding: 0 10px; } .meter { flex-basis: 96px; } }
-@media (min-width: 521px) { .count:not(:empty)::before { content: "("; } .count:not(:empty)::after { content: ")"; } }
-.hud-tools .count:not(:empty) { font-size: .8125rem; }
+@media (max-width: 520px) { .hud-tools .lbl { display: none; } .hud-tools .btn { padding: 0 10px; } }
+@media (min-width: 521px) and (min-height: 481px) { .count:not(:empty)::before { content: "("; } .count:not(:empty)::after { content: ")"; } }
+
+/* Three or more meters: the buttons show their icons only, up to 899px, to leave the meters their room. */
+@media (max-width: 899px) { .hud:has(.meter:nth-child(3)) .hud-tools .lbl { display: none; } .hud:has(.meter:nth-child(3)) .hud-tools .btn { padding: 0 10px; } }
+/* Three or more meters on a narrow screen (under 560px): the meters take the width, the two tool buttons stand in a column beside
+   them, and the tallies, if any, go under the meters. A wider screen keeps everything on one row. */
+@media (max-width: 559px) {
+  .hud:has(.meter:nth-child(3)) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+  .hud:has(.meter:nth-child(3)) .meters { grid-column: 1; grid-row: 1; min-width: 0; }
+  .hud:has(.meter:nth-child(3)) .hud-tools { grid-column: 2; grid-row: 1; flex-direction: column; align-items: stretch; }
+  .hud:has(.meter:nth-child(3)) .tallies { grid-column: 1 / -1; grid-row: 2; flex: none; max-width: none; }
+}
 
 /* ---------- stage ---------- */
-.stage { position: relative; min-height: 0; overflow: hidden; background: var(--st-bg); touch-action: manipulation; }
+.stage { position: relative; min-height: 0; overflow: hidden; container-type: size; background: var(--st-bg); touch-action: manipulation; }
 .kit { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
 .place {
   position: absolute; left: 0; right: 0; top: 0; z-index: 3; pointer-events: none;
@@ -219,16 +254,23 @@ button, input, textarea { font: inherit; color: inherit; }
 .sl.out { pointer-events: none; }
 .sl.out > * { pointer-events: none; }
 .sl.mid { justify-content: center; }
+/* While the kit shows a pull-tab (.k-tab), the text keeps clear of it, tab and touch margin both. The tab stands at --st-tab-x across the
+   book box (the square, as wide as the stage is high, or as wide as the stage if that is less), plus --st-tab-out when its card slides out.
+   Its touch area starts 24px left of that edge (the reserve adds 4px). The paper kit sets both properties on #stage for the tab on show. */
+#stage:has(.k-tab:not([hidden])) .sl {
+  padding-right: max(var(--st-gutter-r), calc(50cqw - (var(--st-tab-x) - .5) * min(100cqw, 100cqh) - var(--st-tab-out, 0px) + 28px));
+}
 
 .panel {
   flex: 0 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
-  padding: 12px 14px; background: var(--st-scrim); color: var(--st-ink);
+  --st-pad-x: 14px; --st-fade: var(--st-panel);
+  padding: 12px var(--st-pad-x); background: var(--st-scrim); color: var(--st-ink);
   border: 1px solid var(--st-edge); border-left-width: 4px; border-radius: var(--st-radius);
   font: 1.0625rem/1.6 var(--st-font-body); overflow-wrap: anywhere;
 }
 .panel[data-look="ink"] { border-left-style: dotted; }
 .panel[data-look="paint"] { border-left-style: solid; border-left-color: var(--st-lamp); }
-.panel.is-secret { background: var(--st-tint1); border-left-style: dashed; }
+.panel.is-secret { --st-fade: var(--st-tint1); background: var(--st-tint1); border-left-style: dashed; }
 .panel:focus-visible { outline-offset: -3px; }
 
 .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; font-family: var(--st-font-ui); }
@@ -267,7 +309,7 @@ button, input, textarea { font: inherit; color: inherit; }
 .caret::after { content: ""; position: absolute; left: 0; bottom: .15em; width: .55em; height: 1em; background: var(--st-ink); }
 .panel.done .caret { display: none; }
 
-.late { opacity: 0; transition: opacity var(--m-state) var(--m-ease-out); }
+.late { opacity: 0; }
 .panel.done .late, .sl.done .late { opacity: 1; }
 .screen {
   margin-top: 10px; padding: 8px 10px; font: .875rem/1.5 var(--st-font-mono);
@@ -281,13 +323,33 @@ button, input, textarea { font: inherit; color: inherit; }
 }
 .chip:hover { border-style: solid; background: var(--st-tint1); }
 .track {
-  flex: 0 1 auto; max-height: 34%; overflow-y: auto; padding: 8px 12px;
+  --st-pad-x: 12px; --st-fade: var(--st-tint1);
+  flex: 0 1 auto; max-height: 34%; overflow-y: auto; overscroll-behavior: contain; padding: 8px var(--st-pad-x);
   background: var(--st-tint1); border: 1px dashed var(--st-edge); border-radius: var(--st-radius);
   font: .875rem/1.5 var(--st-font-ui); color: var(--st-ink); overflow-wrap: anywhere;
 }
 .track .t-label { display: block; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--st-ink-soft); }
 .track b { font-weight: 700; }
 html[data-commentary="off"] .track { display: none; }
+@media (max-height: 700px) { .track { max-height: 40%; } }
+
+/* A panel or track that scrolls says so: the shell sets data-overflow="1" while there is more below. A short fade, shorter than
+   any option, sits on the bottom edge. A row of buttons at the foot of a panel (Begin, Play again, Write it down) stays in view
+   instead, with the fade above it. */
+.panel[data-overflow="1"]::after, .track[data-overflow="1"]::after {
+  content: ""; display: block; position: sticky; bottom: 0; height: 24px; margin: -24px calc(var(--st-pad-x) * -1) 0;
+  background: linear-gradient(to bottom, transparent, var(--st-fade)); pointer-events: none;
+}
+.panel > .row:last-child, .in-form > .row {
+  position: sticky; bottom: 0; z-index: 1; margin: 12px calc(var(--st-pad-x) * -1) -12px; padding: 0 var(--st-pad-x) 12px;
+}
+.panel[data-overflow="1"] > .row:last-child, .panel[data-overflow="1"] .in-form > .row { background: var(--st-fade); }
+.panel[data-overflow="1"] > .row:last-child::before, .panel[data-overflow="1"] .in-form > .row::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 24px; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--st-fade));
+}
+.panel[data-overflow="1"]:has(> .row:last-child)::after, .panel[data-overflow="1"]:has(.in-form)::after { display: none; }
+.in-form { display: contents; }
 
 /* secret beat before it is revealed */
 .secret-note { margin: 4px 0 10px; color: var(--st-ink-soft); font-family: var(--st-font-ui); font-size: .9375rem; }
@@ -325,7 +387,6 @@ html[data-commentary="off"] .track { display: none; }
   padding: 8px 12px; text-align: left; cursor: pointer;
   background: var(--st-card); color: var(--st-ink); border-radius: var(--st-radius);
   border: 2px solid var(--st-edge); -webkit-tap-highlight-color: transparent;
-  transition: background-color var(--m-state) var(--m-ease-out);
 }
 .opt:hover:not([aria-disabled="true"]) { background: var(--st-tint1); }
 .opt[data-gate="plan"] { border-style: dashed; }
@@ -395,11 +456,26 @@ html[data-commentary="off"] .track { display: none; }
 .autobar { position: absolute; left: 0; right: 0; top: -3px; height: 3px; overflow: hidden; pointer-events: none; }
 .autobar i { display: block; width: 100%; height: 100%; background: var(--st-accent); transform-origin: 0 50%; transform: scaleX(0); }
 .deck-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; }
-.hint { min-width: 0; text-align: center; font-size: .8125rem; line-height: 1.3; color: var(--st-ink-soft); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.hint { min-width: 0; text-align: center; font-size: .8125rem; line-height: 1.3; color: var(--st-ink-soft); overflow-wrap: anywhere; }
 .foot { margin-top: 2px; text-align: center; font-size: .75rem; line-height: 1.4; color: var(--st-muted); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 400px) {
   .btn { padding: 0 10px; }
   #backBtn, #nextBtn { padding: 0 12px; }
+  /* long choice panels: tighter, with no text hidden */
+  .panel { --st-pad-x: 12px; padding-top: 10px; padding-bottom: 10px; }
+  .opts { gap: 6px; margin-top: 6px; }
+  .opt { gap: 8px; padding: 6px 10px; }
+  .opt[data-gate="fate"] { padding-left: 18px; padding-right: 18px; }
+  .o-body { gap: 0; }
+  .o-label, .o-sub, .o-hint { line-height: 1.3; }
+  .o-n { width: 22px; height: 22px; }
+  .tags { margin-bottom: 4px; }
+  .ask { margin: 6px 0 4px; }
+}
+/* On a 320px screen the hint takes a row of its own under the buttons, so that it can run to three lines. */
+@media (max-width: 340px) {
+  .deck-row { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "back . next" "hint hint hint"; row-gap: 4px; }
+  #backBtn { grid-area: back; } #nextBtn { grid-area: next; } .hint { grid-area: hint; }
 }
 
 /* ---------- sheets ---------- */
@@ -453,6 +529,65 @@ kbd { font: 700 .8125rem var(--st-font-mono); border: 1px solid var(--st-edge); 
 .route b { font-weight: 700; }
 .route small { display: block; color: var(--st-ink-soft); font-variant-numeric: tabular-nums; }
 .vlist-h { margin: 14px 0 6px; font: 700 .8125rem/1.3 var(--st-font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--st-ink-soft); }
+
+/* ---------- short screens (a phone on its side, or a page zoomed to 400%) ----------
+   The brand line and the foot go. The HUD is one row (see above). The stage keeps a floor (--st-stage-min); if the screen is
+   shorter than the chrome plus that floor, the page scrolls, and everything can still be reached (WCAG 1.4.10 at 320 x 256). */
+@media (max-height: 480px) {
+  .brand-sub, .foot { display: none; }
+  /* The text panel covers most of the stage here, and with it the kit's in-world screen: the panel shows its copy of the lines. */
+  .sr-only.screen-copy {
+    position: static; width: auto; height: auto; margin: 10px 0 0; padding: 8px 10px; overflow: visible; clip-path: none;
+    white-space: pre-wrap; font: .875rem/1.5 var(--st-font-mono); background: var(--st-ink); color: var(--st-bg); border-radius: 4px;
+  }
+  .bar { padding-top: max(2px, env(safe-area-inset-top, 0px)); padding-bottom: 2px; }
+  .hud { padding-top: 4px; padding-bottom: 4px; }
+  .hud-tools .lbl { display: none; }
+  .hud-tools .btn { padding: 0 10px; }
+  .meter { padding: 2px 8px 3px; }
+  .pips, .bar-track { margin-top: 2px; }
+  .deck { padding-top: 4px; }
+  .place { padding-top: 2px; padding-bottom: 2px; }
+  .sl { padding-top: 24px; padding-bottom: 4px; gap: 6px; }
+  .cuetag { top: 26px; }
+  .panel { --st-pad-x: 12px; padding-top: 6px; padding-bottom: 6px; font-size: 1rem; line-height: 1.45; }
+  .tags { margin-bottom: 2px; }
+  .tag { padding-top: 0; padding-bottom: 0; }
+  .ask { margin: 4px 0 2px; }
+  .opts { gap: 6px; margin-top: 4px; }
+  .opt { padding-top: 4px; padding-bottom: 4px; min-height: 40px; }
+  .m-val small { display: none; }
+  .m-delta { top: -16px; }
+  .title-name { font-size: clamp(1.4rem, 5vw, 2rem); }
+  .track { padding-top: 4px; padding-bottom: 4px; }
+  .row { margin-top: 8px; }
+  .end-title { margin: 2px 0; }
+}
+
+/* A short and wide screen puts the commentary beside the passage, not under it, so both keep their height. */
+/* Short and wide: the commentary sits beside the passage. Not while a pull-tab shows: the room kept clear for the tab
+   (mid-stage, since the book box is narrow here) leaves too little width for two columns. */
+@media (max-height: 480px) and (min-width: 560px) {
+  #stage:not(:has(.k-tab:not([hidden]))) .sl:has(> .track) { flex-direction: row; align-items: flex-end; justify-content: center; }
+  #stage:not(:has(.k-tab:not([hidden]))) .sl:has(> .track) > .panel { flex: 1 1 0; width: auto; min-width: min(16rem, 100%); max-width: 34rem; max-height: 100%; }
+  #stage:not(:has(.k-tab:not([hidden]))) .sl:has(> .track) > .track { flex: 0 1 15rem; width: auto; max-width: 15rem; max-height: 100%; }
+}
+
+/* ---------- forced colors: fills and marks that are backgrounds would vanish, so they take system colors ---------- */
+@media (forced-colors: active) {
+  .pip { border-color: CanvasText; }
+  .pip.on { forced-color-adjust: none; background: CanvasText; }
+  .pip.spent { background: transparent; border-style: dashed; }
+  .bar-track { border-color: CanvasText; }
+  .bar-track i { forced-color-adjust: none; background: CanvasText; }
+  .autobar i { forced-color-adjust: none; background: Highlight; }
+  .caret::after { forced-color-adjust: none; background: CanvasText; }
+  .ava.ava-none::after { forced-color-adjust: none; background: CanvasText; }
+  .btn.primary, .btn[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
+  .opt.sealed { border-width: 3px; }
+  .panel[data-overflow="1"]::after, .track[data-overflow="1"]::after, .panel[data-overflow="1"] > .row:last-child::before { background: linear-gradient(to bottom, transparent, Canvas); }
+  .panel[data-overflow="1"] > .row:last-child, .panel[data-overflow="1"] .in-form > .row { background: Canvas; }
+}
 
 /* Reduced motion: the system setting, or the reader's Calm setting (<html data-motion="calm">). The two are the same block. */
 @media (prefers-reduced-motion: reduce) {

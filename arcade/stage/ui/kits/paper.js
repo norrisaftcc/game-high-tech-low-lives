@@ -12,8 +12,11 @@
      plate         art, look, screen             look: "paint" blooms it, "ink" draws it; screen: {x,y,w,h} (fractions of
                                                  the plate) is where beat.screen lines are printed
      flap          art, under, opensOn           art is a lid that covers the whole box; under shows when it opens on reveal
-     pulltab       art, under, tally, value      art is the front card; under slides out from behind when the tally value leads;
-                                                 a tap on the tab pulls it fully over (the player asks)
+     pulltab       art, under, tally, value, words  art is the front card; under slides out from behind when the tally value leads;
+                                                 a tap on the tab pulls it fully over (the player asks). words: [front, under],
+                                                 the two cards' own names, for the tab's label (default: "Front" and the value).
+                                                 The tab (.k-tab) is in the DOM, and not [hidden], only while the set on show has a
+                                                 pull-tab; the shell may reserve room for it. Its label says which card shows.
      volvelle      art, range, center            range [min,max] faces round the rim (default [2,12]); the face "center" is
                                                  at the top when the wheel is at rest (default the middle one); a fixed
                                                  pointer is drawn by the kit; on roll the wheel stops with the total at the top
@@ -25,13 +28,13 @@
    the contour the ink cue draws on. That path is the only stroke of the contour: the shapes under it are filled with
    stroke="none", so the ink cue draws the line on from nothing. Text is filled with --k-text (ink; in Blueline a darker
    blue, so that it passes 4.5:1 under the warm wash) and always sits on a paper fill (fp), never straight on gold,
-   umber or a tint. Labels on a flap or a pull-tab are at least 10px on a 360px phone.
+   umber or a tint. Labels on a flap or a pull-tab are at least 10px on a 360px phone. In-world screen text is at least 11px.
 
    Motion: every duration, easing and distance is a --m-* token read in mount(). Only transform and opacity animate; the
    one exception is stroke-dashoffset on the ink contour (MOTION.md, ink). Under reduced motion or Calm no animate() is
    called: each cue sets the end state as the element's own style and resolves at once. The end state is always the
    element's own style; an animation only runs from a start keyframe (offset 0) towards it. Ambient drift is a CSS
-   animation on the tunnel only; the shell's reduced-motion block and the rules below stop it.
+   animation on the tunnel only, stepped (two updates a second) so the compositor can idle; the shell's reduced-motion block and the rules below stop it.
 
    Call order from the shell: show() builds the new set and lays it under the old; cue(turn|shift) swaps it; update(state)
    restores everything bound to state (look, revealed, tally, meters), in both directions. */
@@ -146,6 +149,7 @@ function layerEl(l, state) {
       break;
     case "plate": {
       e.dataset.look = l.look === "ink" ? "ink" : "paint";
+      if (l.screen) e.classList.add("k-hasscreen");
       e.innerHTML = `<div class="k-frame"><div class="k-artbox">${art(l.art)}</div></div>`;
       if (l.screen) {
         const s = el("div", "k-screen"), r = l.screen;
@@ -179,6 +183,7 @@ function layerEl(l, state) {
       const word = l.value ? String(l.value).charAt(0).toUpperCase() + String(l.value).slice(1) : "Pull";
       e.dataset.out = "0"; e.dataset.pulled = "0";
       e.innerHTML = `<div class="k-sheet">${art(l.under)}<button type="button" class="k-tab" aria-expanded="false" aria-label="${esc(word)} reading"><span aria-hidden="true">${esc(word)}</span></button></div><div class="k-fronti">${art(l.art)}</div>`;
+      tabLabel(e);
       pullState(e, state, false);
       break;
     }
@@ -241,8 +246,34 @@ function leads(l, state) {
   const n = t[l.value] || 0;
   return n >= 1 && n === Math.max(0, ...Object.values(t));
 }
-// The sheet's transform for the pull-tab, by state: tucked (none), slid out (d4), or pulled over (none, on top).
-function sheetPos(e) { return e.dataset.pulled === "1" ? "none" : e.dataset.out === "1" ? `translateX(${T.d4}px)` : "none"; }
+// The tab's label says what shows: "Machine reading, showing: Sensor" once pulled, "...: Ward" while the front card is on top.
+function tabLabel(e) {
+  const l = e._l, btn = e.querySelector(".k-tab");
+  const word = l.value ? String(l.value).charAt(0).toUpperCase() + String(l.value).slice(1) : "Pull";
+  const w = Array.isArray(l.words) ? l.words : [];
+  const front = typeof w[0] === "string" && w[0] ? w[0] : "Front", under = typeof w[1] === "string" && w[1] ? w[1] : word;
+  btn.setAttribute("aria-label", `${word} reading, showing: ${e.dataset.pulled === "1" ? under : front}`);
+}
+// The tab is in the DOM, not hidden, only in the set on show. Old sets, clones and a closed book hide theirs.
+function tabsOn(set, on) { for (const t of set.querySelectorAll(".k-tab")) { if (on) t.removeAttribute("hidden"); else t.setAttribute("hidden", ""); } }
+// How far the sheet slides out: d4, or less, so the tab stays 4px inside the kit's box (a 360px phone has no room for all 32px).
+function slideOf(e) {
+  const b = e.getBoundingClientRect(), r = root && root.getBoundingClientRect();
+  if (!r || !b.width || !r.width) return T.d4;
+  return Math.max(0, Math.min(T.d4, Math.floor(r.right - 4 - (b.right + T.d3))));
+}
+// The sheet's transform for the pull-tab, by state: tucked (none), slid out (slideOf), or pulled over (none, on top).
+function sheetPos(e) { return e.dataset.pulled === "1" ? "none" : e.dataset.out === "1" ? `translateX(${slideOf(e)}px)` : "none"; }
+// The shell keeps its text clear of the tab on show (style.css reads --st-tab-x and --st-tab-out from the stage, the kit host's parent).
+function tabReserve() {
+  const stage = host && host.parentElement;
+  if (!stage) return;
+  const t = cur && cur.querySelector(".k-tab:not([hidden])"), e = t && t.closest(".k-pulltab");
+  if (!e || !e._l) { stage.style.removeProperty("--st-tab-x"); stage.style.removeProperty("--st-tab-out"); return; }
+  const x = Number(e._l.x), w = Number(e._l.w);
+  if (Number.isFinite(x) && Number.isFinite(w)) stage.style.setProperty("--st-tab-x", String(Math.round((x + w / 2) * 1000) / 1000));
+  stage.style.setProperty("--st-tab-out", e.dataset.out === "1" && e.dataset.pulled !== "1" ? `${slideOf(e)}px` : "0px");
+}
 function pullState(e, state, animate) {
   const sheet = e.querySelector(".k-sheet");
   const lead = leads(e._l, state);
@@ -250,6 +281,7 @@ function pullState(e, state, animate) {
   if (!lead && e.dataset.pulled === "1") { // the tally no longer leads (Back, or a new step): the pulled card folds back behind the front
     e.dataset.pulled = "0";
     e.querySelector(".k-tab").setAttribute("aria-expanded", "false");
+    tabLabel(e);
     sheet.style.zIndex = "";
     if (animate) run(e.querySelector(".k-fronti"), [{ opacity: 0 }], T.state, T.easeOut); // the front comes back over it
   }
@@ -268,6 +300,8 @@ function pullToggle(e) {
   e.dataset.pulled = e.dataset.pulled === "1" ? "0" : "1";
   const to = sheetPos(e);
   btn.setAttribute("aria-expanded", e.dataset.pulled === "1" ? "true" : "false");
+  tabLabel(e);
+  tabReserve();
   sheet.style.transform = to === "none" ? "" : to;
   sheet.style.zIndex = "2";
   skip = false;
@@ -300,6 +334,7 @@ function cloneOf(s) {
   const c = s.cloneNode(true);
   c.setAttribute("aria-hidden", "true"); c.inert = true;
   c.style.clipPath = ""; c.style.opacity = "";
+  tabsOn(c, false);
   return c;
 }
 function commit() { // finish a pending swap: drop the old set and the leaf, show the new set at rest
@@ -357,7 +392,7 @@ function dropStamp() { if (stamp) { stamp.remove(); stamp = null; } }
 function uncover() {
   closed = 0;
   const c = root.querySelector(".k-cover"); if (c) c.remove();
-  if (cur) cur.style.visibility = "";
+  if (cur) { cur.style.visibility = ""; tabsOn(cur, true); }
 }
 function renderScreen() {
   if (!cur) return;
@@ -430,9 +465,11 @@ const kit = {
     dropStamp();
     const next = buildSet(id, set, state, instant ? !!(state && state.look === "paint") : !!(old && old.dataset.wash === "1"));
     cur = next;
+    if (old) tabsOn(old, false);
     tilt.tx = tilt.ty = tilt.x = tilt.y = 0;
     if (instant) { if (old) old.remove(); root.appendChild(next); pend = null; }
     else { next.inert = true; root.insertBefore(next, old); pend = { next, old, leaf: null }; }
+    tabReserve();
   },
 
   update(state) {
@@ -442,12 +479,13 @@ const kit = {
     if (closed === 1) closed = 2; else if (closed === 2) uncover();
     if (stamp) { if (stampAge >= 1) dropStamp(); else stampAge++; }
     if (!cur || !state) return;
-    if (closed !== 2) cur.style.visibility = "";
+    if (closed !== 2) { cur.style.visibility = ""; tabsOn(cur, true); }
     if (state.look) setWash(cur, state.look === "paint");
     else setWash(cur, false);
     for (const f of cur.querySelectorAll(".k-flap")) setFlap(f, !!state.revealed);
     for (const t of cur.querySelectorAll(".k-pulltab")) pullState(t, state, true);
     for (const t of cur.querySelectorAll(".k-ticket")) ticketState(t, state);
+    tabReserve();
   },
 
   cue(c, o) {
@@ -546,7 +584,7 @@ const kit = {
         closed = 1;
         const cover = el("div", "k-cover", `<div class="k-cover-in" aria-hidden="true"><svg viewBox="0 0 48 32" focusable="false" aria-hidden="true"><path d="M24 8c-4-3-10-3-16-1v18c6-2 12-2 16 1 4-3 10-3 16-1V7c-6-2-12-2-16 1zM24 8v18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><b>${esc((pack && pack.title) || "")}</b></div>`);
         root.appendChild(cover);
-        if (red) { cur.style.visibility = "hidden"; return Promise.resolve(); }
+        if (red) { cur.style.visibility = "hidden"; tabsOn(cur, false); return Promise.resolve(); }
         const a = el("div", "k-half-page"), b = el("div", "k-half-page");
         a.dataset.side = "l"; b.dataset.side = "r";
         const ca = el("div", "k-clone"), cb = el("div", "k-clone");
@@ -554,7 +592,7 @@ const kit = {
         ca.appendChild(cloneOf(cur)); cb.appendChild(cloneOf(cur));
         a.appendChild(ca); b.appendChild(cb);
         root.insertBefore(a, cover); root.insertBefore(b, cover);
-        cur.style.visibility = "hidden";
+        cur.style.visibility = "hidden"; tabsOn(cur, false);
         a.style.transform = `rotateY(90deg)`; b.style.transform = `rotateY(-90deg)`; // the end states: edge on, met at the gutter
         const ps = [run(a, [{ transform: "rotateY(0deg)" }], T.close, T.easeIn), run(b, [{ transform: "rotateY(0deg)" }], T.close, T.easeIn),
           run(cover, [{ opacity: 0 }], T.close / 2, T.easeOut, T.close / 2)];
@@ -628,12 +666,13 @@ html[data-map="blueline"] .k-root,.k-root[data-map="blueline"]{--k-ink:var(--blu
 .k-plate[data-look="paint"] .k-frame{border-color:var(--k-umber);box-shadow:0 0 0 1px var(--k-gold)}
 .k-plate{transform-origin:50% 50%}
 .k-artbox{position:relative}
-.k-screen{position:absolute;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:.18em;padding:.4em .7em;box-sizing:border-box;
-  font:400 clamp(9px,3.15cqw,17px)/1.35 var(--st-font-mono);color:var(--st-ink);background:var(--st-bg);overflow-wrap:anywhere}
+.k-screen{position:absolute;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;gap:.15em;padding:.4em .7em;box-sizing:border-box;
+  font:400 clamp(11px,3.15cqw,17px)/1.3 var(--st-font-mono);color:var(--st-ink);background:var(--st-bg);overflow-wrap:anywhere}
 .k-screen span{display:block}
 .k-screen-free{left:50%;top:12%;translate:-50% 0;width:min(86%,24rem);height:auto;font-size:clamp(12px,3.6cqw,16px);border:1px solid var(--k-ink);pointer-events:none;container-type:normal}
+@container (min-aspect-ratio:3/2){.k-plate.k-hasscreen{width:min(175cqh,94cqw)!important;top:47cqh!important}} /* a short, wide stage: the book box is only as wide as it is tall, so the screen plate grows past it to keep 11px text whole */
 .k-tunnel{transform-origin:50% 50%}
-.k-drift{position:relative;width:100%;height:100%;animation:k-drift var(--m-idle,26000ms) var(--m-ease-inout,ease-in-out) infinite alternate}
+.k-drift{position:relative;width:100%;height:100%;animation:k-drift var(--m-idle,26000ms) steps(52,end) infinite alternate}
 .k-plane{position:absolute;inset:0}
 .k-plane .k-art,.k-plane svg{width:100%;height:100%}
 @keyframes k-drift{to{transform:scale(var(--m-idle-scale,1.02))}}
@@ -648,8 +687,9 @@ html[data-map="blueline"] .k-root,.k-root[data-map="blueline"]{--k-ink:var(--blu
 .k-tab{pointer-events:auto;position:absolute;right:calc(var(--m-d3,16px) * -1);top:50%;translate:0 -50%;width:var(--m-d3,16px);min-height:44px;height:max(76px,72%);
   padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--st-bg);color:var(--st-ink);
   border:1.5px solid var(--k-ink);border-left:0;border-radius:0 6px 6px 0;font:700 .6875rem/1 var(--st-font-ui);letter-spacing:.1em;text-transform:uppercase}
+.k-tab[hidden]{display:none}
 .k-tab span{writing-mode:vertical-rl;white-space:nowrap}
-.k-tab::before{content:"";position:absolute;top:-6px;bottom:-6px;left:-14px;right:-14px}
+.k-tab::before{content:"";position:absolute;top:-6px;bottom:-6px;left:-24px;right:-4px}
 .k-tab:focus-visible{outline:3px solid var(--st-accent);outline-offset:2px}
 .k-wheel{position:absolute;inset:0;transform-origin:50% 50%}
 .k-pointer{position:absolute;left:50%;top:-6px;width:0;height:0;translate:-50% 0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:13px solid var(--k-ink)}
