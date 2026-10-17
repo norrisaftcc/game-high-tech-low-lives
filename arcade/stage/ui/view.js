@@ -68,6 +68,7 @@ const ENDING_IDS = Object.keys(ENDINGS);
 const NOTES = PACK.notes || {};
 const METERS = PACK.meters || [];
 const FIELDS = PACK.fields || [];
+const CARD_FIELDS = FIELDS.filter(f => !f.hidden); // a hidden field is the story's working memory, never on the card
 const TALLY_VALUES = PACK.tallies || {}; // tally id -> allowed values
 const TALLY_IDS = Object.keys(TALLY_VALUES);
 const COMMENTARY = PACK.commentary || null;
@@ -119,7 +120,8 @@ const V = {
   autoT: null, sheet: null, opener: null, replaying: false, seedPending: 1, seedFixed: false, force: [], forceIgnored: [], starting: false,
   lastFlash: -1e9, sealed: false, rollEl: null, sim: null, simAt: 0, rafId: 0, dragX: 0, dragY: 0, restartT: null,
 };
-const TIERS = ["fail", "tie", "success", "style"]; // the result tiers ?force= accepts
+const TIERS = ["fail", "tie", "success", "style"]; // the result tiers ?force= accepts, with a table roll's face ranges ("3-4")
+const isTier = x => TIERS.includes(x) || /^\d+(-\d+)?$/.test(x);
 const SPEED = { slow: 1.6, normal: 1, fast: 0.6 };
 const TYPE_MAX = 4000; // ms: the longest a beat may take to type
 
@@ -516,13 +518,16 @@ function choiceSlide(v) {
 }
 
 function resultWord(r) { return { fail: "Fail", success: "Success", tie: "Tie", style: "Style" }[r] || r; }
+// A table roll's result reads as its label, or its range ("3–4").
+const resultOf = info => (info.table ? info.label || String(info.used || info.result).replace("-", "–") : resultWord(info.result));
 function faceText(dice, f) { return /dF$/i.test(dice) ? (f > 0 ? "+" : f < 0 ? "−" : "0") : String(f); }
 function rollLine(info) {
   const dF = /dF$/i.test(info.dice);
   const sum = info.faces.reduce((a, b) => a + b, 0);
   const faces = dF ? info.faces.map(f => faceText(info.dice, f)).join(" ") + ` (${sgn(sum)})` : info.faces.join(" + ");
   const add = info.add ? ` ${info.add < 0 ? "−" : "+"} ${Math.abs(info.add)}` : "";
-  return `${info.dice}: ${faces}${add} = ${info.total} vs ${info.vs}`;
+  const eq = info.faces.length > 1 || add ? ` = ${info.total}` : ""; // one die and no bonus: the face is the total
+  return `${info.dice}: ${faces}${add}${eq}${info.table ? "" : info.under ? `, ${info.vs} or under` : ` vs ${info.vs}`}`;
 }
 // The meter a roll adds, for the spoken line ("plus 3 for Code"). A pick names its option; with no pick (Back, Continue) the scene's rolls
 // that match the dice and the target decide, when they agree.
@@ -540,14 +545,14 @@ function rollMeter(info, ref, v) {
   return adds.size === 1 && [...adds][0] ? [...adds][0] : null;
 }
 const spokenNum = n => n < 0 ? "minus " + Math.abs(n) : String(n);
-// The roll in words, never in symbols: "plus, minus, blank, minus, plus 3 for Code: total 2 against 2".
+// The roll in words, never in symbols: "plus, minus, blank, minus, plus 3 for Code: total 2 against 2"; a roll under reads "4: total 4, needs 2 or under".
 function rollWords(info, meterId) {
   const dF = /dF$/i.test(info.dice);
   const faces = info.faces.map(f => dF ? (f > 0 ? "plus" : f < 0 ? "minus" : "blank") : String(f)).join(", ");
   const add = info.add ? `, ${info.add < 0 ? "minus" : "plus"} ${Math.abs(info.add)}${meterId ? " for " + meterLabel(meterId) : ""}` : "";
-  return `${faces}${add}: total ${spokenNum(info.total)} against ${info.vs}`;
+  return `${faces}${add}: total ${spokenNum(info.total)}${info.table ? "" : info.under ? `, needs ${info.vs} or under` : ` against ${info.vs}`}`;
 }
-const rollPlain = (info, meterId) => `${rollWords(info, meterId)}. ${resultWord(info.result)}`; // (announce() joins parts with ". ")
+const rollPlain = (info, meterId) => `${rollWords(info, meterId)}. ${resultOf(info)}`; // (announce() joins parts with ". ")
 function rollSlide(info, pending, meterId) {
   const dF = /dF$/i.test(info.dice);
   const dice = info.faces.map(f => `<span class="die ${pending ? "pending" : ""}" aria-hidden="true">${pending ? "?" : esc(faceText(info.dice, f))}</span>`).join("");
@@ -557,7 +562,7 @@ function rollSlide(info, pending, meterId) {
       <div class="tags">${gateTag("exec")}</div>
       <p class="roll-ask">The dice decide${dF ? " (four Fate dice)" : ""}</p>
       <div class="dice" role="img" aria-label="${esc(pending ? "Rolling" : rollWords(info, meterId))}">${dice}${pending ? "" : addHtml}</div>
-      <p class="roll-line ${pending ? "pending" : ""}" data-r="${pending ? "" : esc(info.result)}"><span class="rl-t" aria-hidden="true">${esc(text)}</span>${pending ? "" : `<span class="res">${esc(resultWord(info.result))}</span>`}</p></section>`);
+      <p class="roll-line ${pending ? "pending" : ""}" data-r="${pending ? "" : info.table ? "table" : esc(info.result)}"><span class="rl-t" aria-hidden="true">${esc(text)}</span>${pending ? "" : `<span class="res">${esc(resultOf(info))}</span>`}</p></section>`);
   return el(html);
 }
 
@@ -643,7 +648,7 @@ async function playCue(c, ctx) {
       ctx.say.push("Fate point spent");
       break;
     case "roll": {
-      const info = { dice: c.dice, faces: c.faces, total: c.total, add: c.add, vs: c.vs, result: c.result, used: c.used };
+      const info = { dice: c.dice, faces: c.faces, total: c.total, add: c.add, vs: c.vs, under: c.under, table: c.table, label: c.label, result: c.result, used: c.used };
       const mid = rollMeter(info, ctx.pickRef, v);
       const sl = rollSlide(info, !reduced, mid);
       V.rollEl = sl;
@@ -1135,7 +1140,7 @@ function cardText() {
   const lines = [PACK.title + (PACK.subtitle ? " — " + PACK.subtitle : "")];
   const fields = v ? v.fields : {};
   for (const side of ["front", "back"]) {
-    const list = FIELDS.filter(f => (f.side || "front") === side);
+    const list = CARD_FIELDS.filter(f => (f.side || "front") === side);
     if (!list.length) continue;
     lines.push("", side === "front" ? "Front" : "Back");
     for (const f of list) lines.push(`${f.label}: ${fields[f.id] ? fields[f.id] : "—"}`);
@@ -1152,12 +1157,12 @@ function cardText() {
 function renderCard() {
   const v = V.view, fields = v ? v.fields : {};
   const face = side => {
-    const list = FIELDS.filter(f => (f.side || "front") === side);
+    const list = CARD_FIELDS.filter(f => (f.side || "front") === side);
     if (!list.length) return "";
     return `<div class="facing"><h3>${side === "front" ? "Front" : "Back"}</h3><dl class="kv">${list.map(f => `<dt>${esc(f.label)}</dt><dd>${fields[f.id] ? esc(fields[f.id]) : '<span class="none">—</span>'}</dd>`).join("")}</dl></div>`;
   };
   const text = cardText();
-  $("body-card").innerHTML = `${FIELDS.length ? face("front") + face("back") : "<p>This story has no card fields.</p>"}
+  $("body-card").innerHTML = `${CARD_FIELDS.length ? face("front") + face("back") : "<p>This story has no card fields.</p>"}
     <label for="cardText" class="vlist-h" style="display:block">Card as text</label>
     <textarea class="asText" id="cardText" readonly>${esc(text)}</textarea>
     <div class="row" style="margin-top:0"><button type="button" class="btn primary" id="copyBtn">Copy as text</button></div>`;
@@ -1411,8 +1416,8 @@ function boot() {
     // The run is fixed only if at least one valid tier is left.
     if (f != null && f !== "") {
       const toks = f.split(",").map(x => x.trim()).filter(Boolean);
-      V.force = toks.filter(x => TIERS.includes(x));
-      V.forceIgnored = toks.filter(x => !TIERS.includes(x));
+      V.force = toks.filter(isTier);
+      V.forceIgnored = toks.filter(x => !isTier(x));
       if (V.force.length) V.seedFixed = true;
     }
   } catch (e) {}

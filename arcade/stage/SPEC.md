@@ -24,6 +24,8 @@ stage/
   packs/test/            a fixture that uses every feature, paper kit
   packs/test-feed/       the same fixture in the feed kit and fate4df
   packs/magic-module/    the OSR pack: the elf cleric
+  packs/two-in-six/      the OSR pack: the elven thief (wave 5)
+  packs/spring-turn/     the OSR pack: the gnome druid (wave 5)
   test.mjs               Playwright, every built pack
   dist/                  built files (committed, as in crawler/)
 ```
@@ -59,7 +61,7 @@ The HTLL repository vendors `engine/`, `ui/`, `tools/`, `SPEC.md`, `MOTION.md`, 
 - A meter that is bad when it rises (stress, exposure) has `"bad": true`; its rises play as `cost`.
 - `kit` is `paper` or `feed`. `resolver` is `ose` (dN notation) or `fate4df`.
 - `storageKey` starts with `fort-stage.` in this repository and with `htll.` in HTLL; the usual key is `fort-stage.<id>` here and `htll.stage.<id>` there. The vendored fixtures (`test`, `test-feed`) keep `fort-stage.` in both.
-- `fields` are the card the player carries away; `side` is `front` (the default) or `back`, the face of the card in the Card sheet. `tallies` maps each tally to its allowed values (a map, never a list of ids); a choice adds to one value (the Lens: hymn, machine). `validate` rejects any other value.
+- `fields` are the card the player carries away; `side` is `front` (the default) or `back`, the face of the card in the Card sheet. A field with `"hidden": true` is the story's working memory (a choice a later scene reads, cleared when it is spent): the card and its text never show it. Unlike a flag, a field can be cleared, so routes that differ only in spent memory merge. `tallies` maps each tally to its allowed values (a map, never a list of ids); a choice adds to one value (the Lens: hymn, machine). `validate` rejects any other value.
 - `commentary.kinds` lists the note kinds a `comment` may use; `validate` rejects any other kind. A note shown in the track also joins the Notes sheet.
 - **`look` is the witness register, not the art style.** `paint` means witnessed (cue `bloom`); `ink` means unwitnessed (cue `ink`). The art style of a set (Elmore or Otus) is named in the set brief and drawn by the kit; an Otus interior can be witnessed.
 
@@ -94,7 +96,7 @@ The HTLL repository vendors `engine/`, `ui/`, `tools/`, `SPEC.md`, `MOTION.md`, 
 **Option**: `key`, `label`, optional `sub` (the mechanical effect in plain words: shown under the label), `when` (hidden when false), `lock` with `hint` (greyed while the condition is false, with the hint shown), `effects`, `then` (beats played after the pick), `to` (leave the scene now: a scene id or an ending id), `roll`, `input`.
 
 - `gate` is `plan`, `exec` or `fate`. A `plan` pick can be changed by going back. An `exec` or `fate` pick cannot. This is the Planning/Execution gate; the view shows it, and the first `exec` group in a pack must carry a `rule` note in its `notes` that teaches it (`validate` checks this).
-- `roll`: `{ "dice": "2d6" | "1d20" | "3d6" | "4dF", "add": "<meter id>", "vs": n, "results": { "fail": {…}, "success": {…}, "style": {…} } }`. Each result is `{ "effects", "then" }`. `ose` reads `fail`/`success` (meet or beat `vs`). `fate4df` reads `fail` (below `vs`), `tie` (equal, falls back to `fail` if absent), `success`, `style` (`vs` + 3 or more, falls back to `success`).
+- `roll`: `{ "dice": "2d6" | "1d6" | "1d12" | "1d20" | "1d100" | "3d6" | "4dF" (any NdM), "add": "<meter id>", "vs": n, "results": { "fail": {…}, "success": {…}, "style": {…} } }`. Each result is `{ "effects", "then" }`. `ose` reads `fail`/`success` (meet or beat `vs`; with `"under": true`, roll `vs` or less, as B/X rolls "2-in-6" or a thief's percentage on `1d6` or `1d100`; a bonus to an under roll raises `vs`, so it is a second option or a `when`, never `add`). A **table roll** (`"table": true`, `ose` only, no `vs`, `add` or `under`) reads a result whose key is a face range, `"3"` or `"1-2"`, as a B/X table does: every total the dice can make is in exactly one range (`validate` checks), and each result may carry a `label` ("Stores +1") that the view shows in place of Success or Fail. `?force=` takes a range key as a tier. `fate4df` reads `fail` (below `vs`), `tie` (equal, falls back to `fail` if absent), `success`, `style` (`vs` + 3 or more, falls back to `success`).
 - `input`: `{ "field": "public", "prompt": "…", "max": 140 }`. The player types; the text goes to that card field. Simulation fills it with `"(typed)"`. No condition may read a field that an `input` writes; `validate` rejects it, because typed text cannot be explored.
 
 **Conditions** (`when`, `lock`, `route`): `{ "tally": "lens", "value": "machine", "gte": 1 }` (also `lte`; a count of one value), `{ "flag": "x" }`, `{ "field": "x", "is": "y" }`, `{ "meter": "fate", "gte": 1 }` (also `lte`), `{ "tally": "lens", "top": "machine" }` (that value leads or ties), `{ "all": [ … ] }`, `{ "any": [ … ] }`, `{ "not": cond }`.
@@ -155,7 +157,7 @@ Stage.check(pack)      // → { errors, warnings }
 
 `node` is `beat`, `choice`, `input`, `roll` or `ending`. Dice use mulberry32 seeded from `seed`; `?seed=N` sets it in the browser and the footer shows it.
 
-**Cues.** Each step returns `cues`, a list the view plays in order. A cue is an object with a `type` (the names below) and its fields: `turn {dir}`, `roll {dice, faces, total, add, vs, result, used}` (`used` is the result table read after the tie and style fallbacks), `cost`/`gain {meter, n}`, `tally {id, value}`. Within one step the order is: `seal`, `tear`, `roll`, `cost`/`gain`, `tally`, then `turn` or `shift`, then `ink`/`bloom`. `ink` and `bloom` fire on entering a scene and whenever a beat's effective look differs from the previous beat's, not on every beat; a revealed beat always fires `ink`, and the ink stays: the next beat compares its look with `ink`, so a paint beat after a reveal blooms again. The engine picks them from the data. Packs cannot pick a motion, so one motion always means one thing:
+**Cues.** Each step returns `cues`, a list the view plays in order. A cue is an object with a `type` (the names below) and its fields: `turn {dir}`, `roll {dice, faces, total, add, vs, under, table, label, result, used}` (`used` is the result table read after the tie and style fallbacks), `cost`/`gain {meter, n}`, `tally {id, value}`. Within one step the order is: `seal`, `tear`, `roll`, `cost`/`gain`, `tally`, then `turn` or `shift`, then `ink`/`bloom`. `ink` and `bloom` fire on entering a scene and whenever a beat's effective look differs from the previous beat's, not on every beat; a revealed beat always fires `ink`, and the ink stays: the next beat compares its look with `ink`, so a paint beat after a reveal blooms again. The engine picks them from the data. Packs cannot pick a motion, so one motion always means one thing:
 
 | Cue | Fires when | Means, and nothing else |
 |-----|-----------|-------------------------|

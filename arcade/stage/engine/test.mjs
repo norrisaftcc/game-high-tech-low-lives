@@ -107,6 +107,58 @@ test("ose: success meets or beats vs; both results occur; faces are valid dice",
   assert.ok(seen.fail > 10 && seen.success > 10, JSON.stringify(seen));
 });
 
+test("ose under: success on vs or less (2-in-6, a percentage); simulate and force reach both tiers", () => {
+  const pack = rollPack("ose", "1d6", 2, { fail: { then: [{ text: "F" }] }, success: { then: [{ text: "S" }] } });
+  pack.script.scenes[0].choices[0].options[0].roll.under = true;
+  const seen = { fail: 0, success: 0 };
+  for (let s = 1; s <= 200; s++) {
+    const v = rollOnce(pack, s);
+    assert.equal(v.roll.result, v.roll.total <= 2 ? "success" : "fail");
+    assert.equal(v.roll.under, true);
+    seen[v.roll.result]++;
+  }
+  assert.ok(seen.fail > seen.success && seen.success > 20, JSON.stringify(seen));
+  const pct = rollPack("ose", "1d100", 20, { fail: {}, success: {} });
+  pct.script.scenes[0].choices[0].options[0].roll.under = true;
+  for (const tier of ["success", "fail"]) {
+    const v = atChoice(pct, { seed: 5, force: [tier] }).choose("go");
+    assert.equal(v.roll.result, tier);
+    assert.ok(tier === "success" ? v.roll.total <= 20 : v.roll.total > 20, String(v.roll.total));
+  }
+  assert.deepEqual(Object.keys(Stage.simulate(pct).endings).length > 0, true);
+  assert.ok(!Stage.validate(pct).some(e => /under/.test(e)));
+  const bad = edit(pct, p => { p.script.scenes[0].choices[0].options[0].roll.under = "yes"; });
+  assert.ok(Stage.validate(bad).some(e => /roll.under must be true or false/.test(e)));
+  const fate = rollPack("fate4df", "4dF", 1, { fail: {}, success: {} });
+  fate.script.scenes[0].choices[0].options[0].roll.under = true;
+  assert.ok(Stage.validate(fate).some(e => /roll.under is for ose rolls only/.test(e)));
+});
+
+test("ose table: the result is the face range holding the total; validate checks coverage", () => {
+  const results = { "1-2": { label: "Stores -1" }, "3-4": { label: "Stores +1" }, "5-6": { label: "Stores +2" } };
+  const pack = rollPack("ose", "1d6", 0, results);
+  const o = pack.script.scenes[0].choices[0].options[0];
+  o.roll.table = true; delete o.roll.vs; delete o.roll.add;
+  const seen = {};
+  for (let s = 1; s <= 120; s++) {
+    const v = rollOnce(pack, s);
+    const want = v.roll.total <= 2 ? "1-2" : v.roll.total <= 4 ? "3-4" : "5-6";
+    assert.equal(v.roll.result, want);
+    assert.equal(v.roll.label, results[want].label);
+    seen[want] = 1;
+  }
+  assert.equal(Object.keys(seen).length, 3);
+  for (const k of Object.keys(results)) assert.equal(atChoice(pack, { seed: 9, force: [k] }).choose("go").roll.result, k);
+  assert.equal(Number(Stage.simulate(pack).paths), 3); // one branch per range
+  assert.ok(!Stage.validate(pack).some(e => /table/.test(e)), Stage.validate(pack).join("; "));
+  const gap = edit(pack, p => { const r = p.script.scenes[0].choices[0].options[0].roll.results; delete r["3-4"]; r["3"] = {}; });
+  assert.ok(Stage.validate(gap).some(e => /the total 4 is in 0 results/.test(e)));
+  const over = edit(pack, p => { p.script.scenes[0].choices[0].options[0].roll.results["2-3"] = {}; });
+  assert.ok(Stage.validate(over).some(e => /the total 2 is in 2 results/.test(e)));
+  const added = edit(pack, p => { p.script.scenes[0].choices[0].options[0].roll.add = 1; });
+  assert.ok(Stage.validate(added).some(e => /a table roll takes no add/.test(e)));
+});
+
 test("ose: add reads a meter, a field, or a number", () => {
   for (const [add, expect] of [["lamp", 2], [5, 5], ["f", 4]]) {
     const pack = edit(rollPack("ose", "1d20", 10, { fail: {}, success: {} }, add), p => { p.script.scenes[0].choices[0].options[0].effects = [{ set: { f: "4" } }]; });
